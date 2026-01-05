@@ -209,6 +209,26 @@
     }
   }
 
+  @keyframes rollIn {
+    0% {
+      opacity: 0;
+      transform: translateX(-300px) rotate(-360deg);
+    }
+    16.67% {
+      opacity: 1;
+      transform: translateX(0) rotate(0deg);
+    }
+    16.68% {
+      transform: translateX(0) rotate(0deg);
+    }
+    83.33% {
+      transform: translateX(0) rotate(1800deg);
+    }
+    100% {
+      transform: translateX(0) rotate(1800deg);
+    }
+  }
+
   .animate-gradient-shift {
     background-size: 200% auto;
     animation: gradient-shift 3s ease infinite;
@@ -241,6 +261,10 @@
 
   .animate-pulse-glow {
     animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  .animate-roll-in {
+    animation: rollIn 3s linear forwards;
   }
 
   /* Initial hidden state */
