@@ -264,7 +264,7 @@
   }
 
   .animate-roll-in {
-    animation: rollIn 3s linear forwards;
+    animation: rollIn 1.5s linear forwards;
   }
 
   /* Initial hidden state */

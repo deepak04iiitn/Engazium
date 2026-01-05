@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Instagram, Twitter, Linkedin } from 'lucide-react';
 
 export default function Footer() {
@@ -8,14 +9,14 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
-            <div className="flex items-center space-x-2 mb-4">
+            <Link href="/home" className="flex items-center space-x-2 mb-4 cursor-pointer">
               <img 
                 src="/Engazium_Logo.png" 
                 alt="Engazium Logo" 
                 className="w-16 h-16 object-contain"
               />
               <span className="text-xl font-bold text-gray-900 dark:text-white">Engazium</span>
-            </div>
+            </Link>
             <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
               The engagement & reach hub for creators. Build engagement. Expand reach.
             </p>

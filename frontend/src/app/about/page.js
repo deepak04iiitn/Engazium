@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Target, Users, Zap, Heart, TrendingUp, Award, Lightbulb, Shield } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import Header from '@/components/Header';
@@ -53,6 +54,17 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+      <Helmet>
+        <title>About Us - Engazium | Empowering Small & Early Creators</title>
+        <meta 
+          name="description" 
+          content="Learn about Engazium's mission to empower small and early creators through authentic engagement. Discover our values, story, and commitment to building genuine community connections." 
+        />
+        <meta 
+          name="keywords" 
+          content="Engazium, about us, small creators, early creators, authentic engagement, creator community, social media growth, content creators, creator platform" 
+        />
+      </Helmet>
       <Header />
       
       {/* Hero Section */}

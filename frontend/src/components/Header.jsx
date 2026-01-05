@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Menu, X, Sun, Moon } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 
@@ -13,14 +14,14 @@ export default function Header() {
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
+          <Link href="/home" className="flex items-center space-x-2 cursor-pointer">
             <img 
               src="/Engazium_Logo.png" 
               alt="Engazium Logo" 
               className="w-16 h-16 object-contain"
             />
             <span className="text-xl font-bold text-gray-900 dark:text-white">Engazium</span>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
