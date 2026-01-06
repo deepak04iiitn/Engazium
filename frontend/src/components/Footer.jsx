@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
-            <Link href="/home" className="flex items-center space-x-2 mb-4 cursor-pointer">
+            <Link href="/" className="flex items-center space-x-2 mb-4 cursor-pointer">
               <img 
                 src="/Engazium_Logo.png" 
                 alt="Engazium Logo" 
