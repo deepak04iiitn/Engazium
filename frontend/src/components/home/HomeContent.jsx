@@ -3,6 +3,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import HeroSection from '@/components/home/HeroSection';
+import TargetAudienceSection from '@/components/home/TargetAudienceSection';
 import TestimonialsSection from '@/components/home/TestimonialsSection';
 import PricingSection from '@/components/home/PricingSection';
 import CTASection from '@/components/home/CTASection';
@@ -24,6 +25,7 @@ export default function HomeContent() {
         />
       </Helmet>
       <HeroSection />
+      <TargetAudienceSection />
       <ProblemSection />
       <SolutionSection />
       <TestimonialsSection />

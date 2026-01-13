@@ -33,7 +33,7 @@ export default function HeroSection() {
           <div className={`${heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} transition-all duration-1000 text-center lg:text-left`}>
             <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full mb-6 sm:mb-8 shadow-sm">
               <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-indigo-600 dark:text-indigo-400" />
-              <span className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">Trusted by 10K+ creators</span>
+              <span className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">Trusted by 10K+ micro-creators</span>
             </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-slate-900 dark:text-white mb-4 sm:mb-6 leading-tight tracking-tight">
@@ -42,7 +42,7 @@ export default function HeroSection() {
             </h1>
             
             <p className="text-base sm:text-lg lg:text-xl text-slate-600 dark:text-slate-400 mb-6 sm:mb-8 lg:mb-10 leading-relaxed max-w-lg mx-auto lg:mx-0">
-              Join authentic creator communities. Get real engagement. Build meaningful reach. No bots, no spam—just genuine support.
+              Join authentic micro-creators communities. Get real engagement. Build meaningful reach. No bots, no spam - just genuine support.
             </p>
             
             <div className="flex flex-col sm:flex-row flex-wrap justify-center lg:justify-start gap-3 sm:gap-4">
@@ -66,7 +66,7 @@ export default function HeroSection() {
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-2">{creatorsCount}K+</div>
-                    <div className="text-sm sm:text-base text-slate-600 dark:text-slate-400 font-medium">Active Creators</div>
+                    <div className="text-sm sm:text-base text-slate-600 dark:text-slate-400 font-medium">Active micro-creators</div>
                   </div>
                   <div className="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Users className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-600 dark:text-indigo-400" />

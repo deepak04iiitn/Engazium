@@ -8,7 +8,7 @@ export default function SolutionSection() {
   const [solutionRef, solutionVisible] = useScrollAnimation({ threshold: 0.1 });
 
   const features = [
-    { icon: Users, title: 'Niche Squads', desc: 'Join groups of 10-30 creators in your field who share similar audiences and goals', number: '01' },
+    { icon: Users, title: 'Niche Squads', desc: 'Join groups of 10-30 micro-creators in your field who share similar audiences and goals', number: '01' },
     { icon: Shield, title: 'Safe Engagement', desc: 'Manual, time-distributed interactions that platforms love and reward', number: '02' },
     { icon: Award, title: 'Real Growth', desc: 'Track weekly metrics and watch your organic reach expand sustainably', number: '03' }
   ];
@@ -23,7 +23,7 @@ export default function SolutionSection() {
     { 
       title: 'Join Squad', 
       icon: UserPlus,
-      desc: 'Connect with like-minded creators',
+      desc: 'Connect with like-minded micro-creators',
       bgColor: 'bg-indigo-500'
     },
     { 
