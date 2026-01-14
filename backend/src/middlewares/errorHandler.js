@@ -8,6 +8,11 @@ export const errorHandler = (statusCode , message) => {
 
 export const globalErrorHandler = (err , req , res , next) => {
 
+    if(!err) {
+        err = new Error('Internal server error');
+        err.statusCode = 500;
+    }
+
     err.statusCode = err.statusCode || 500;
     err.message = err.message || 'Internal server error';
 

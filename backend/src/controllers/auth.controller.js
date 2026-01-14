@@ -1,5 +1,10 @@
 import { errorHandler } from "../middlewares/errorHandler.js";
 import User from "../models/user.model.js";
+import jwt from 'jsonwebtoken';
+import bcryptjs from 'bcryptjs';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export const signup = async(req , res , next) => {
 
