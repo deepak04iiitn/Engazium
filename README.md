@@ -1,7 +1,7 @@
 # Engazium
 
 <p align="center">
-  <img src="src/assets/Engazium_Logo.png" alt="Engazium Logo" width="80" />
+  <img src="client/src/assets/Engazium_Logo.png" alt="Engazium Logo" width="80" />
 </p>
 
 <p align="center">
