@@ -6,13 +6,14 @@ import { Button } from "@/components/ui/button";
 
 const plans = [
   {
-    name: "Starter Squad",
+    name: "Core",
     size: "10 Members",
     price: "₹50",
     period: "/month",
-    description: "Focused, high-quality engagement without overload.",
+    description: "Perfect for creators starting their engagement journey.",
     features: [
-      "10-member niche squad",
+      "Up to 10 members per squad",
+      "1 post per day per person",
       "Credit-based engagement system",
       "Meaningful comment guidelines",
       "Weekly progress tracking",
@@ -21,20 +22,37 @@ const plans = [
     popular: false,
   },
   {
-    name: "Growth Squad",
+    name: "Growth",
     size: "20 Members",
     price: "₹100",
     period: "/month",
-    description: "Wider early engagement for frequent posters.",
+    description: "Ideal for active creators who post frequently.",
     features: [
-      "20-member niche squad",
+      "Up to 20 members per squad",
+      "2 posts per day per person",
       "Credit-based engagement system",
       "Meaningful comment guidelines",
-      "Weekly progress tracking",
       "Priority squad matching",
       "Advanced engagement analytics",
     ],
     popular: true,
+  },
+  {
+    name: "Momentum",
+    size: "30 Members",
+    price: "₹150",
+    period: "/month",
+    description: "Maximum reach for power creators and brands.",
+    features: [
+      "Up to 30 members per squad",
+      "3 posts per day per person",
+      "Credit-based engagement system",
+      "Meaningful comment guidelines",
+      "Priority squad matching",
+      "Advanced engagement analytics",
+      "Dedicated support",
+    ],
+    popular: false,
   },
 ];
 
@@ -62,7 +80,7 @@ const PricingSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
           {plans.map((plan, index) => (
             <motion.div
               key={plan.name}

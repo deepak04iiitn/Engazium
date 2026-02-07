@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import logo from "@/assets/Engazium_Logo.png";
 
 const navLinks = [
+  { label: "About Us", href: "/about" },
   { label: "How It Works", href: "#how-it-works" },
   { label: "Features", href: "#features" },
   { label: "Pricing", href: "#pricing" },
@@ -24,7 +25,7 @@ const Navbar = () => {
       className="fixed top-0 left-0 right-0 z-50 glass-strong"
     >
       <div className="container mx-auto flex items-center justify-between px-6 py-4">
-        <a href="#" className="flex items-center gap-2">
+        <a href="/" className="flex items-center gap-2">
           <Image
             src={logo}
             alt="Engazium"
@@ -47,7 +48,7 @@ const Navbar = () => {
               {link.label}
             </a>
           ))}
-          <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10">
+          <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10 hover:text-primary">
             Log In
           </Button>
           <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box">
@@ -85,7 +86,7 @@ const Navbar = () => {
                 </a>
               ))}
               <div className="flex flex-col gap-3 pt-2">
-                <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10 w-full">
+                <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10 hover:text-primary w-full">
                   Log In
                 </Button>
                 <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full">

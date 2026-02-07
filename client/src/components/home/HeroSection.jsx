@@ -78,7 +78,7 @@ const HeroSection = () => {
           <Button
             size="lg"
             variant="outline"
-            className="border-border/50 text-foreground hover:bg-secondary/50 text-base px-8 py-6 rounded-xl font-heading"
+            className="border-border/50 text-foreground hover:bg-secondary/50 hover:text-foreground text-base px-8 py-6 rounded-xl font-heading"
           >
             See How It Works
           </Button>

@@ -12,7 +12,7 @@ const faqs = [
   {
     question: "What exactly is an engagement squad?",
     answer:
-      "An engagement squad is a group of 10–20 creators in the same niche who agree to engage with each other's content shortly after posting. This early engagement signals to social media algorithms that your content is valuable, boosting its organic reach.",
+      "An engagement squad is a group of 10–30 creators in the same niche who agree to engage with each other's content shortly after posting. This early engagement signals to social media algorithms that your content is valuable, boosting its organic reach.",
   },
   {
     question: "Is this safe for my social media account?",
@@ -37,12 +37,12 @@ const faqs = [
   {
     question: "How much does it cost?",
     answer:
-      "We offer two plans: Starter Squad at ₹50/month (one squad, one platform) and Growth Squad at ₹100/month (up to three squads, multi-platform support, plus weekly analytics). Both plans come with a free trial so you can experience the growth before committing.",
+      "We offer three plans: Core at ₹50/month (10-member squad, 1 post/day), Growth at ₹100/month (20-member squad, 2 posts/day), and Momentum at ₹150/month (30-member squad, 3 posts/day). All plans come with a free trial so you can experience the growth before committing.",
   },
   {
     question: "Can I switch squads or niches?",
     answer:
-      "Yes! You can switch squads during your billing cycle. Growth plan members can join up to three squads simultaneously across different niches or platforms.",
+      "Yes! You can switch squads during your billing cycle. Higher-tier plans (Growth and Momentum) offer priority squad matching to help you find the best fit across different niches or platforms.",
   },
   {
     question: "What if someone in my squad doesn't engage?",

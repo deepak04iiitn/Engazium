@@ -4,8 +4,18 @@ import logo from "@/assets/Engazium_Logo.png";
 
 const footerLinks = {
   Product: ["How It Works", "Features", "Pricing", "Squads"],
-  Company: ["About", "Blog", "Careers", "Contact"],
-  Support: ["Help Center", "Community", "Guidelines", "Safety"],
+  Company: [
+    { label: "About", href: "/about" },
+    { label: "Blog", href: "#" },
+    { label: "Careers", href: "#" },
+    { label: "Contact", href: "#" },
+  ],
+  Support: [
+    { label: "Help Center", href: "#" },
+    { label: "Community", href: "#" },
+    { label: "Guidelines", href: "#" },
+    { label: "Safety", href: "#" },
+  ],
 };
 
 const Footer = () => {
@@ -15,7 +25,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-12">
           {/* Brand */}
           <div className="md:col-span-2">
-            <div className="flex items-center gap-2 mb-4">
+            <a href="/" className="flex items-center gap-2 mb-4">
               <Image
                 src={logo}
                 alt="Engazium"
@@ -25,7 +35,7 @@ const Footer = () => {
               <span className="font-heading text-xl font-bold text-foreground">
                 Engazium
               </span>
-            </div>
+            </a>
             <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mb-6">
               The engagement & reach hub for creators. Build engagement, expand reach, grow together.
             </p>
@@ -49,16 +59,20 @@ const Footer = () => {
                 {category}
               </h4>
               <ul className="space-y-3">
-                {links.map((link) => (
-                  <li key={link}>
-                    <a
-                      href="#"
-                      className="text-muted-foreground text-sm hover:text-primary transition-colors"
-                    >
-                      {link}
-                    </a>
-                  </li>
-                ))}
+                {links.map((link) => {
+                  const label = typeof link === "string" ? link : link.label;
+                  const href = typeof link === "string" ? "#" : link.href;
+                  return (
+                    <li key={label}>
+                      <a
+                        href={href}
+                        className="text-muted-foreground text-sm hover:text-primary transition-colors"
+                      >
+                        {label}
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
