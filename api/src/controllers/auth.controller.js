@@ -41,7 +41,7 @@ export const signin = async(req , res , next) => {
     }
 
     try {
-        const validUser = await User.findOne({ email });
+        const validUser = await User.findOne({ email }).select('+password');
 
         if(!validUser) {
             return next(errorHandler(404 , 'Invalid credentials'));

@@ -5,7 +5,7 @@ import logo from "@/assets/Engazium_Logo.png";
 const footerLinks = {
   Product: ["How It Works", "Features", "Pricing", "Squads"],
   Company: [
-    { label: "About", href: "/about" },
+    { label: "About", href: "/about-us" },
     { label: "Blog", href: "#" },
     { label: "Careers", href: "#" },
     { label: "Contact", href: "#" },
