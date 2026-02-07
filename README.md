@@ -60,15 +60,31 @@ Engazium matches creators into **niche-based squads** where everyone contributes
 
 ## Tech Stack
 
+### Frontend (`client/`)
+
 | Technology | Purpose |
 |------------|---------|
-| **Next.js 16** | React framework with App Router |
+| **Next.js 16** | React framework with App Router & React Compiler |
 | **React 19** | UI library |
 | **Tailwind CSS 4** | Utility-first CSS framework |
 | **shadcn/ui** | Accessible component library built on Radix UI |
 | **Framer Motion** | Animation library |
 | **Lucide React** | Icon library |
 | **class-variance-authority** | Variant styling for components |
+| **react-hot-toast** | Toast notification library |
+| **tailwind-merge** | Utility for merging Tailwind classes |
+
+### Backend (`api/`)
+
+| Technology | Purpose |
+|------------|---------|
+| **Express 5** | Node.js web framework |
+| **MongoDB + Mongoose 9** | NoSQL database & ODM |
+| **JSON Web Tokens** | Stateless authentication (JWT) |
+| **bcryptjs** | Password hashing |
+| **CORS** | Cross-origin resource sharing middleware |
+| **dotenv** | Environment variable management |
+| **nodemon** | Auto-restart dev server on file changes |
 
 ---
 
@@ -76,36 +92,54 @@ Engazium matches creators into **niche-based squads** where everyone contributes
 
 ```
 engazium/
-├── src/
-│   ├── app/
-│   │   ├── globals.css          # Global styles & CSS variables
-│   │   ├── layout.js            # Root layout
-│   │   ├── page.js              # Entry point
-│   │   └── home/
-│   │       └── page.jsx         # Home page
-│   ├── assets/
-│   │   ├── Engazium_Logo.png    # Brand logo
-│   │   └── hero-bg.jpg          # Hero background image
-│   ├── components/
-│   │   ├── Navbar.jsx           # Navigation bar
-│   │   ├── Footer.jsx           # Footer
-│   │   ├── home/
-│   │   │   ├── HeroSection.jsx
-│   │   │   ├── ProblemSection.jsx
-│   │   │   ├── HowItWorksSection.jsx
-│   │   │   ├── FeaturesSection.jsx
-│   │   │   ├── PricingSection.jsx
-│   │   │   ├── TestimonialsSection.jsx
-│   │   │   ├── FAQSection.jsx
-│   │   │   └── CTASection.jsx
-│   │   └── ui/                  # shadcn/ui components
-│   │       ├── accordion.jsx
-│   │       ├── avatar.jsx
-│   │       └── button.jsx
-│   └── lib/
-│       └── utils.js             # Utility functions (cn helper)
-├── components.json              # shadcn/ui configuration
-├── package.json
+├── api/                              # Backend API server
+│   ├── src/
+│   │   ├── index.js                  # Express app entry point
+│   │   ├── config/
+│   │   │   └── db.js                 # MongoDB connection setup
+│   │   ├── controllers/
+│   │   │   └── auth.controller.js    # Auth logic (signup, signin, google, logout)
+│   │   ├── middlewares/
+│   │   │   ├── errorHandler.js       # Global error handler & error factory
+│   │   │   └── verifyUser.js         # JWT verification & admin guard
+│   │   ├── models/
+│   │   │   └── user.model.js         # User schema (niche, platforms, stats)
+│   │   └── routes/
+│   │       └── auth.route.js         # Auth route definitions
+│   └── package.json
+│
+├── client/                           # Frontend Next.js app
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── globals.css           # Global styles & CSS variables
+│   │   │   ├── layout.js             # Root layout (Geist fonts)
+│   │   │   ├── page.js               # Entry point
+│   │   │   └── home/
+│   │   │       └── page.jsx          # Home page
+│   │   ├── assets/
+│   │   │   ├── Engazium_Logo.png     # Brand logo
+│   │   │   └── hero-bg.jpg           # Hero background image
+│   │   ├── components/
+│   │   │   ├── Navbar.jsx            # Navigation bar
+│   │   │   ├── Footer.jsx            # Footer
+│   │   │   ├── home/
+│   │   │   │   ├── HeroSection.jsx
+│   │   │   │   ├── ProblemSection.jsx
+│   │   │   │   ├── HowItWorksSection.jsx
+│   │   │   │   ├── FeaturesSection.jsx
+│   │   │   │   ├── PricingSection.jsx
+│   │   │   │   ├── TestimonialsSection.jsx
+│   │   │   │   ├── FAQSection.jsx
+│   │   │   │   └── CTASection.jsx
+│   │   │   └── ui/                   # shadcn/ui components
+│   │   │       ├── accordion.jsx
+│   │   │       ├── avatar.jsx
+│   │   │       └── button.jsx
+│   │   └── lib/
+│   │       └── utils.js              # Utility functions (cn helper)
+│   ├── components.json               # shadcn/ui configuration
+│   └── package.json
+│
 └── README.md
 ```
 
@@ -117,6 +151,7 @@ engazium/
 
 - Node.js 18.17 or later
 - npm, yarn, or pnpm
+- MongoDB instance (local or [MongoDB Atlas](https://www.mongodb.com/atlas))
 
 ### Installation
 
@@ -127,36 +162,130 @@ engazium/
    cd engazium
    ```
 
-2. **Install dependencies**
+2. **Set up the backend**
 
    ```bash
+   cd api
    npm install
    ```
 
-3. **Run the development server**
+3. **Set up the frontend**
 
    ```bash
+   cd ../client
+   npm install
+   ```
+
+4. **Configure environment variables**
+
+   Create a `.env` file inside the `api/` directory (see [Environment Variables](#environment-variables) below).
+
+5. **Run the development servers**
+
+   In one terminal — start the API server:
+
+   ```bash
+   cd api
    npm run dev
    ```
 
-4. **Open in browser**
+   In another terminal — start the Next.js client:
 
-   Navigate to [http://localhost:3000](http://localhost:3000)
+   ```bash
+   cd client
+   npm run dev
+   ```
+
+6. **Open in browser**
+
+   Navigate to [http://localhost:3000](http://localhost:3000) for the frontend.
 
 ### Build for Production
 
+**Frontend:**
+
 ```bash
+cd client
 npm run build
+npm start
+```
+
+**Backend:**
+
+```bash
+cd api
 npm start
 ```
 
 ---
 
+## Environment Variables
+
+Create a `.env` file in the `api/` directory with the following variables:
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `PORT` | Port the API server listens on | `5000` |
+| `MONGO_URI` | MongoDB connection string | `mongodb+srv://user:pass@cluster.mongodb.net/engazium` |
+| `JWT_SECRET` | Secret key for signing JSON Web Tokens | `your-super-secret-key` |
+
+```env
+PORT=5000
+MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/engazium
+JWT_SECRET=your-super-secret-key
+```
+
+---
+
+## API Endpoints
+
+### Health Check
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/health` | Returns server status |
+
+### Authentication (`/api/auth`)
+
+| Method | Endpoint | Description | Body |
+|--------|----------|-------------|------|
+| `POST` | `/api/auth/signup` | Register a new user | `{ username, email, password }` |
+| `POST` | `/api/auth/signin` | Sign in with email & password | `{ email, password }` |
+| `POST` | `/api/auth/google` | Sign in / register via Google OAuth | `{ name, email }` |
+| `POST` | `/api/auth/logout` | Log out (clears access token cookie) | — |
+
+### Authentication Details
+
+- **Token**: JWT stored as an `httpOnly` cookie (`access_token`) with a 7-day expiry.
+- **Password Hashing**: Passwords are hashed with bcryptjs (10 salt rounds) before storage.
+- **Middleware**: `verifyToken` validates JWTs on protected routes; `verifyAdmin` checks admin privileges.
+
+---
+
+## User Model
+
+The User schema includes fields for creator profiling and squad matching:
+
+| Field | Type | Details |
+|-------|------|---------|
+| `username` | String | Required, unique, trimmed |
+| `email` | String | Required, unique, lowercase |
+| `password` | String | Required, hashed, excluded from queries by default |
+| `isUserAdmin` | Boolean | Default: `false` |
+| `niche` | String (enum) | 28 niches — Art & Creativity, Technology, Gaming, Education, etc. |
+| `platforms` | String[] (enum) | Instagram, YouTube, TikTok, Facebook, X, LinkedIn, Twitch, Snapchat, Other |
+| `numberOfFollowers` | Number | Default: `0` |
+| `avgLikes` | Number | Default: `0` |
+| `avgComments` | Number | Default: `0` |
+
+---
+
 ## Adding shadcn/ui Components
 
-This project is configured with shadcn/ui. To add more components:
+The client is configured with shadcn/ui. To add more components:
 
 ```bash
+cd client
 npx shadcn@latest add [component-name]
 ```
 
@@ -206,12 +335,21 @@ The project uses a custom dark theme with cyan/teal accent colors:
 
 ## Scripts
 
+### Frontend (`client/`)
+
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start development server |
+| `npm run dev` | Start Next.js development server |
 | `npm run build` | Build for production |
 | `npm start` | Start production server |
 | `npm run lint` | Run ESLint |
+
+### Backend (`api/`)
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start Express server with nodemon (auto-reload) |
+| `npm start` | Start Express server for production |
 
 ---
 
