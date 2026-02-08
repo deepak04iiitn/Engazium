@@ -13,6 +13,7 @@ import logo from "@/assets/Engazium_Logo.png";
 
 const navLinks = [
   { label: "About Us", href: "/about-us" },
+  { label: "Squads", href: "/squads" },
   { label: "How It Works", href: "#how-it-works" },
   { label: "Features", href: "#features" },
   { label: "Pricing", href: "#pricing" },
