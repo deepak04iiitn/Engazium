@@ -1,4 +1,7 @@
+"use client"
+
 import { Geist, Geist_Mono } from "next/font/google";
+import { usePathname } from "next/navigation";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -14,12 +17,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "Engazium | Build Engagement, Expand Reach",
-  description: "Build Engagement, Expand Reach",
-};
-
 export default function RootLayout({ children }) {
+  const pathname = usePathname();
+  
+  // Hide Navbar and Footer on dashboard routes
+  const isDashboardRoute = pathname?.startsWith('/dashboard') || pathname?.startsWith('/admin-dashboard');
+
   return (
     <html lang="en">
       <body
@@ -27,9 +30,9 @@ export default function RootLayout({ children }) {
       >
         <ReduxProvider>
           <div className="min-h-screen bg-background">
-            <Navbar />
+            {!isDashboardRoute && <Navbar />}
             <main>{children}</main>
-            <Footer />
+            {!isDashboardRoute && <Footer />}
           </div>
         </ReduxProvider>
       </body>

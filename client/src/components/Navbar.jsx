@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LogOut, User, ChevronDown } from "lucide-react";
+import { Menu, X, LogOut, User, ChevronDown, LayoutDashboard } from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutSuccess } from "@/redux/user/userSlice";
 import { Button } from "@/components/ui/button";
@@ -122,6 +122,14 @@ const Navbar = () => {
                         <User className="h-4 w-4 text-muted-foreground" />
                         My Profile
                       </Link>
+                      <Link
+                        href={currentUser.isUserAdmin ? "/admin-dashboard" : "/dashboard"}
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+                      >
+                        <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
+                        {currentUser.isUserAdmin ? "Admin Dashboard" : "Dashboard"}
+                      </Link>
                       <button
                         onClick={handleLogout}
                         className="flex items-center gap-2.5 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-colors w-full"
@@ -197,6 +205,12 @@ const Navbar = () => {
                       <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10 hover:text-primary w-full">
                         <User className="mr-1.5 h-4 w-4" />
                         My Profile
+                      </Button>
+                    </Link>
+                    <Link href={currentUser.isUserAdmin ? "/admin-dashboard" : "/dashboard"} onClick={() => setIsOpen(false)}>
+                      <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10 hover:text-primary w-full">
+                        <LayoutDashboard className="mr-1.5 h-4 w-4" />
+                        {currentUser.isUserAdmin ? "Admin Dashboard" : "Dashboard"}
                       </Button>
                     </Link>
                     <Button

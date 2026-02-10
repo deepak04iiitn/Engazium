@@ -1,0 +1,257 @@
+"use client"
+
+import { useState, useEffect } from "react";
+import {
+  Users,
+  DollarSign,
+  CreditCard,
+  Shield,
+  BarChart3,
+  Home,
+  LayoutDashboard,
+  Settings,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  Menu
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import logo from "@/assets/Engazium_Logo.png";
+
+const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth < 768) {
+        setIsOpen(false);
+      } else {
+        setIsOpen(true);
+      }
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, [setIsOpen]);
+
+  const navItems = [
+    { key: "overview", label: "Overview", icon: BarChart3 },
+    { key: "users", label: "All Users", icon: Users },
+    { key: "earnings", label: "Earnings", icon: DollarSign },
+    { key: "subscriptions", label: "Subscriptions", icon: CreditCard },
+    { key: "squads", label: "All Squads", icon: Shield },
+  ];
+
+  const bottomItems = [
+    { key: "home", label: "Home Website", icon: Home, href: "/" },
+    { key: "user-dashboard", label: "User View", icon: LayoutDashboard, href: "/dashboard" },
+  ];
+
+  return (
+    <>
+      {/* Mobile Overlay */}
+      <AnimatePresence>
+        {isMobile && isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Sidebar Container */}
+      <motion.aside
+        className={cn(
+          "fixed md:relative z-50 h-screen flex flex-col border-r border-indigo-500/10 bg-[#0f111a]/95 backdrop-blur-xl transition-all duration-300 ease-in-out",
+          isOpen ? "w-64" : "w-20",
+          !isOpen && isMobile && "-translate-x-full" 
+        )}
+      >
+        {/* Header */}
+        <div className="h-20 flex items-center px-4 border-b border-indigo-500/10">
+          <Link href="/" className="flex items-center gap-3 overflow-hidden ml-1">
+            <div className="relative h-10 w-10 shrink-0">
+              <Image 
+                src={logo} 
+                alt="Engazium" 
+                fill
+                className="object-contain"
+              />
+            </div>
+            <AnimatePresence>
+              {isOpen && (
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  className="flex flex-col whitespace-nowrap"
+                >
+                  <span className="font-heading text-lg font-bold text-indigo-400">
+                    Admin Panel
+                  </span>
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
+                    Management
+                  </span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </Link>
+        </div>
+
+        {/* Toggle Button (Desktop Only) */}
+        {!isMobile && (
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="absolute -right-3 top-24 h-6 w-6 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform z-50 border-2 border-[#0f111a]"
+          >
+            {isOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+          </button>
+        )}
+
+        {/* Navigation */}
+        <div className="flex-1 overflow-y-auto py-6 px-3 space-y-6 scrollbar-none">
+          {/* Main Group */}
+          <div>
+            <div className={cn(
+              "px-3 mb-2 text-xs font-semibold text-indigo-300/40 uppercase tracking-widest transition-opacity duration-300",
+              !isOpen && "opacity-0 text-center"
+            )}>
+              Admin Menu
+            </div>
+            <ul className="space-y-1">
+              {navItems.map((item) => (
+                <li key={item.key}>
+                  <button
+                    onClick={() => setActiveSection(item.key)}
+                    className={cn(
+                      "w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-300 group relative overflow-hidden",
+                      activeSection === item.key
+                        ? "bg-indigo-500/10 text-indigo-400 shadow-[0_0_20px_-5px_rgba(99,102,241,0.3)] border border-indigo-500/20"
+                        : "text-muted-foreground hover:text-white hover:bg-indigo-500/5"
+                    )}
+                  >
+                    {activeSection === item.key && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-indigo-500 rounded-r-full" />
+                    )}
+                    <item.icon
+                      className={cn(
+                        "h-5 w-5 shrink-0 transition-transform duration-300",
+                        activeSection === item.key ? "scale-110" : "group-hover:scale-110"
+                      )}
+                    />
+                    <AnimatePresence>
+                      {isOpen && (
+                        <motion.span
+                          initial={{ opacity: 0, width: 0 }}
+                          animate={{ opacity: 1, width: "auto" }}
+                          exit={{ opacity: 0, width: 0 }}
+                          className="font-medium whitespace-nowrap overflow-hidden"
+                        >
+                          {item.label}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                    
+                    {/* Tooltip for collapsed state */}
+                    {!isOpen && (
+                      <div className="absolute left-16 bg-popover text-popover-foreground px-2 py-1 rounded-md text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none shadow-md border border-border/50">
+                        {item.label}
+                      </div>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Shortcuts Group */}
+          <div>
+             <div className={cn(
+              "px-3 mb-2 text-xs font-semibold text-indigo-300/40 uppercase tracking-widest transition-opacity duration-300",
+              !isOpen && "opacity-0 text-center"
+            )}>
+              Shortcuts
+            </div>
+            <ul className="space-y-1">
+              {bottomItems.map((item) => (
+                <li key={item.key}>
+                  <Link
+                    href={item.href}
+                    className="w-full flex items-center gap-3 p-3 rounded-xl text-muted-foreground hover:text-white hover:bg-indigo-500/5 transition-all duration-300 group relative"
+                  >
+                    <item.icon className="h-5 w-5 shrink-0 group-hover:scale-110 transition-transform" />
+                    <AnimatePresence>
+                      {isOpen && (
+                        <motion.span
+                          initial={{ opacity: 0, width: 0 }}
+                          animate={{ opacity: 1, width: "auto" }}
+                          exit={{ opacity: 0, width: 0 }}
+                          className="font-medium whitespace-nowrap overflow-hidden"
+                        >
+                          {item.label}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                    
+                     {/* Tooltip for collapsed state */}
+                     {!isOpen && (
+                      <div className="absolute left-16 bg-popover text-popover-foreground px-2 py-1 rounded-md text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none shadow-md border border-border/50">
+                        {item.label}
+                      </div>
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-indigo-500/10 mt-auto">
+          <div className={cn(
+            "flex items-center gap-3 p-2 rounded-xl transition-all duration-300 border border-transparent",
+            isOpen ? "bg-indigo-950/20 border-indigo-500/10 hover:border-indigo-500/30" : "justify-center"
+          )}>
+            <div className="relative shrink-0">
+              <Avatar className="h-9 w-9 border-2 border-indigo-500/30">
+                <AvatarFallback className="bg-indigo-500/20 text-indigo-300 font-bold text-xs">AD</AvatarFallback>
+              </Avatar>
+              <div className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-indigo-500 border-2 border-background animate-pulse" />
+            </div>
+            
+            <AnimatePresence>
+              {isOpen && (
+                <motion.div
+                  initial={{ opacity: 0, width: 0 }}
+                  animate={{ opacity: 1, width: "auto" }}
+                  exit={{ opacity: 0, width: 0 }}
+                  className="flex-1 min-w-0 overflow-hidden"
+                >
+                  <p className="text-sm font-semibold truncate text-white">Admin User</p>
+                  <p className="text-xs text-indigo-300/70 truncate">Super Admin</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
+            {isOpen && (
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0">
+                <LogOut size={16} />
+              </Button>
+            )}
+          </div>
+        </div>
+      </motion.aside>
+    </>
+  );
+};
+
+export default AdminSidebar;
