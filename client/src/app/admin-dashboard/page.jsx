@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
   DollarSign,
@@ -22,7 +22,15 @@ import {
   UserCheck,
   UserX,
   ChevronRight,
-  Calendar
+  ChevronLeft,
+  Calendar,
+  Trash2,
+  ShieldCheck,
+  ShieldOff,
+  Loader2,
+  AlertTriangle,
+  RefreshCw,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -31,17 +39,16 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Menu } from "lucide-react";
 import AdminSidebar from "@/components/dashboard/AdminSidebar";
-
-const allUsers = [
-  { id: 1, name: "Alex Creator", email: "alex@example.com", niche: "Tech & SaaS", squads: 3, credits: 850, joined: "Jan 2026", status: "Active" },
-  { id: 2, name: "Priya Sharma", email: "priya@example.com", niche: "Fitness", squads: 2, credits: 420, joined: "Jan 2026", status: "Active" },
-  { id: 3, name: "Raj Patel", email: "raj@example.com", niche: "Finance", squads: 1, credits: 210, joined: "Feb 2026", status: "Active" },
-  { id: 4, name: "Maya Singh", email: "maya@example.com", niche: "Fashion", squads: 2, credits: 680, joined: "Jan 2026", status: "Active" },
-  { id: 5, name: "Arjun Dev", email: "arjun@example.com", niche: "Gaming", squads: 1, credits: 150, joined: "Feb 2026", status: "Inactive" },
-  { id: 6, name: "Neha Gupta", email: "neha@example.com", niche: "Food & Cooking", squads: 2, credits: 390, joined: "Jan 2026", status: "Active" },
-  { id: 7, name: "Karan Mehta", email: "karan@example.com", niche: "Travel", squads: 1, credits: 275, joined: "Feb 2026", status: "Active" },
-  { id: 8, name: "Simran Kaur", email: "simran@example.com", niche: "Art & Design", squads: 2, credits: 510, joined: "Jan 2026", status: "Active" },
-];
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const earnings = {
   lifetime: "₹1,24,500", thisMonth: "₹18,750", lastMonth: "₹15,200", growth: "+23.4%",
@@ -79,20 +86,131 @@ const sidebarItems = [
   { key: "squads", label: "All Squads", icon: Shield },
 ];
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
 const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState("overview");
   const [userSearch, setUserSearch] = useState("");
   const [subSearch, setSubSearch] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  const filteredUsers = allUsers.filter(
-    (u) => u.name.toLowerCase().includes(userSearch.toLowerCase()) || u.email.toLowerCase().includes(userSearch.toLowerCase())
-  );
+  // ── Users state (API-driven) ──
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [usersError, setUsersError] = useState(null);
+  const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalUsers: 0, hasNextPage: false, hasPrevPage: false });
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Delete dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  // User detail dialog state
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewUser, setViewUser] = useState(null);
+
+  // Toggle admin state
+  const [toggleAdminLoading, setToggleAdminLoading] = useState(null);
+
+  // Fetch users from API
+  const fetchUsers = useCallback(async (search = "", page = 1) => {
+    setUsersLoading(true);
+    setUsersError(null);
+    try {
+      const params = new URLSearchParams({ search, page: page.toString(), limit: "10" });
+      const res = await fetch(`${API_BASE}/api/admin/users?${params}`, { credentials: "include" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to fetch users");
+      setUsers(data.users);
+      setPagination(data.pagination);
+    } catch (err) {
+      setUsersError(err.message);
+      setUsers([]);
+    } finally {
+      setUsersLoading(false);
+    }
+  }, []);
+
+  // Initial fetch for overview stats
+  useEffect(() => {
+    fetchUsers("", 1);
+  }, [fetchUsers]);
+
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (activeSection === "users") {
+        setCurrentPage(1);
+        fetchUsers(userSearch, 1);
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [userSearch, activeSection, fetchUsers]);
+
+  // Fetch when page changes
+  useEffect(() => {
+    if (activeSection === "users") {
+      fetchUsers(userSearch, currentPage);
+    }
+  }, [currentPage, activeSection, fetchUsers]);
+
+  // Delete user handler
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    setDeleteLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/users/${userToDelete._id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to delete user");
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
+      fetchUsers(userSearch, currentPage);
+    } catch (err) {
+      setUsersError(err.message);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  // Toggle admin handler
+  const handleToggleAdmin = async (user) => {
+    setToggleAdminLoading(user._id);
+    try {
+      const res = await fetch(`${API_BASE}/api/admin/users/${user._id}/toggle-admin`, {
+        method: "PATCH",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to toggle admin");
+      fetchUsers(userSearch, currentPage);
+    } catch (err) {
+      setUsersError(err.message);
+    } finally {
+      setToggleAdminLoading(null);
+    }
+  };
+
+  // Format date helper
+  const formatJoinDate = (dateStr) => {
+    if (!dateStr) return "N/A";
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("en-IN", { month: "short", year: "numeric" });
+  };
+
+  // Get initials from username
+  const getInitials = (username) => {
+    if (!username) return "??";
+    return username.slice(0, 2).toUpperCase();
+  };
+
+  // Static data for other tabs (unchanged)
   const filteredSubs = adminSubscriptions.filter(
     (s) => s.user.toLowerCase().includes(subSearch.toLowerCase()) || s.squad.toLowerCase().includes(subSearch.toLowerCase())
   );
-
-  const activeUsers = allUsers.filter(u => u.status === "Active").length;
   const activeSubs = adminSubscriptions.filter(s => s.status === "Active").length;
 
   return (
@@ -153,7 +271,7 @@ const AdminDashboard = () => {
                 {/* Platform Stats */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {[
-                    { label: "Total Users", value: allUsers.length.toString(), icon: Users, color: "text-primary", trend: `${activeUsers} active`, up: true },
+                    { label: "Total Users", value: pagination.totalUsers.toString(), icon: Users, color: "text-primary", trend: `${pagination.totalUsers} registered`, up: true },
                     { label: "Lifetime Earnings", value: earnings.lifetime, icon: DollarSign, color: "text-primary", trend: earnings.growth, up: true },
                     { label: "Active Subscriptions", value: activeSubs.toString(), icon: CreditCard, color: "text-primary", trend: `${adminSubscriptions.length} total`, up: true },
                     { label: "Total Squads", value: adminSquads.length.toString(), icon: Shield, color: "text-primary", trend: `${adminSquads.filter(s => s.status === "Active").length} active`, up: true },
@@ -252,68 +370,305 @@ const AdminDashboard = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-2xl font-heading font-bold text-foreground mb-1">User Management</h2>
-                    <p className="text-muted-foreground text-sm">{allUsers.length} total users · {activeUsers} active</p>
+                    <p className="text-muted-foreground text-sm">
+                      {pagination.totalUsers} total users
+                    </p>
                   </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => fetchUsers(userSearch, currentPage)} 
+                    className="text-primary hover:bg-primary/10"
+                    disabled={usersLoading}
+                  >
+                    <RefreshCw className={`h-4 w-4 mr-2 ${usersLoading ? "animate-spin" : ""}`} />
+                    Refresh
+                  </Button>
                 </div>
 
                 <div className="relative">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input 
-                    placeholder="Search users by name or email..." 
+                    placeholder="Search users by name, email, or niche..." 
                     value={userSearch} 
                     onChange={(e) => setUserSearch(e.target.value)} 
                     className="pl-11 bg-card/50 border-border/50 rounded-xl h-12"
                   />
+                  {userSearch && (
+                    <button 
+                      onClick={() => setUserSearch("")} 
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
 
-                <div className="space-y-3">
-                  {filteredUsers.map((user, index) => (
-                    <motion.div 
-                      key={user.id} 
-                      initial={{ opacity: 0, y: 10 }} 
-                      animate={{ opacity: 1, y: 0 }} 
-                      transition={{ delay: index * 0.05 }} 
-                      className="glass rounded-2xl p-5 gradient-border hover:bg-card/60 transition-all group"
-                    >
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                        <Avatar className="h-12 w-12 border-2 border-primary/30 ring-2 ring-primary/10 shrink-0">
+                {/* Error State */}
+                {usersError && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10 }} 
+                    animate={{ opacity: 1, y: 0 }}
+                    className="glass rounded-2xl p-4 border border-destructive/30 bg-destructive/5"
+                  >
+                    <div className="flex items-center gap-3">
+                      <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
+                      <p className="text-destructive text-sm flex-1">{usersError}</p>
+                      <Button variant="ghost" size="sm" onClick={() => setUsersError(null)} className="text-destructive hover:bg-destructive/10">
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Loading State */}
+                {usersLoading && (
+                  <div className="flex flex-col items-center justify-center py-16 gap-4">
+                    <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                    <p className="text-muted-foreground text-sm">Loading users...</p>
+                  </div>
+                )}
+
+                {/* Empty State */}
+                {!usersLoading && !usersError && users.length === 0 && (
+                  <motion.div 
+                    initial={{ opacity: 0 }} 
+                    animate={{ opacity: 1 }}
+                    className="flex flex-col items-center justify-center py-16 gap-4"
+                  >
+                    <Users className="h-12 w-12 text-muted-foreground/50" />
+                    <p className="text-muted-foreground text-lg font-heading">No users found</p>
+                    <p className="text-muted-foreground/70 text-sm">
+                      {userSearch ? "Try adjusting your search query" : "No users have signed up yet"}
+                    </p>
+                  </motion.div>
+                )}
+
+                {/* Users List */}
+                {!usersLoading && users.length > 0 && (
+                  <div className="space-y-3">
+                    {users.map((user, index) => (
+                      <motion.div 
+                        key={user._id} 
+                        initial={{ opacity: 0, y: 10 }} 
+                        animate={{ opacity: 1, y: 0 }} 
+                        transition={{ delay: index * 0.05 }} 
+                        className="glass rounded-2xl p-5 gradient-border hover:bg-card/60 transition-all group"
+                      >
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                          <Avatar className="h-12 w-12 border-2 border-primary/30 ring-2 ring-primary/10 shrink-0">
+                            <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-heading text-sm font-bold">
+                              {getInitials(user.username)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <h3 className="font-heading font-semibold text-foreground truncate">{user.username}</h3>
+                              {user.isUserAdmin && (
+                                <Badge className="text-xs bg-amber-500/20 text-amber-400 border-amber-500/30">
+                                  <ShieldCheck className="h-3 w-3 mr-1" />
+                                  Admin
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                              <span>{user.email}</span>
+                              <span>·</span>
+                              <span>{user.niche || "Other"}</span>
+                              <span>·</span>
+                              <span>Joined {formatJoinDate(user.createdAt)}</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-6 text-center">
+                            <div>
+                              <div className="text-foreground font-heading font-bold text-lg">{user.numberOfFollowers?.toLocaleString() || 0}</div>
+                              <div className="text-muted-foreground text-xs">Followers</div>
+                            </div>
+                            <div>
+                              <div className="text-foreground font-heading font-bold text-lg">{user.platforms?.length || 0}</div>
+                              <div className="text-muted-foreground text-xs">Platforms</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-primary hover:bg-primary/10"
+                              onClick={() => { setViewUser(user); setViewDialogOpen(true); }}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-amber-400 hover:bg-amber-500/10"
+                              onClick={() => handleToggleAdmin(user)}
+                              disabled={toggleAdminLoading === user._id}
+                            >
+                              {toggleAdminLoading === user._id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : user.isUserAdmin ? (
+                                <ShieldOff className="h-4 w-4" />
+                              ) : (
+                                <ShieldCheck className="h-4 w-4" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-destructive hover:bg-destructive/10"
+                              onClick={() => { setUserToDelete(user); setDeleteDialogOpen(true); }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Pagination */}
+                {!usersLoading && pagination.totalPages > 1 && (
+                  <div className="flex items-center justify-between pt-4">
+                    <p className="text-muted-foreground text-sm">
+                      Page {pagination.currentPage} of {pagination.totalPages} · {pagination.totalUsers} users
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                        disabled={!pagination.hasPrevPage}
+                        className="text-primary hover:bg-primary/10"
+                      >
+                        <ChevronLeft className="h-4 w-4 mr-1" />
+                        Previous
+                      </Button>
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => {
+                          let pageNum;
+                          if (pagination.totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= pagination.totalPages - 2) {
+                            pageNum = pagination.totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+                          return (
+                            <Button
+                              key={pageNum}
+                              variant={pageNum === currentPage ? "default" : "ghost"}
+                              size="sm"
+                              onClick={() => setCurrentPage(pageNum)}
+                              className={pageNum === currentPage ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-primary/10"}
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        })}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setCurrentPage(p => Math.min(pagination.totalPages, p + 1))}
+                        disabled={!pagination.hasNextPage}
+                        className="text-primary hover:bg-primary/10"
+                      >
+                        Next
+                        <ChevronRight className="h-4 w-4 ml-1" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Delete Confirmation Dialog */}
+                <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                  <AlertDialogContent className="glass border-border/50">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="font-heading text-foreground">Delete User</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to delete <span className="font-semibold text-foreground">{userToDelete?.username}</span>?
+                        This action cannot be undone and will permanently remove this user from the platform.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel disabled={deleteLoading}>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeleteUser}
+                        disabled={deleteLoading}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        {deleteLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                        Delete User
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+
+                {/* View User Detail Dialog */}
+                <AlertDialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+                  <AlertDialogContent className="glass border-border/50 max-w-lg">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="font-heading text-foreground flex items-center gap-3">
+                        <Avatar className="h-10 w-10 border-2 border-primary/30">
                           <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-heading text-sm font-bold">
-                            {user.name.split(" ").map(n => n[0]).join("")}
+                            {getInitials(viewUser?.username)}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-heading font-semibold text-foreground truncate">{user.name}</h3>
-                            <Badge className={`text-xs ${user.status === "Active" ? "bg-primary/20 text-primary border-primary/30" : "bg-secondary text-muted-foreground"}`}>
-                              {user.status === "Active" ? <UserCheck className="h-3 w-3 mr-1" /> : <UserX className="h-3 w-3 mr-1" />}
-                              {user.status}
-                            </Badge>
+                        {viewUser?.username}
+                        {viewUser?.isUserAdmin && (
+                          <Badge className="text-xs bg-amber-500/20 text-amber-400 border-amber-500/30">Admin</Badge>
+                        )}
+                      </AlertDialogTitle>
+                      <AlertDialogDescription asChild>
+                        <div className="space-y-4 pt-2">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-secondary/30 rounded-xl p-3">
+                              <div className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Email</div>
+                              <div className="text-foreground text-sm font-medium truncate">{viewUser?.email}</div>
+                            </div>
+                            <div className="bg-secondary/30 rounded-xl p-3">
+                              <div className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Niche</div>
+                              <div className="text-foreground text-sm font-medium">{viewUser?.niche || "Other"}</div>
+                            </div>
+                            <div className="bg-secondary/30 rounded-xl p-3">
+                              <div className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Followers</div>
+                              <div className="text-foreground text-sm font-medium">{viewUser?.numberOfFollowers?.toLocaleString() || 0}</div>
+                            </div>
+                            <div className="bg-secondary/30 rounded-xl p-3">
+                              <div className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Avg Likes</div>
+                              <div className="text-foreground text-sm font-medium">{viewUser?.avgLikes?.toLocaleString() || 0}</div>
+                            </div>
+                            <div className="bg-secondary/30 rounded-xl p-3">
+                              <div className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Avg Comments</div>
+                              <div className="text-foreground text-sm font-medium">{viewUser?.avgComments?.toLocaleString() || 0}</div>
+                            </div>
+                            <div className="bg-secondary/30 rounded-xl p-3">
+                              <div className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Joined</div>
+                              <div className="text-foreground text-sm font-medium">{formatJoinDate(viewUser?.createdAt)}</div>
+                            </div>
                           </div>
-                          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                            <span>{user.email}</span>
-                            <span>·</span>
-                            <span>{user.niche}</span>
-                            <span>·</span>
-                            <span>Joined {user.joined}</span>
-                          </div>
+                          {viewUser?.platforms?.length > 0 && (
+                            <div>
+                              <div className="text-muted-foreground text-xs uppercase tracking-wider mb-2">Platforms</div>
+                              <div className="flex flex-wrap gap-2">
+                                {viewUser.platforms.map((p) => (
+                                  <Badge key={p} className="text-xs bg-primary/20 text-primary border-primary/30">{p}</Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <div className="flex gap-6 text-center">
-                          <div>
-                            <div className="text-foreground font-heading font-bold text-lg">{user.squads}</div>
-                            <div className="text-muted-foreground text-xs">Squads</div>
-                          </div>
-                          <div>
-                            <div className="text-foreground font-heading font-bold text-lg">{user.credits}</div>
-                            <div className="text-muted-foreground text-xs">Credits</div>
-                          </div>
-                        </div>
-                        <Button variant="ghost" size="sm" className="text-primary hover:bg-primary/10 shrink-0">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Close</AlertDialogCancel>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             )}
 
