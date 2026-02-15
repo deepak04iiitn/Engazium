@@ -6,7 +6,6 @@ import {
   MessageCircle,
   Bookmark,
   Send,
-  Coins,
   TrendingUp,
   Eye,
   Clock,
@@ -14,6 +13,9 @@ import {
   CheckCircle2,
   Crown,
   Instagram,
+  AlertTriangle,
+  Activity,
+  ExternalLink,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -21,16 +23,16 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 
 const demoMembers = [
-  { name: "Aisha K.", handle: "@aisha.creates", initials: "AK", credits: 42, role: "admin" },
-  { name: "Rohan M.", handle: "@rohan.tech", initials: "RM", credits: 38, role: "member" },
-  { name: "Priya S.", handle: "@priya.fit", initials: "PS", credits: 35, role: "member" },
-  { name: "Dev P.", handle: "@dev.codes", initials: "DP", credits: 31, role: "member" },
-  { name: "Neha T.", handle: "@neha.design", initials: "NT", credits: 28, role: "member" },
-  { name: "Arjun R.", handle: "@arjun.vlogs", initials: "AR", credits: 25, role: "member" },
-  { name: "Kavya L.", handle: "@kavya.writes", initials: "KL", credits: 22, role: "member" },
-  { name: "Sami J.", handle: "@sami.shots", initials: "SJ", credits: 19, role: "member" },
-  { name: "Meera D.", handle: "@meera.cooks", initials: "MD", credits: 16, role: "member" },
-  { name: "Vikram B.", handle: "@vikram.travel", initials: "VB", credits: 14, role: "member" },
+  { name: "Aisha K.", handle: "@aisha.creates", initials: "AK", engagement: 95, role: "admin" },
+  { name: "Rohan M.", handle: "@rohan.tech", initials: "RM", engagement: 88, role: "member" },
+  { name: "Priya S.", handle: "@priya.fit", initials: "PS", engagement: 82, role: "member" },
+  { name: "Dev P.", handle: "@dev.codes", initials: "DP", engagement: 76, role: "member" },
+  { name: "Neha T.", handle: "@neha.design", initials: "NT", engagement: 71, role: "member" },
+  { name: "Arjun R.", handle: "@arjun.vlogs", initials: "AR", engagement: 65, role: "member" },
+  { name: "Kavya L.", handle: "@kavya.writes", initials: "KL", engagement: 58, role: "member" },
+  { name: "Sami J.", handle: "@sami.shots", initials: "SJ", engagement: 45, role: "member" },
+  { name: "Meera D.", handle: "@meera.cooks", initials: "MD", engagement: 34, role: "member" },
+  { name: "Vikram B.", handle: "@vikram.travel", initials: "VB", engagement: 22, role: "member" },
 ];
 
 const demoFeed = [
@@ -39,8 +41,9 @@ const demoFeed = [
     initials: "AK",
     handle: "@aisha.creates",
     time: "2 min ago",
-    content: "Just posted a new reel on productivity tools for creators 🚀 Would love your thoughts!",
-    engagements: { likes: 8, comments: 6, saves: 3 },
+    caption: "Just posted a new reel on productivity tools for creators 🚀 Would love your thoughts!",
+    link: "https://instagram.com/p/example1",
+    engagements: 8,
     status: "active",
   },
   {
@@ -48,8 +51,9 @@ const demoFeed = [
     initials: "RM",
     handle: "@rohan.tech",
     time: "15 min ago",
-    content: "Carousel on '5 AI tools every creator needs' is live. Engage when you can — no rush 🙌",
-    engagements: { likes: 10, comments: 7, saves: 5 },
+    caption: "Carousel on '5 AI tools every creator needs' is live. Engage when you can — no rush 🙌",
+    link: "https://instagram.com/p/example2",
+    engagements: 10,
     status: "completed",
   },
   {
@@ -57,8 +61,9 @@ const demoFeed = [
     initials: "PS",
     handle: "@priya.fit",
     time: "1 hr ago",
-    content: "New workout transformation post up! Engaging with everyone's content today 💪",
-    engagements: { likes: 9, comments: 8, saves: 4 },
+    caption: "New workout transformation post up! Engaging with everyone's content today 💪",
+    link: "https://instagram.com/p/example3",
+    engagements: 9,
     status: "completed",
   },
 ];
@@ -72,6 +77,18 @@ const fadeUp = {
 
 const DemoSquadSection = () => {
   const [activeTab, setActiveTab] = useState("feed");
+
+  const getEngagementColor = (pct) => {
+    if (pct >= 70) return "text-primary";
+    if (pct >= 30) return "text-amber-400";
+    return "text-destructive";
+  };
+
+  const getEngagementBg = (pct) => {
+    if (pct >= 70) return "bg-primary/20 text-primary border-primary/30";
+    if (pct >= 30) return "bg-amber-400/20 text-amber-400 border-amber-400/30";
+    return "bg-destructive/20 text-destructive border-destructive/30";
+  };
 
   return (
     <section className="relative py-24 overflow-hidden">
@@ -90,7 +107,7 @@ const DemoSquadSection = () => {
             <span className="text-gradient">Squad Dashboard</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Here's what it looks like when you're part of a squad. Real engagement, real creators, real growth.
+            Here&apos;s what it looks like when you&apos;re part of a squad. Real engagement, real creators, real growth.
           </p>
         </motion.div>
 
@@ -114,21 +131,21 @@ const DemoSquadSection = () => {
                     <h3 className="font-heading font-bold text-foreground text-lg">Tech Creators Hub</h3>
                     <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px]">
                       <Crown className="h-2.5 w-2.5 mr-1" />
-                      Starter
+                      Growth
                     </Badge>
                   </div>
-                  <p className="text-muted-foreground text-xs">Tech & SaaS · 10 Members · Instagram</p>
+                  <p className="text-muted-foreground text-xs">Technology · 10 Members · Instagram · 1 post/day</p>
                 </div>
               </div>
               <div className="flex items-center gap-6">
                 <div className="text-center">
-                  <div className="text-foreground font-heading font-bold text-lg">42</div>
-                  <div className="text-muted-foreground text-[10px] uppercase tracking-wider">Your Credits</div>
+                  <div className="text-primary font-heading font-bold text-lg">82%</div>
+                  <div className="text-muted-foreground text-[10px] uppercase tracking-wider">Your Engagement</div>
                 </div>
                 <div className="text-center">
                   <div className="text-primary font-heading font-bold text-lg flex items-center gap-1">
                     <TrendingUp className="h-3.5 w-3.5" />
-                    4.2%
+                    74%
                   </div>
                   <div className="text-muted-foreground text-[10px] uppercase tracking-wider">Avg Eng</div>
                 </div>
@@ -197,42 +214,38 @@ const DemoSquadSection = () => {
                             </div>
                           </div>
                           <p className="text-secondary-foreground text-sm leading-relaxed mb-3">
-                            {post.content}
+                            {post.caption}
                           </p>
-                          <div className="flex items-center gap-5">
-                            <button className="flex items-center gap-1.5 text-muted-foreground hover:text-red-400 transition-colors text-xs">
-                              <Heart className="h-3.5 w-3.5" />
-                              <span>{post.engagements.likes}</span>
-                            </button>
-                            <button className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors text-xs">
-                              <MessageCircle className="h-3.5 w-3.5" />
-                              <span>{post.engagements.comments}</span>
-                            </button>
-                            <button className="flex items-center gap-1.5 text-muted-foreground hover:text-amber-400 transition-colors text-xs">
-                              <Bookmark className="h-3.5 w-3.5" />
-                              <span>{post.engagements.saves}</span>
-                            </button>
-                            <button className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors text-xs ml-auto">
-                              <Send className="h-3.5 w-3.5" />
-                              <span>Engage</span>
-                            </button>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Activity className="h-3.5 w-3.5" />
+                              <span>{post.engagements} engagements</span>
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-primary/30 text-primary hover:bg-primary/10 rounded-lg text-xs h-8 px-3"
+                            >
+                              <ExternalLink className="h-3 w-3 mr-1.5" />
+                              Engage
+                            </Button>
                           </div>
                         </div>
                       </div>
                     </motion.div>
                   ))}
 
-                  {/* Credit Earned Toast */}
+                  {/* Engagement Info Toast */}
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.5 }}
                     className="flex items-center gap-3 bg-primary/10 border border-primary/30 rounded-xl px-4 py-3"
                   >
-                    <Coins className="h-5 w-5 text-primary flex-shrink-0" />
+                    <TrendingUp className="h-5 w-5 text-primary flex-shrink-0" />
                     <div>
-                      <p className="text-sm font-heading font-semibold text-foreground">+3 Credits Earned Today</p>
-                      <p className="text-xs text-muted-foreground">You engaged with 3 squad posts. Keep it up!</p>
+                      <p className="text-sm font-heading font-semibold text-foreground">Your Engagement: 82%</p>
+                      <p className="text-xs text-muted-foreground">You engaged with 7 out of 9 squad posts this week. Keep it up!</p>
                     </div>
                   </motion.div>
                 </div>
@@ -270,9 +283,12 @@ const DemoSquadSection = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Coins className="h-3.5 w-3.5 text-primary" />
-                        <span className="font-heading font-bold text-foreground text-sm">{member.credits}</span>
-                        <span className="text-muted-foreground text-[10px]">credits</span>
+                        {member.engagement < 30 && (
+                          <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
+                        )}
+                        <Badge className={`${getEngagementBg(member.engagement)} text-xs font-heading font-bold`}>
+                          {member.engagement}%
+                        </Badge>
                       </div>
                     </motion.div>
                   ))}
@@ -287,8 +303,8 @@ const DemoSquadSection = () => {
                     {[
                       { label: "Total Engagements", value: "284", change: "+12%", icon: Heart },
                       { label: "Avg Reach Boost", value: "3.2x", change: "+0.4x", icon: TrendingUp },
-                      { label: "Comments Given", value: "67", change: "+8", icon: MessageCircle },
-                      { label: "Credits Circulated", value: "312", change: "+45", icon: Coins },
+                      { label: "Squad Avg Eng", value: "74%", change: "+5%", icon: Activity },
+                      { label: "Active Members", value: "8/10", change: "", icon: Users },
                     ].map((stat, index) => (
                       <motion.div
                         key={stat.label}
@@ -302,7 +318,9 @@ const DemoSquadSection = () => {
                         <div className="text-muted-foreground text-[10px] uppercase tracking-wider mb-1">
                           {stat.label}
                         </div>
-                        <span className="text-primary text-xs font-medium">{stat.change}</span>
+                        {stat.change && (
+                          <span className="text-primary text-xs font-medium">{stat.change}</span>
+                        )}
                       </motion.div>
                     ))}
                   </div>
@@ -350,7 +368,7 @@ const DemoSquadSection = () => {
                     className="bg-secondary/30 rounded-xl p-5 border border-border/20"
                   >
                     <h4 className="font-heading font-semibold text-foreground text-sm mb-4">
-                      Top Contributors This Week
+                      Top Engagers This Week
                     </h4>
                     <div className="space-y-3">
                       {demoMembers.slice(0, 5).map((member, index) => (
@@ -374,9 +392,9 @@ const DemoSquadSection = () => {
                           <span className="font-heading font-medium text-foreground text-sm flex-1">
                             {member.name}
                           </span>
-                          <span className="text-primary text-xs font-heading font-bold">
-                            {member.credits} credits
-                          </span>
+                          <Badge className={`${getEngagementBg(member.engagement)} text-xs font-heading font-bold`}>
+                            {member.engagement}%
+                          </Badge>
                         </div>
                       ))}
                     </div>
@@ -394,7 +412,7 @@ const DemoSquadSection = () => {
             transition={{ delay: 0.8 }}
             className="text-center text-muted-foreground/60 text-xs mt-4 italic"
           >
-            ✦ This is a demo preview — actual squads feature real-time engagement from verified creators.
+            ✦ This is a demo preview — actual squads feature real-time engagement tracking from verified creators.
           </motion.p>
         </motion.div>
       </div>

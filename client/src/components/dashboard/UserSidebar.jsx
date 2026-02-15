@@ -5,14 +5,14 @@ import {
   Home,
   User,
   Users,
-  CreditCard,
   BarChart3,
   LogOut,
   Settings,
   HelpCircle,
   ChevronLeft,
   ChevronRight,
-  LayoutDashboard
+  LayoutDashboard,
+  Plus,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutSuccess } from "@/redux/user/userSlice";
 import { motion, AnimatePresence } from "framer-motion";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/Engazium_Logo.png";
@@ -61,12 +61,13 @@ const UserSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) => 
     { key: "overview", label: "Overview", icon: LayoutDashboard },
     { key: "profile", label: "Profile", icon: User },
     { key: "squads", label: "My Squads", icon: Users },
-    { key: "subscriptions", label: "Subscriptions", icon: CreditCard },
+    { key: "create-squad", label: "Create Squad", icon: Plus },
     { key: "analytics", label: "Analytics", icon: BarChart3 },
   ];
 
   const bottomItems = [
     { key: "home", label: "Home Website", icon: Home, href: "/" },
+    { key: "browse", label: "Browse Squads", icon: Users, href: "/squads" },
     { key: "settings", label: "Settings", icon: Settings },
     { key: "help", label: "Help Center", icon: HelpCircle },
   ];
