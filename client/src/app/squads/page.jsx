@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
   Users,
   Shield,
   Zap,
   Target,
-  Clock,
   Award,
   ChevronRight,
   Search,
@@ -19,6 +18,15 @@ import {
   TrendingUp,
   CheckCircle2,
   Plus,
+  Grid3x3,
+  List,
+  SlidersHorizontal,
+  X,
+  ChevronLeft,
+  ChevronRight as ChevronRightIcon,
+  ChevronsLeft,
+  ChevronsRight,
+  LayoutGrid,
 } from "lucide-react";
 import Link from "next/link";
 import { useSelector } from "react-redux";
@@ -42,38 +50,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import DemoSquadSection from "@/components/squads/DemoSquadSection";
 
-const formationSteps = [
-  {
-    step: 1,
-    title: "Choose Your Niche",
-    description:
-      "Select your content niche, platform, and follower range. We match you with creators who share your audience.",
-    icon: Target,
-  },
-  {
-    step: 2,
-    title: "Pick Your Squad Plan",
-    description:
-      "Growth (1 post/day), Pro (2 posts/day), or Momentum (3 posts/day) — choose based on your posting frequency.",
-    icon: Users,
-  },
-  {
-    step: 3,
-    title: "Join Instantly",
-    description:
-      "Click to join any open squad. No payments, no credits — just tap Join and you're in.",
-    icon: Zap,
-  },
-  {
-    step: 4,
-    title: "Engage & Grow",
-    description:
-      "Engage with squad posts authentically. Your engagement percentage drives accountability — stay active or get warned.",
-    icon: Award,
-  },
-];
+
 
 const niches = [
   "Technology",
@@ -117,12 +95,24 @@ const fadeUp = {
 
 const Squads = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedNiche, setSelectedNiche] = useState(null);
+  const [selectedNiches, setSelectedNiches] = useState([]);
+  const [selectedPlans, setSelectedPlans] = useState([]);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [memberRangeFilter, setMemberRangeFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("members");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(12);
+  const [viewMode, setViewMode] = useState("list");
+  const [showFilters, setShowFilters] = useState(true);
   const [squads, setSquads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [joiningId, setJoiningId] = useState(null);
   const { currentUser } = useSelector((state) => state.user);
   const router = useRouter();
+
+  const [totalResults, setTotalResults] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   // Create Squad State
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -138,21 +128,39 @@ const Squads = () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
+      
+      // Pagination
+      params.set("page", currentPage.toString());
+      params.set("limit", pageSize.toString());
+      
+      // Search
       if (searchQuery) params.set("search", searchQuery);
-      if (selectedNiche) params.set("niche", selectedNiche);
-      params.set("limit", "30");
+      
+      // Multi-select filters (comma-separated)
+      if (selectedNiches.length > 0) params.set("niches", selectedNiches.join(","));
+      if (selectedPlans.length > 0) params.set("plans", selectedPlans.join(","));
+      
+      // Single-select filters
+      if (statusFilter && statusFilter !== "all") params.set("status", statusFilter);
+      if (memberRangeFilter && memberRangeFilter !== "all") params.set("memberRange", memberRangeFilter);
+      
+      // Sorting
+      params.set("sortBy", sortBy);
+      params.set("sortOrder", sortOrder);
 
       const res = await fetch(`/api/squads?${params.toString()}`);
       const data = await res.json();
       if (data.success) {
         setSquads(data.squads);
+        setTotalResults(data.pagination.total);
+        setTotalPages(data.pagination.totalPages);
       }
     } catch (err) {
       console.error("Failed to fetch squads:", err);
     } finally {
       setLoading(false);
     }
-  }, [searchQuery, selectedNiche]);
+  }, [currentPage, pageSize, searchQuery, selectedNiches, selectedPlans, statusFilter, memberRangeFilter, sortBy, sortOrder]);
 
   useEffect(() => {
     const debounce = setTimeout(() => {
@@ -160,6 +168,39 @@ const Squads = () => {
     }, 300);
     return () => clearTimeout(debounce);
   }, [fetchSquads]);
+
+  // Reset to page 1 when filters change (but not when page changes)
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedNiches, selectedPlans, statusFilter, memberRangeFilter, sortBy, sortOrder, pageSize]);
+
+  // Helper functions
+  const toggleNiche = (niche) => {
+    setSelectedNiches((prev) =>
+      prev.includes(niche) ? prev.filter((n) => n !== niche) : [...prev, niche]
+    );
+  };
+
+  const togglePlan = (plan) => {
+    setSelectedPlans((prev) =>
+      prev.includes(plan) ? prev.filter((p) => p !== plan) : [...prev, plan]
+    );
+  };
+
+  const clearAllFilters = () => {
+    setSelectedNiches([]);
+    setSelectedPlans([]);
+    setStatusFilter("all");
+    setMemberRangeFilter("all");
+    setSearchQuery("");
+  };
+
+  const activeFilterCount = 
+    selectedNiches.length + 
+    selectedPlans.length + 
+    (statusFilter !== "all" ? 1 : 0) + 
+    (memberRangeFilter !== "all" ? 1 : 0) +
+    (searchQuery ? 1 : 0);
 
   const handleJoinSquad = async (squadId) => {
     if (!currentUser) {
@@ -279,84 +320,12 @@ const Squads = () => {
                   <Plus className="mr-2 h-4 w-4" />
                   Create Squad
                 </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-primary/30 text-primary hover:bg-primary/10 rounded-xl px-8 font-heading font-semibold"
-                  onClick={() =>
-                    document
-                      .getElementById("demo-squad")
-                      ?.scrollIntoView({ behavior: "smooth" })
-                  }
-                >
-                  <Eye className="mr-2 h-4 w-4" />
-                  See Demo
-                </Button>
               </div>
             </motion.div>
           </div>
         </section>
 
-        {/* How Squad Formation Works */}
-        <section className="relative py-24 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/5 to-background" />
 
-          <div className="container relative z-10 mx-auto px-6">
-            <motion.div {...fadeUp} className="text-center mb-16">
-              <span className="text-primary font-heading text-sm font-semibold uppercase tracking-wider">
-                Squad Formation
-              </span>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-3 mb-4">
-                How Squads{" "}
-                <span className="text-gradient">Come Together</span>
-              </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-                Four simple steps from sign-up to your first squad engagement.
-              </p>
-            </motion.div>
-
-            <div className="max-w-4xl mx-auto">
-              {formationSteps.map((step, index) => (
-                <motion.div
-                  key={step.step}
-                  initial={{ opacity: 0, x: index % 2 === 0 ? -30 : 30 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="relative flex items-start gap-6 mb-12 last:mb-0"
-                >
-                  {index < formationSteps.length - 1 && (
-                    <div className="absolute left-7 top-16 w-px h-[calc(100%-2rem)] bg-gradient-to-b from-primary/40 to-transparent" />
-                  )}
-
-                  <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-primary/10 border border-primary/30 flex items-center justify-center relative z-10">
-                    <step.icon className="h-6 w-6 text-primary" />
-                  </div>
-
-                  <div className="glass rounded-2xl p-6 gradient-border flex-1 group hover:bg-card/60 transition-all duration-300">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-primary font-heading font-bold text-sm">
-                        Step {step.step}
-                      </span>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                      <h3 className="font-heading font-semibold text-foreground text-lg">
-                        {step.title}
-                      </h3>
-                    </div>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {step.description}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Demo Squad Section */}
-        <div id="demo-squad">
-          <DemoSquadSection />
-        </div>
 
         {/* Browse Squads */}
         <section id="browse-squads" className="relative py-24 overflow-hidden">
@@ -364,6 +333,7 @@ const Squads = () => {
           <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[120px]" />
 
           <div className="container relative z-10 mx-auto px-6">
+            {/* Header */}
             <motion.div {...fadeUp} className="text-center mb-12">
               <span className="text-primary font-heading text-sm font-semibold uppercase tracking-wider">
                 Explore
@@ -377,261 +347,602 @@ const Squads = () => {
               </p>
             </motion.div>
 
-            {/* Filters */}
-            <motion.div {...fadeUp} className="max-w-4xl mx-auto mb-8">
-              <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search squads..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-card/50 border-border/50 rounded-xl"
-                  />
-                </div>
-                <Button
-                  variant="outline"
-                  className="border-border/50 text-muted-foreground hover:text-primary hover:border-primary/30 rounded-xl gap-2"
-                  onClick={() => setSelectedNiche(null)}
-                >
-                  <Filter className="h-4 w-4" />
-                  {selectedNiche || "All Niches"}
-                </Button>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {niches.map((niche) => (
-                  <button
-                    key={niche}
-                    onClick={() =>
-                      setSelectedNiche(selectedNiche === niche ? null : niche)
-                    }
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${
-                      selectedNiche === niche
-                        ? "bg-primary/20 text-primary border border-primary/40"
-                        : "bg-secondary/50 text-muted-foreground border border-border/30 hover:border-primary/30 hover:text-primary"
-                    }`}
-                  >
-                    {niche}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Loading State */}
-            {loading && (
-              <div className="flex justify-center py-12">
-                <Loader2 className="h-8 w-8 text-primary animate-spin" />
-              </div>
-            )}
-
-            {/* Squad Grid */}
-            {!loading && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                {squads.map((squad, index) => (
-                  <motion.div
-                    key={squad._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ duration: 0.4, delay: index * 0.08 }}
-                    className="glass rounded-2xl p-6 gradient-border group hover:bg-card/60 transition-all duration-300"
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="font-heading font-semibold text-foreground text-base">
-                          {squad.name}
-                        </h3>
-                        <p className="text-muted-foreground text-xs mt-0.5">
-                          {squad.niche}{squad.platform ? ` · ${squad.platform}` : ""}
-                        </p>
-                      </div>
-                      <Badge
-                        variant={
-                          squad.status === "Recruiting" ? "default" : "secondary"
-                        }
-                        className={`text-[10px] ${
-                          squad.status === "Recruiting"
-                            ? "bg-primary/20 text-primary border-primary/30"
-                            : "bg-secondary text-muted-foreground"
-                        }`}
+            {/* Main Content Area */}
+            <div className="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto">
+              {/* Filter Sidebar */}
+              <motion.div 
+                {...fadeUp}
+                className={`lg:w-80 flex-shrink-0 transition-all duration-300 ${
+                  showFilters ? "block" : "hidden lg:block"
+                }`}
+              >
+                <div className="glass rounded-2xl p-6 gradient-border sticky top-6">
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-2">
+                      <SlidersHorizontal className="h-5 w-5 text-primary" />
+                      <h3 className="font-heading font-semibold text-lg">Filters</h3>
+                    </div>
+                    {activeFilterCount > 0 && (
+                      <button
+                        onClick={clearAllFilters}
+                        className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-1"
                       >
-                        {squad.status}
-                      </Badge>
-                    </div>
+                        <X className="h-3 w-3" />
+                        Clear All
+                      </button>
+                    )}
+                  </div>
 
-                    <div className="grid grid-cols-3 gap-3 mb-5">
-                      <div className="text-center">
-                        <div className="text-foreground font-heading font-bold text-lg">
-                          {squad.memberCount}/{squad.maxMembers}
-                        </div>
-                        <div className="text-muted-foreground text-[10px] uppercase tracking-wider">
-                          Members
-                        </div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-foreground font-heading font-bold text-lg flex items-center justify-center gap-1">
-                          <TrendingUp className="h-3.5 w-3.5 text-primary" />
-                          {squad.avgEngagement || 0}%
-                        </div>
-                        <div className="text-muted-foreground text-[10px] uppercase tracking-wider">
-                          Avg Eng
-                        </div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-foreground font-heading font-bold text-lg flex items-center justify-center gap-1">
-                          {getPlanIcon(squad.plan)}
-                          {squad.plan}
-                        </div>
-                        <div className="text-muted-foreground text-[10px] uppercase tracking-wider">
-                          {getPlanPostLimit(squad.plan)} post/day
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mb-5">
-                      <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-primary to-primary/60 rounded-full transition-all duration-500"
-                          style={{
-                            width: `${(squad.memberCount / squad.maxMembers) * 100}%`,
-                          }}
-                        />
-                      </div>
-                      <p className="text-muted-foreground text-[10px] mt-1.5">
-                        {squad.maxMembers - squad.memberCount} spots remaining
+                  {/* Active Filters Count */}
+                  {activeFilterCount > 0 && (
+                    <div className="mb-4 px-3 py-2 bg-primary/10 border border-primary/20 rounded-lg">
+                      <p className="text-xs text-primary font-medium">
+                        {activeFilterCount} filter{activeFilterCount > 1 ? "s" : ""} active
                       </p>
                     </div>
+                  )}
 
-                    <Button
-                      size="sm"
-                      className={`w-full rounded-xl font-heading font-semibold ${
-                        squad.status === "Recruiting"
-                          ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                          : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                      }`}
-                      disabled={squad.status !== "Recruiting" || joiningId === squad._id}
-                      onClick={() => handleJoinSquad(squad._id)}
-                    >
-                      {joiningId === squad._id ? (
-                        <>
-                          <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                          Joining...
-                        </>
-                      ) : squad.status === "Recruiting" ? (
-                        <>
-                          Join Squad
-                          <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-                        </>
-                      ) : (
-                        <span>Squad Full</span>
-                      )}
-                    </Button>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-
-            {!loading && squads.length === 0 && (
-              <div className="text-center py-12">
-                <Users className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-                <p className="text-muted-foreground font-heading font-medium">
-                  No squads found
-                </p>
-                <p className="text-muted-foreground/70 text-sm mt-1">
-                  {searchQuery || selectedNiche
-                    ? "Try a different niche or search term"
-                    : "Be the first to create a squad from your dashboard!"}
-                </p>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Safety Section */}
-        <section className="relative py-24 overflow-hidden">
-          <div className="container relative z-10 mx-auto px-6">
-            <motion.div {...fadeUp} className="text-center mb-16">
-              <span className="text-primary font-heading text-sm font-semibold uppercase tracking-wider">
-                Safety First
-              </span>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-3 mb-4">
-                Your Account,{" "}
-                <span className="text-gradient">Always Protected</span>
-              </h2>
-            </motion.div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-              {[
-                {
-                  icon: Clock,
-                  title: "Time-Distributed",
-                  desc: "Engagement is spread naturally over time — never sudden spikes that flag algorithms.",
-                },
-                {
-                  icon: Shield,
-                  title: "Anti-Fake Engagement",
-                  desc: "Smart validation ensures every engagement is real — minimum time thresholds and activity tracking.",
-                },
-                {
-                  icon: Award,
-                  title: "Quality Standards",
-                  desc: "Engagement percentages enforce accountability. Low engagers get warned and removed automatically.",
-                },
-              ].map((item, index) => (
-                <motion.div
-                  key={item.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="glass rounded-2xl p-6 gradient-border text-center"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                    <item.icon className="h-6 w-6 text-primary" />
+                  {/* Search */}
+                  <div className="mb-6">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
+                      Search
+                    </label>
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search squads..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10 bg-secondary/30 border-border/40 rounded-xl h-10"
+                      />
+                    </div>
                   </div>
-                  <h3 className="font-heading font-semibold text-foreground mb-2">
-                    {item.title}
-                  </h3>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    {item.desc}
-                  </p>
+
+                  {/* Status Filter */}
+                  <div className="mb-6">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 block">
+                      Status
+                    </label>
+                    <div className="space-y-2">
+                      {[
+                        { value: "all", label: "All Squads", icon: LayoutGrid },
+                        { value: "recruiting", label: "Recruiting", icon: Users },
+                        { value: "active", label: "Active", icon: TrendingUp },
+                        { value: "full", label: "Full", icon: CheckCircle2 },
+                      ].map((status) => (
+                        <button
+                          key={status.value}
+                          onClick={() => setStatusFilter(status.value)}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                            statusFilter === status.value
+                              ? "bg-primary/20 text-primary border border-primary/40"
+                              : "bg-secondary/20 text-muted-foreground border border-border/30 hover:border-primary/30 hover:bg-secondary/40"
+                          }`}
+                        >
+                          <status.icon className="h-4 w-4" />
+                          <span className="text-sm font-medium">{status.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Plan Filter */}
+                  <div className="mb-6">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 block">
+                      Plan Type
+                    </label>
+                    <div className="space-y-2">
+                      {PLANS.map((plan) => (
+                        <button
+                          key={plan.value}
+                          onClick={() => togglePlan(plan.value)}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                            selectedPlans.includes(plan.value)
+                              ? "bg-primary/20 text-primary border border-primary/40"
+                              : "bg-secondary/20 text-muted-foreground border border-border/30 hover:border-primary/30 hover:bg-secondary/40"
+                          }`}
+                        >
+                          <plan.icon className="h-4 w-4" />
+                          <div className="flex-1 text-left">
+                            <span className="text-sm font-medium block">{plan.label}</span>
+                            <span className="text-xs text-muted-foreground">{plan.desc}</span>
+                          </div>
+                          {selectedPlans.includes(plan.value) && (
+                            <CheckCircle2 className="h-4 w-4 text-primary" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Member Range Filter */}
+                  <div className="mb-6">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 block">
+                      Member Count
+                    </label>
+                    <div className="space-y-2">
+                      {[
+                        { value: "all", label: "All Sizes" },
+                        { value: "0-5", label: "0-5 Members" },
+                        { value: "5-10", label: "5-10 Members" },
+                        { value: "10+", label: "10+ Members" },
+                      ].map((range) => (
+                        <button
+                          key={range.value}
+                          onClick={() => setMemberRangeFilter(range.value)}
+                          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                            memberRangeFilter === range.value
+                              ? "bg-primary/20 text-primary border border-primary/40"
+                              : "bg-secondary/20 text-muted-foreground border border-border/30 hover:border-primary/30 hover:bg-secondary/40"
+                          }`}
+                        >
+                          <span className="text-sm font-medium">{range.label}</span>
+                          {memberRangeFilter === range.value && (
+                            <CheckCircle2 className="h-4 w-4 text-primary" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Niche Filter */}
+                  <div>
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 block">
+                      Niches ({selectedNiches.length} selected)
+                    </label>
+                    <div className="max-h-64 overflow-y-auto space-y-1.5 pr-2 custom-scrollbar">
+                      {ALL_NICHES.map((niche) => (
+                        <button
+                          key={niche}
+                          onClick={() => toggleNiche(niche)}
+                          className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all duration-200 text-left ${
+                            selectedNiches.includes(niche)
+                              ? "bg-primary/20 text-primary border border-primary/40"
+                              : "bg-secondary/20 text-muted-foreground border border-transparent hover:border-primary/30 hover:bg-secondary/40"
+                          }`}
+                        >
+                          <span className="text-sm">{niche}</span>
+                          {selectedNiches.includes(niche) && (
+                            <CheckCircle2 className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Main Content */}
+              <div className="flex-1 min-w-0">
+                {/* Controls Bar */}
+                <motion.div {...fadeUp} className="glass rounded-2xl p-4 gradient-border mb-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    {/* Results Info */}
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => setShowFilters(!showFilters)}
+                        className="lg:hidden p-2 rounded-lg bg-secondary/50 hover:bg-secondary/80 transition-colors"
+                      >
+                        <SlidersHorizontal className="h-4 w-4 text-primary" />
+                      </button>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">
+                          {totalResults} Squad{totalResults !== 1 ? "s" : ""}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Showing {squads.length} of {totalResults}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* View & Sort Controls */}
+                    <div className="flex items-center gap-3">
+                      {/* View Mode Toggle */}
+                      <div className="flex items-center gap-1 p-1 bg-secondary/30 rounded-lg">
+                        <button
+                          onClick={() => setViewMode("grid")}
+                          className={`p-2 rounded-md transition-all duration-200 ${
+                            viewMode === "grid"
+                              ? "bg-primary/20 text-primary"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          <Grid3x3 className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => setViewMode("list")}
+                          className={`p-2 rounded-md transition-all duration-200 ${
+                            viewMode === "list"
+                              ? "bg-primary/20 text-primary"
+                              : "text-muted-foreground hover:text-foreground"
+                          }`}
+                        >
+                          <List className="h-4 w-4" />
+                        </button>
+                      </div>
+
+                      {/* Sort Dropdown */}
+                      <Select value={`${sortBy}-${sortOrder}`} onValueChange={(value) => {
+                        const [newSortBy, newSortOrder] = value.split("-");
+                        setSortBy(newSortBy);
+                        setSortOrder(newSortOrder);
+                      }}>
+                        <SelectTrigger className="w-[180px] bg-secondary/30 border-border/40 rounded-lg h-9">
+                          <SelectValue placeholder="Sort by" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="members-desc">Most Members</SelectItem>
+                          <SelectItem value="members-asc">Least Members</SelectItem>
+                          <SelectItem value="engagement-desc">High Engagement</SelectItem>
+                          <SelectItem value="engagement-asc">Low Engagement</SelectItem>
+                          <SelectItem value="date-desc">Newest First</SelectItem>
+                          <SelectItem value="date-asc">Oldest First</SelectItem>
+                          <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+                          <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                 </motion.div>
-              ))}
+
+                {/* Loading State */}
+                {loading && (
+                  <div className="flex flex-col items-center justify-center py-20">
+                    <Loader2 className="h-10 w-10 text-primary animate-spin mb-4" />
+                    <p className="text-muted-foreground text-sm">Loading squads...</p>
+                  </div>
+                )}
+
+                {/* Squad Grid/List */}
+                {!loading && squads.length > 0 && (
+                  <div className={viewMode === "grid" 
+                    ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5" 
+                    : "space-y-4"
+                  }>
+                    {squads.map((squad, index) => (
+                      <motion.div
+                        key={squad._id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.05 }}
+                        className={`glass rounded-2xl gradient-border group hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 ${
+                          viewMode === "grid" ? "p-5" : "p-6 flex items-center gap-6"
+                        }`}
+                        whileHover={{ scale: viewMode === "grid" ? 1.02 : 1.01 }}
+                      >
+                        {viewMode === "grid" ? (
+                          // Grid View
+                          <>
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-heading font-semibold text-foreground text-base truncate">
+                                  {squad.name}
+                                </h3>
+                                <p className="text-muted-foreground text-xs mt-1 truncate">
+                                  {squad.niche}{squad.platform ? ` · ${squad.platform}` : ""}
+                                </p>
+                              </div>
+                              <Badge
+                                variant={squad.status === "Recruiting" ? "default" : "secondary"}
+                                className={`ml-2 text-[10px] flex-shrink-0 ${
+                                  squad.status === "Recruiting"
+                                    ? "bg-primary/20 text-primary border-primary/40"
+                                    : "bg-secondary text-muted-foreground"
+                                }`}
+                              >
+                                {squad.status}
+                              </Badge>
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-3 mb-4">
+                              <div className="text-center p-2 bg-secondary/20 rounded-lg">
+                                <div className="text-foreground font-heading font-bold text-base">
+                                  {squad.memberCount}/{squad.maxMembers}
+                                </div>
+                                <div className="text-muted-foreground text-[9px] uppercase tracking-wider mt-0.5">
+                                  Members
+                                </div>
+                              </div>
+                              <div className="text-center p-2 bg-secondary/20 rounded-lg">
+                                <div className="text-foreground font-heading font-bold text-base flex items-center justify-center gap-1">
+                                  <TrendingUp className="h-3 w-3 text-primary" />
+                                  {squad.avgEngagement || 0}%
+                                </div>
+                                <div className="text-muted-foreground text-[9px] uppercase tracking-wider mt-0.5">
+                                  Engagement
+                                </div>
+                              </div>
+                              <div className="text-center p-2 bg-secondary/20 rounded-lg">
+                                <div className="text-foreground font-heading font-bold text-base flex items-center justify-center gap-1">
+                                  {getPlanIcon(squad.plan)}
+                                  <span className="text-xs">{squad.plan}</span>
+                                </div>
+                                <div className="text-muted-foreground text-[9px] uppercase tracking-wider mt-0.5">
+                                  {getPlanPostLimit(squad.plan)} post/day
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="mb-4">
+                              <div className="flex items-center justify-between mb-1.5">
+                                <span className="text-xs text-muted-foreground">Capacity</span>
+                                <span className="text-xs font-semibold text-foreground">
+                                  {Math.round((squad.memberCount / squad.maxMembers) * 100)}%
+                                </span>
+                              </div>
+                              <div className="w-full h-2 bg-secondary/50 rounded-full overflow-hidden">
+                                <motion.div
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${(squad.memberCount / squad.maxMembers) * 100}%` }}
+                                  transition={{ duration: 0.8, delay: index * 0.05 }}
+                                  className="h-full bg-gradient-to-r from-primary via-primary/80 to-primary/60 rounded-full"
+                                />
+                              </div>
+                              <p className="text-muted-foreground text-[10px] mt-1">
+                                {squad.maxMembers - squad.memberCount} spot{squad.maxMembers - squad.memberCount !== 1 ? "s" : ""} remaining
+                              </p>
+                            </div>
+
+                            <Button
+                              size="sm"
+                              className={`w-full rounded-xl font-heading font-semibold transition-all duration-200 ${
+                                squad.status === "Recruiting"
+                                  ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20"
+                                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                              }`}
+                              disabled={squad.status !== "Recruiting" || joiningId === squad._id}
+                              onClick={() => handleJoinSquad(squad._id)}
+                            >
+                              {joiningId === squad._id ? (
+                                <>
+                                  <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                                  Joining...
+                                </>
+                              ) : squad.status === "Recruiting" ? (
+                                <>
+                                  Join Squad
+                                  <ArrowRight className="ml-1.5 h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                                </>
+                              ) : (
+                                <span>Squad Full</span>
+                              )}
+                            </Button>
+                          </>
+                        ) : (
+                          // List View
+                          <>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-heading font-semibold text-foreground text-lg truncate">
+                                    {squad.name}
+                                  </h3>
+                                  <p className="text-muted-foreground text-sm mt-1">
+                                    {squad.niche}{squad.platform ? ` · ${squad.platform}` : ""}
+                                  </p>
+                                </div>
+                                <Badge
+                                  variant={squad.status === "Recruiting" ? "default" : "secondary"}
+                                  className={`ml-3 ${
+                                    squad.status === "Recruiting"
+                                      ? "bg-primary/20 text-primary border-primary/40"
+                                      : "bg-secondary text-muted-foreground"
+                                  }`}
+                                >
+                                  {squad.status}
+                                </Badge>
+                              </div>
+
+                              <div className="flex items-center gap-6 mb-3">
+                                <div className="flex items-center gap-2">
+                                  <Users className="h-4 w-4 text-muted-foreground" />
+                                  <span className="text-sm font-semibold text-foreground">
+                                    {squad.memberCount}/{squad.maxMembers}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">members</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <TrendingUp className="h-4 w-4 text-primary" />
+                                  <span className="text-sm font-semibold text-foreground">
+                                    {squad.avgEngagement || 0}%
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">engagement</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {getPlanIcon(squad.plan)}
+                                  <span className="text-sm font-semibold text-foreground">
+                                    {squad.plan}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground">
+                                    ({getPlanPostLimit(squad.plan)} post/day)
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="w-full max-w-md">
+                                <div className="w-full h-2 bg-secondary/50 rounded-full overflow-hidden">
+                                  <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${(squad.memberCount / squad.maxMembers) * 100}%` }}
+                                    transition={{ duration: 0.8 }}
+                                    className="h-full bg-gradient-to-r from-primary via-primary/80 to-primary/60 rounded-full"
+                                  />
+                                </div>
+                                <p className="text-muted-foreground text-xs mt-1.5">
+                                  {squad.maxMembers - squad.memberCount} spot{squad.maxMembers - squad.memberCount !== 1 ? "s" : ""} remaining
+                                </p>
+                              </div>
+                            </div>
+
+                            <Button
+                              size="default"
+                              className={`flex-shrink-0 rounded-xl font-heading font-semibold px-8 ${
+                                squad.status === "Recruiting"
+                                  ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20"
+                                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                              }`}
+                              disabled={squad.status !== "Recruiting" || joiningId === squad._id}
+                              onClick={() => handleJoinSquad(squad._id)}
+                            >
+                              {joiningId === squad._id ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  Joining...
+                                </>
+                              ) : squad.status === "Recruiting" ? (
+                                <>
+                                  Join Squad
+                                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                                </>
+                              ) : (
+                                <span>Squad Full</span>
+                              )}
+                            </Button>
+                          </>
+                        )}
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Empty State */}
+                {!loading && squads.length === 0 && (
+                  <motion.div 
+                    {...fadeUp}
+                    className="glass rounded-2xl p-12 text-center gradient-border"
+                  >
+                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+                      <Users className="h-10 w-10 text-primary/50" />
+                    </div>
+                    <h3 className="font-heading font-semibold text-xl text-foreground mb-2">
+                      No squads found
+                    </h3>
+                    <p className="text-muted-foreground max-w-md mx-auto mb-6">
+                      {activeFilterCount > 0
+                        ? "Try adjusting your filters to see more results"
+                        : "Be the first to create a squad from your dashboard!"}
+                    </p>
+                    {activeFilterCount > 0 && (
+                      <Button
+                        onClick={clearAllFilters}
+                        variant="outline"
+                        className="border-primary/30 text-primary hover:bg-primary/10 rounded-xl"
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Clear All Filters
+                      </Button>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* Pagination */}
+                {!loading && totalPages > 1 && (
+                  <motion.div 
+                    {...fadeUp}
+                    className="glass rounded-2xl p-4 gradient-border mt-6"
+                  >
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                      {/* Page Size Selector */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">Show:</span>
+                        <Select value={pageSize.toString()} onValueChange={(value) => setPageSize(Number(value))}>
+                          <SelectTrigger className="w-[100px] bg-secondary/30 border-border/40 rounded-lg h-9">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="12">12</SelectItem>
+                            <SelectItem value="24">24</SelectItem>
+                            <SelectItem value="48">48</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <span className="text-sm text-muted-foreground">per page</span>
+                      </div>
+
+                      {/* Page Navigation */}
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCurrentPage(1)}
+                          disabled={currentPage === 1}
+                          className="rounded-lg border-border/40"
+                        >
+                          <ChevronsLeft className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCurrentPage(currentPage - 1)}
+                          disabled={currentPage === 1}
+                          className="rounded-lg border-border/40"
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        
+                        <div className="flex items-center gap-1">
+                          {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                            let pageNum;
+                            if (totalPages <= 5) {
+                              pageNum = i + 1;
+                            } else if (currentPage <= 3) {
+                              pageNum = i + 1;
+                            } else if (currentPage >= totalPages - 2) {
+                              pageNum = totalPages - 4 + i;
+                            } else {
+                              pageNum = currentPage - 2 + i;
+                            }
+                            
+                            return (
+                              <Button
+                                key={pageNum}
+                                variant={currentPage === pageNum ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setCurrentPage(pageNum)}
+                                className={`w-9 h-9 rounded-lg ${
+                                  currentPage === pageNum
+                                    ? "bg-primary text-primary-foreground"
+                                    : "border-border/40"
+                                }`}
+                              >
+                                {pageNum}
+                              </Button>
+                            );
+                          })}
+                        </div>
+
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCurrentPage(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                          className="rounded-lg border-border/40"
+                        >
+                          <ChevronRightIcon className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCurrentPage(totalPages)}
+                          disabled={currentPage === totalPages}
+                          className="rounded-lg border-border/40"
+                        >
+                          <ChevronsRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+
+                      {/* Page Info */}
+                      <div className="text-sm text-muted-foreground">
+                        Page {currentPage} of {totalPages}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="relative py-24">
-          <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-background" />
-          <div className="container relative z-10 mx-auto px-6 text-center">
-            <motion.div {...fadeUp}>
-              <h2 className="text-3xl md:text-4xl font-heading font-bold mb-4">
-                Ready to{" "}
-                <span className="text-gradient">Join a Squad?</span>
-              </h2>
-              <p className="text-muted-foreground text-lg max-w-xl mx-auto mb-8">
-                Start engaging with real creators in your niche today. No credits
-                needed — just join and start growing.
-              </p>
-              <Button
-                size="lg"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box rounded-xl px-10 font-heading font-semibold"
-                onClick={() =>
-                  currentUser
-                    ? document
-                        .getElementById("browse-squads")
-                        ?.scrollIntoView({ behavior: "smooth" })
-                    : router.push("/sign-up")
-                }
-              >
-                {currentUser ? "Browse Squads" : "Get Started Now"}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </motion.div>
-          </div>
-        </section>
+
       </main>
 
       {/* Create Squad Dialog */}

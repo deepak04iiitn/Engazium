@@ -57,28 +57,77 @@ export const getSquads = async (req, res, next) => {
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
     const search = req.query.search || "";
-    const niche = req.query.niche || "";
-    const plan = req.query.plan || "";
+    
+    // Multi-select filters (comma-separated)
+    const niches = req.query.niches ? req.query.niches.split(",") : [];
+    const plans = req.query.plans ? req.query.plans.split(",") : [];
+    
+    // Single-select filters
     const status = req.query.status || "";
+    const memberRange = req.query.memberRange || "";
+    
+    // Sorting
+    const sortBy = req.query.sortBy || "createdAt";
+    const sortOrder = req.query.sortOrder === "asc" ? 1 : -1;
 
     const filter = {};
 
+    // Search across name, niche, and description
     if (search) {
-      filter.name = { $regex: search, $options: "i" };
+      filter.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { niche: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+      ];
     }
-    if (niche) {
-      filter.niche = niche;
+    
+    // Multi-select niche filter
+    if (niches.length > 0) {
+      filter.niche = { $in: niches };
     }
-    if (plan) {
-      filter.plan = plan;
+    
+    // Multi-select plan filter
+    if (plans.length > 0) {
+      filter.plan = { $in: plans };
     }
-    if (status) {
-      filter.status = status;
+    
+    // Status filter
+    if (status && status !== "all") {
+      if (status === "recruiting") {
+        filter.status = "Recruiting";
+      } else if (status === "active") {
+        filter.status = "Active";
+      } else if (status === "full") {
+        filter.$expr = { $gte: ["$memberCount", "$maxMembers"] };
+      }
+    }
+    
+    // Member range filter
+    if (memberRange && memberRange !== "all") {
+      if (memberRange === "0-5") {
+        filter.memberCount = { $lte: 5 };
+      } else if (memberRange === "5-10") {
+        filter.memberCount = { $gt: 5, $lte: 10 };
+      } else if (memberRange === "10+") {
+        filter.memberCount = { $gt: 10 };
+      }
+    }
+
+    // Build sort object
+    let sortObj = {};
+    if (sortBy === "members") {
+      sortObj.memberCount = sortOrder;
+    } else if (sortBy === "date") {
+      sortObj.createdAt = sortOrder;
+    } else if (sortBy === "name") {
+      sortObj.name = sortOrder;
+    } else {
+      sortObj.createdAt = -1; // Default sort
     }
 
     const total = await Squad.countDocuments(filter);
     const squads = await Squad.find(filter)
-      .sort({ createdAt: -1 })
+      .sort(sortObj)
       .skip(skip)
       .limit(limit)
       .populate("createdBy", "username")
@@ -101,10 +150,19 @@ export const getSquads = async (req, res, next) => {
       engagementMap[e._id.toString()] = Math.round(e.avgEngagement * 10) / 10;
     });
 
-    const enrichedSquads = squads.map((s) => ({
+    let enrichedSquads = squads.map((s) => ({
       ...s,
       avgEngagement: engagementMap[s._id.toString()] || 0,
     }));
+
+    // Sort by engagement if requested (needs to be done after enrichment)
+    if (sortBy === "engagement") {
+      enrichedSquads.sort((a, b) => {
+        return sortOrder === 1 
+          ? a.avgEngagement - b.avgEngagement 
+          : b.avgEngagement - a.avgEngagement;
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -113,6 +171,7 @@ export const getSquads = async (req, res, next) => {
         currentPage: page,
         totalPages: Math.ceil(total / limit),
         total,
+        limit,
       },
     });
   } catch (error) {
