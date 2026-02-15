@@ -17,6 +17,9 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSelector, useDispatch } from "react-redux";
+import { logoutSuccess } from "@/redux/user/userSlice";
 import { motion, AnimatePresence } from "framer-motion";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -25,6 +28,21 @@ import logo from "@/assets/Engazium_Logo.png";
 
 const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) => {
   const [isMobile, setIsMobile] = useState(false);
+  const { currentUser } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("/api/auth/logout", { method: "POST" });
+      if (res.ok) {
+        dispatch(logoutSuccess());
+        router.push("/");
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   useEffect(() => {
     const checkMobile = () => {
@@ -223,7 +241,9 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
           )}>
             <div className="relative shrink-0">
               <Avatar className="h-9 w-9 border-2 border-indigo-500/30">
-                <AvatarFallback className="bg-indigo-500/20 text-indigo-300 font-bold text-xs">AD</AvatarFallback>
+                <AvatarFallback className="bg-indigo-500/20 text-indigo-300 font-bold text-xs">
+                  {currentUser?.username?.slice(0, 2).toUpperCase() || "AD"}
+                </AvatarFallback>
               </Avatar>
               <div className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-indigo-500 border-2 border-background animate-pulse" />
             </div>
@@ -236,14 +256,19 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
                   exit={{ opacity: 0, width: 0 }}
                   className="flex-1 min-w-0 overflow-hidden"
                 >
-                  <p className="text-sm font-semibold truncate text-white">Admin User</p>
-                  <p className="text-xs text-indigo-300/70 truncate">Super Admin</p>
+                  <p className="text-sm font-semibold truncate text-white">{currentUser?.username || "Admin"}</p>
+                  <p className="text-xs text-indigo-300/70 truncate">{currentUser?.email || "Admin"}</p>
                 </motion.div>
               )}
             </AnimatePresence>
             
             {isOpen && (
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                onClick={handleLogout}
+              >
                 <LogOut size={16} />
               </Button>
             )}

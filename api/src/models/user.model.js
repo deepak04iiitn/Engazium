@@ -64,38 +64,48 @@ const userSchema = new mongoose.Schema(
       ]
     },
 
-    platforms: {
-      type: [String], 
-      default: ["Other"],
-      enum: [
-        "Instagram",
-        "YouTube",
-        "TikTok",
-        "Facebook",
-        "X",
-        "LinkedIn",
-        "Twitch",
-        "Snapchat",
-        "Other"
-      ]
+    platformStats: {
+      type: [
+        {
+          platform: {
+            type: String,
+            required: true,
+            enum: [
+              "Instagram",
+              "YouTube",
+              "TikTok",
+              "Facebook",
+              "X",
+              "LinkedIn",
+              "Twitch",
+              "Snapchat",
+              "Other"
+            ]
+          },
+          numberOfFollowers: {
+            type: Number,
+            default: 0,
+            min: 0
+          },
+          avgLikes: {
+            type: Number,
+            default: 0,
+            min: 0
+          },
+          avgComments: {
+            type: Number,
+            default: 0,
+            min: 0
+          }
+        }
+      ],
+      default: []
     },
 
-    numberOfFollowers: {
-      type: Number,
-      default: 0,
-      min: 0
-    },
-
-    avgLikes: {
-      type: Number,
-      default: 0,
-      min: 0
-    },
-
-    avgComments: {
-      type: Number,
-      default: 0,
-      min: 0
+    bio: {
+      type: String,
+      default: "",
+      maxlength: 300
     }
   },
   { timestamps: true }

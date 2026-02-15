@@ -481,11 +481,11 @@ const AdminDashboard = () => {
                           </div>
                           <div className="flex gap-6 text-center">
                             <div>
-                              <div className="text-foreground font-heading font-bold text-lg">{user.numberOfFollowers?.toLocaleString() || 0}</div>
+                              <div className="text-foreground font-heading font-bold text-lg">{user.platformStats?.reduce((sum, ps) => sum + (ps.numberOfFollowers || 0), 0).toLocaleString() || 0}</div>
                               <div className="text-muted-foreground text-xs">Followers</div>
                             </div>
                             <div>
-                              <div className="text-foreground font-heading font-bold text-lg">{user.platforms?.length || 0}</div>
+                              <div className="text-foreground font-heading font-bold text-lg">{user.platformStats?.length || 0}</div>
                               <div className="text-muted-foreground text-xs">Platforms</div>
                             </div>
                           </div>
@@ -635,30 +635,36 @@ const AdminDashboard = () => {
                               <div className="text-foreground text-sm font-medium">{viewUser?.niche || "Other"}</div>
                             </div>
                             <div className="bg-secondary/30 rounded-xl p-3">
-                              <div className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Followers</div>
-                              <div className="text-foreground text-sm font-medium">{viewUser?.numberOfFollowers?.toLocaleString() || 0}</div>
-                            </div>
-                            <div className="bg-secondary/30 rounded-xl p-3">
-                              <div className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Avg Likes</div>
-                              <div className="text-foreground text-sm font-medium">{viewUser?.avgLikes?.toLocaleString() || 0}</div>
-                            </div>
-                            <div className="bg-secondary/30 rounded-xl p-3">
-                              <div className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Avg Comments</div>
-                              <div className="text-foreground text-sm font-medium">{viewUser?.avgComments?.toLocaleString() || 0}</div>
+                              <div className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Total Followers</div>
+                              <div className="text-foreground text-sm font-medium">{viewUser?.platformStats?.reduce((sum, ps) => sum + (ps.numberOfFollowers || 0), 0).toLocaleString() || 0}</div>
                             </div>
                             <div className="bg-secondary/30 rounded-xl p-3">
                               <div className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Joined</div>
                               <div className="text-foreground text-sm font-medium">{formatJoinDate(viewUser?.createdAt)}</div>
                             </div>
                           </div>
-                          {viewUser?.platforms?.length > 0 && (
-                            <div>
-                              <div className="text-muted-foreground text-xs uppercase tracking-wider mb-2">Platforms</div>
-                              <div className="flex flex-wrap gap-2">
-                                {viewUser.platforms.map((p) => (
-                                  <Badge key={p} className="text-xs bg-primary/20 text-primary border-primary/30">{p}</Badge>
-                                ))}
-                              </div>
+                          {viewUser?.platformStats?.length > 0 && (
+                            <div className="space-y-3">
+                              <div className="text-muted-foreground text-xs uppercase tracking-wider">Platform Stats</div>
+                              {viewUser.platformStats.map((ps) => (
+                                <div key={ps.platform} className="bg-secondary/20 rounded-xl p-3 border border-border/20">
+                                  <Badge className="text-xs bg-primary/20 text-primary border-primary/30 mb-2">{ps.platform}</Badge>
+                                  <div className="grid grid-cols-3 gap-3 text-center">
+                                    <div>
+                                      <div className="text-foreground text-sm font-bold">{ps.numberOfFollowers?.toLocaleString() || 0}</div>
+                                      <div className="text-muted-foreground text-[10px] uppercase">Followers</div>
+                                    </div>
+                                    <div>
+                                      <div className="text-foreground text-sm font-bold">{ps.avgLikes?.toLocaleString() || 0}</div>
+                                      <div className="text-muted-foreground text-[10px] uppercase">Avg Likes</div>
+                                    </div>
+                                    <div>
+                                      <div className="text-foreground text-sm font-bold">{ps.avgComments?.toLocaleString() || 0}</div>
+                                      <div className="text-muted-foreground text-[10px] uppercase">Avg Comments</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           )}
                         </div>

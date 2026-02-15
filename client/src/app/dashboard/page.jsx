@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   User,
@@ -25,28 +25,60 @@ import {
   Clock,
   ArrowUp,
   ChevronDown,
-  Sparkles,
+  Loader2,
+  AlertTriangle,
+  Lock,
+  Trash2,
+  CheckCircle2,
+  X,
+  KeyRound,
+  Pencil,
+  Info,
+  Plus,
+  Minus,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSelector, useDispatch } from "react-redux";
+import { updateUserSuccess, deleteUserSuccess, logoutSuccess } from "@/redux/user/userSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Menu } from "lucide-react";
+import { toast } from "sonner";
 import UserSidebar from "@/components/dashboard/UserSidebar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-const userProfile = {
-  name: "Alex Creator",
-  username: "@alexcreator",
-  email: "alex@example.com",
-  bio: "Tech content creator | 50K followers | Building in public",
-  avatar: "",
-  platform: "Instagram",
-  niche: "Tech & SaaS",
-  followers: "50K",
-  joined: "Jan 2026",
-};
+const NICHE_OPTIONS = [
+  "Art & Creativity", "Technology", "Gaming", "Education", "Business & Finance",
+  "Health & Fitness", "Lifestyle", "Fashion & Beauty", "Food & Cooking", "Travel",
+  "Self Improvement", "Entertainment", "Music", "Photography & Videography",
+  "Podcasting", "News & Commentary", "DIY & Crafts", "Sports", "Science",
+  "Pets & Animals", "Nature & Environment", "Spirituality", "Parenting & Family",
+  "Vlogs", "Automotive", "Real Estate", "Politics", "Non Profit & Social Impact", "Other"
+];
+
+const PLATFORM_OPTIONS = [
+  "Instagram", "YouTube", "TikTok", "Facebook", "X", "LinkedIn", "Twitch", "Snapchat", "Other"
+];
 
 const userSquads = [
   { id: 1, name: "Tech Creators Hub", niche: "Tech & SaaS", members: 10, role: "Member", creditsEarned: 245, creditsSpent: 180, weeklyEngagement: 87, postsEngaged: 34, status: "Active" },
@@ -85,11 +117,240 @@ const sidebarItems = [
 ];
 
 const Dashboard = () => {
-  const [profile, setProfile] = useState(userProfile);
+  const { currentUser } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  // Profile form state
+  const [profile, setProfile] = useState({
+    username: "",
+    email: "",
+    bio: "",
+    niche: "Other",
+    platformStats: [],  // [{ platform, numberOfFollowers, avgLikes, avgComments }]
+  });
   const [isEditing, setIsEditing] = useState(false);
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileError, setProfileError] = useState(null);
+  const [profileSuccess, setProfileSuccess] = useState(null);
+
+  // Password change state
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
+  // Delete account state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   const [activeSection, setActiveSection] = useState("overview");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedSquadAnalytics, setSelectedSquadAnalytics] = useState(null);
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!currentUser) {
+      router.push("/sign-in");
+    }
+  }, [currentUser, router]);
+
+  // Fetch profile from API on mount and when currentUser changes
+  const fetchProfile = useCallback(async () => {
+    setProfileLoading(true);
+    try {
+      const res = await fetch("/api/user/profile", { credentials: "include" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to fetch profile");
+      const stats = (data.user.platformStats || []).map((ps) => ({
+        platform: ps.platform,
+        numberOfFollowers: ps.numberOfFollowers?.toString() || "",
+        avgLikes: ps.avgLikes?.toString() || "",
+        avgComments: ps.avgComments?.toString() || "",
+      }));
+      setProfile({
+        username: data.user.username || "",
+        email: data.user.email || "",
+        bio: data.user.bio || "",
+        niche: data.user.niche || "Other",
+        platformStats: stats,
+      });
+    } catch (err) {
+      setProfileError(err.message);
+    } finally {
+      setProfileLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (currentUser) fetchProfile();
+  }, [currentUser, fetchProfile]);
+
+  // Save profile handler
+  const handleSaveProfile = async () => {
+    setProfileSaving(true);
+    setProfileError(null);
+    setProfileSuccess(null);
+    try {
+      // Convert string stat values to numbers before sending
+      const payload = {
+        ...profile,
+        platformStats: profile.platformStats.map((ps) => ({
+          platform: ps.platform,
+          numberOfFollowers: parseInt(ps.numberOfFollowers) || 0,
+          avgLikes: parseInt(ps.avgLikes) || 0,
+          avgComments: parseInt(ps.avgComments) || 0,
+        })),
+      };
+      const res = await fetch("/api/user/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update profile");
+      dispatch(updateUserSuccess(data.user));
+      setProfileSuccess("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
+      setIsEditing(false);
+    } catch (err) {
+      setProfileError(err.message);
+      toast.error(err.message);
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
+  // Change password handler
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast.error("New passwords don't match");
+      return;
+    }
+    if (passwordForm.newPassword.length < 8) {
+      toast.error("New password must be at least 8 characters");
+      return;
+    }
+    setPasswordLoading(true);
+    try {
+      const res = await fetch("/api/user/change-password", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to change password");
+      toast.success("Password changed successfully!");
+      setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  // Delete account handler
+  const handleDeleteAccount = async () => {
+    if (!deletePassword) {
+      toast.error("Please enter your password");
+      return;
+    }
+    setDeleteLoading(true);
+    try {
+      const res = await fetch("/api/user/delete-account", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ password: deletePassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to delete account");
+      dispatch(deleteUserSuccess());
+      toast.success("Account deleted successfully");
+      router.push("/");
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  // Cancel editing — reset profile to currentUser data
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setProfileError(null);
+    if (currentUser) {
+      const stats = (currentUser.platformStats || []).map((ps) => ({
+        platform: ps.platform,
+        numberOfFollowers: ps.numberOfFollowers?.toString() || "",
+        avgLikes: ps.avgLikes?.toString() || "",
+        avgComments: ps.avgComments?.toString() || "",
+      }));
+      setProfile({
+        username: currentUser.username || "",
+        email: currentUser.email || "",
+        bio: currentUser.bio || "",
+        niche: currentUser.niche || "Other",
+        platformStats: stats,
+      });
+    }
+  };
+
+  // Profile completion calculation
+  const calcProfileCompletion = () => {
+    if (!currentUser) return 0;
+    let filled = 0;
+    const total = 5;
+    if (currentUser.username) filled++;
+    if (currentUser.email) filled++;
+    if (currentUser.bio) filled++;
+    if (currentUser.niche && currentUser.niche !== "Other") filled++;
+    if (currentUser.platformStats?.length > 0) filled++;
+    return Math.round((filled / total) * 100);
+  };
+
+  const profileCompletion = calcProfileCompletion();
+
+  // Format date
+  const formatJoinDate = (dateStr) => {
+    if (!dateStr) return "N/A";
+    return new Date(dateStr).toLocaleDateString("en-IN", { month: "short", year: "numeric" });
+  };
+
+  // Toggle platform selection — adds/removes a platformStats entry
+  const togglePlatform = (platform) => {
+    setProfile((prev) => {
+      const exists = prev.platformStats.find((ps) => ps.platform === platform);
+      if (exists) {
+        // Remove this platform
+        return { ...prev, platformStats: prev.platformStats.filter((ps) => ps.platform !== platform) };
+      } else {
+        // Add this platform with empty stats
+        return { ...prev, platformStats: [...prev.platformStats, { platform, numberOfFollowers: "", avgLikes: "", avgComments: "" }] };
+      }
+    });
+  };
+
+  // Update a single stat for a specific platform
+  const updatePlatformStat = (platform, field, value) => {
+    setProfile((prev) => ({
+      ...prev,
+      platformStats: prev.platformStats.map((ps) =>
+        ps.platform === platform ? { ...ps, [field]: value } : ps
+      ),
+    }));
+  };
+
+  // Get list of selected platform names
+  const selectedPlatforms = profile.platformStats.map((ps) => ps.platform);
+
+  if (!currentUser) return null;
 
   return (
     <div className="flex h-screen bg-background text-foreground overflow-hidden">
@@ -147,7 +408,7 @@ const Dashboard = () => {
                     <div className="flex items-start justify-between mb-4">
                       <div>
                         <h2 className="text-3xl font-heading font-bold text-foreground mb-2">
-                          Welcome back, <span className="text-gradient">{userProfile.name.split(' ')[0]}</span>! 👋
+                          Welcome back, <span className="text-gradient">{currentUser?.username}</span>! 👋
                         </h2>
                         <p className="text-muted-foreground">Here's what's happening with your engagement today</p>
                       </div>
@@ -165,7 +426,7 @@ const Dashboard = () => {
                     { label: "Total Credits", value: overallAnalytics.totalCreditsEarned - overallAnalytics.totalCreditsSpent, icon: Award, color: "text-primary", trend: "+12%", up: true },
                     { label: "Active Squads", value: userSquads.length, icon: Users, color: "text-primary", trend: "+1", up: true },
                     { label: "Weekly Engagement", value: `${overallAnalytics.avgWeeklyEngagement}%`, icon: TrendingUp, color: "text-primary", trend: "+5%", up: true },
-                    { label: "Profile Complete", value: "75%", icon: Target, color: "text-primary", trend: "+25%", up: true },
+                    { label: "Profile Complete", value: `${profileCompletion}%`, icon: Target, color: "text-primary", trend: profileCompletion === 100 ? "Complete!" : `${100 - profileCompletion}% left`, up: profileCompletion >= 50 },
                   ].map((stat, i) => (
                     <motion.div
                       key={stat.label}
@@ -250,7 +511,7 @@ const Dashboard = () => {
                     className="glass rounded-2xl p-6 gradient-border"
                   >
                     <h3 className="font-heading font-semibold text-lg text-foreground mb-5 flex items-center gap-2">
-                      <Sparkles className="h-5 w-5 text-primary" />
+                      <Zap className="h-5 w-5 text-primary" />
                       Quick Actions
                     </h3>
                     <div className="space-y-3">
@@ -281,102 +542,350 @@ const Dashboard = () => {
             {/* Profile Section */}
             {activeSection === "profile" && (
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+
+                {/* Error / Success Messages */}
+                {profileError && (
+                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="glass rounded-2xl p-4 border border-destructive/30 bg-destructive/5">
+                    <div className="flex items-center gap-3">
+                      <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
+                      <p className="text-destructive text-sm flex-1">{profileError}</p>
+                      <Button variant="ghost" size="sm" onClick={() => setProfileError(null)} className="text-destructive hover:bg-destructive/10"><X className="h-4 w-4" /></Button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* ── Profile Card ── */}
                 <div className="glass rounded-3xl p-8 gradient-border">
                   <div className="flex items-center justify-between mb-8">
-                    <h2 className="font-heading font-bold text-2xl text-foreground">Complete Your Profile</h2>
-                    <Button 
-                      variant={isEditing ? "outline" : "default"}
-                      size="sm" 
-                      className={isEditing ? "border-destructive/30 text-destructive hover:bg-destructive/10" : "bg-primary text-primary-foreground hover:bg-primary/90 glow-box"}
-                      onClick={() => setIsEditing(!isEditing)}
-                    >
-                      {isEditing ? <><XCircle className="h-4 w-4 mr-2" />Cancel</> : <><Settings className="h-4 w-4 mr-2" />Edit Profile</>}
-                    </Button>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row gap-8 mb-8">
-                    <div className="flex flex-col items-center gap-4">
-                      <div className="relative group">
-                        <Avatar className="h-32 w-32 border-4 border-primary/30 ring-4 ring-primary/10">
-                          <AvatarImage src={profile.avatar} />
-                          <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary text-3xl font-heading font-bold">
-                            {profile.name.split(" ").map(n => n[0]).join("")}
-                          </AvatarFallback>
-                        </Avatar>
-                        {isEditing && (
-                          <div className="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                            <Camera className="h-8 w-8 text-white" />
-                          </div>
-                        )}
-                      </div>
-                      {isEditing && (
-                        <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10">
-                          <Camera className="h-3.5 w-3.5 mr-1.5" />
-                          Change Photo
-                        </Button>
-                      )}
-                    </div>
-
-                    <div className="flex-1 space-y-5">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {[
-                          { label: "Full Name", key: "name", icon: User },
-                          { label: "Username", key: "username", icon: User },
-                          { label: "Email", key: "email", icon: User },
-                          { label: "Platform", key: "platform", icon: Activity },
-                          { label: "Niche", key: "niche", icon: Target },
-                          { label: "Followers", key: "followers", icon: Users },
-                        ].map((field) => (
-                          <div key={field.key}>
-                            <label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block font-semibold flex items-center gap-1.5">
-                              <field.icon className="h-3 w-3" />
-                              {field.label}
-                            </label>
-                            <Input
-                              value={profile[field.key]}
-                              onChange={(e) => setProfile({ ...profile, [field.key]: e.target.value })}
-                              disabled={!isEditing}
-                              className="bg-secondary/50 border-border/50 rounded-xl disabled:opacity-70 focus:border-primary/50 transition-colors"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                      <div>
-                        <label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block font-semibold">Bio</label>
-                        <Input 
-                          value={profile.bio} 
-                          onChange={(e) => setProfile({ ...profile, bio: e.target.value })} 
-                          disabled={!isEditing} 
-                          className="bg-secondary/50 border-border/50 rounded-xl disabled:opacity-70 focus:border-primary/50 transition-colors" 
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {isEditing && (
-                    <div className="flex justify-end pt-6 border-t border-border/30">
-                      <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl glow-box px-8">
-                        <Save className="h-4 w-4 mr-2" />
-                        Save Changes
+                    <h2 className="font-heading font-bold text-2xl text-foreground">Your Profile</h2>
+                    {!isEditing ? (
+                      <Button 
+                        size="sm" 
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box"
+                        onClick={() => setIsEditing(true)}
+                      >
+                        <Settings className="h-4 w-4 mr-2" />Edit Profile
                       </Button>
-                    </div>
-                  )}
-
-                  <div className="mt-8 pt-8 border-t border-border/30">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-sm font-heading font-semibold text-foreground flex items-center gap-2">
-                        <Target className="h-4 w-4 text-primary" />
-                        Profile Completion
-                      </span>
-                      <span className="text-primary font-heading font-bold text-lg">75%</span>
-                    </div>
-                    <Progress value={75} className="h-3 bg-secondary/50 rounded-full" />
-                    <p className="text-muted-foreground text-xs mt-3 flex items-center gap-1.5">
-                      <Sparkles className="h-3.5 w-3.5 text-primary" />
-                      Add a profile photo and complete your bio to unlock full features!
-                    </p>
+                    ) : (
+                      <Button 
+                        variant="outline"
+                        size="sm" 
+                        className="border-destructive/30 text-destructive hover:bg-destructive/10"
+                        onClick={handleCancelEdit}
+                      >
+                        <XCircle className="h-4 w-4 mr-2" />Cancel
+                      </Button>
+                    )}
                   </div>
+
+                  {profileLoading ? (
+                    <div className="flex flex-col items-center justify-center py-16 gap-4">
+                      <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                      <p className="text-muted-foreground text-sm">Loading profile...</p>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex flex-col sm:flex-row gap-8 mb-8">
+                        <div className="flex flex-col items-center gap-4">
+                          <Avatar className="h-32 w-32 border-4 border-primary/30 ring-4 ring-primary/10">
+                            <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary text-3xl font-heading font-bold">
+                              {profile.username?.slice(0, 2).toUpperCase() || "??"}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="text-center">
+                            <p className="font-heading font-bold text-foreground">{profile.username}</p>
+                            <p className="text-muted-foreground text-xs">Joined {formatJoinDate(currentUser?.createdAt)}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex-1 space-y-5">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {/* Username */}
+                            <div>
+                              <label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block font-semibold flex items-center gap-1.5">
+                                <User className="h-3 w-3" /> Username
+                              </label>
+                              <Input
+                                value={profile.username}
+                                onChange={(e) => setProfile({ ...profile, username: e.target.value })}
+                                disabled={!isEditing}
+                                className="bg-secondary/50 border-border/50 rounded-xl disabled:opacity-70 focus:border-primary/50 transition-colors"
+                              />
+                            </div>
+
+                            {/* Email */}
+                            <div>
+                              <label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block font-semibold flex items-center gap-1.5">
+                                <User className="h-3 w-3" /> Email
+                              </label>
+                              <Input
+                                value={profile.email}
+                                onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+                                disabled={!isEditing}
+                                className="bg-secondary/50 border-border/50 rounded-xl disabled:opacity-70 focus:border-primary/50 transition-colors"
+                              />
+                            </div>
+
+                            {/* Niche */}
+                            <div>
+                              <label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block font-semibold flex items-center gap-1.5">
+                                <Target className="h-3 w-3" /> Niche
+                              </label>
+                              {isEditing ? (
+                                <Select value={profile.niche} onValueChange={(value) => setProfile({ ...profile, niche: value })}>
+                                  <SelectTrigger className="bg-secondary/50 border-border/50 rounded-xl focus:border-primary/50">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {NICHE_OPTIONS.map((n) => (
+                                      <SelectItem key={n} value={n}>{n}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              ) : (
+                                <Input value={profile.niche} disabled className="bg-secondary/50 border-border/50 rounded-xl disabled:opacity-70" />
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Bio */}
+                          <div>
+                            <label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block font-semibold flex items-center gap-1.5">
+                              <Pencil className="h-3 w-3" /> Bio
+                            </label>
+                            <Input 
+                              value={profile.bio} 
+                              onChange={(e) => setProfile({ ...profile, bio: e.target.value })} 
+                              disabled={!isEditing} 
+                              placeholder="Tell others about yourself..."
+                              maxLength={300}
+                              className="bg-secondary/50 border-border/50 rounded-xl disabled:opacity-70 focus:border-primary/50 transition-colors" 
+                            />
+                            {isEditing && (
+                              <p className="text-muted-foreground text-xs mt-1 text-right">{profile.bio?.length || 0}/300</p>
+                            )}
+                          </div>
+
+                          {/* Platforms Selection */}
+                          <div>
+                            <label className="text-muted-foreground text-xs uppercase tracking-wider mb-3 block font-semibold flex items-center gap-1.5">
+                              <Activity className="h-3 w-3" /> Your Platforms
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                              {PLATFORM_OPTIONS.map((platform) => (
+                                <button
+                                  key={platform}
+                                  type="button"
+                                  disabled={!isEditing}
+                                  onClick={() => togglePlatform(platform)}
+                                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border flex items-center gap-1.5 ${
+                                    selectedPlatforms.includes(platform)
+                                      ? "bg-primary/20 text-primary border-primary/30"
+                                      : "bg-secondary/30 text-muted-foreground border-border/50 hover:bg-secondary/50"
+                                  } ${!isEditing ? "opacity-70 cursor-default" : "cursor-pointer"}`}
+                                >
+                                  {selectedPlatforms.includes(platform) ? <Minus className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
+                                  {platform}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Per-Platform Stats */}
+                          {profile.platformStats.length > 0 && (
+                            <div className="space-y-4">
+                              <label className="text-muted-foreground text-xs uppercase tracking-wider block font-semibold flex items-center gap-1.5">
+                                <BarChart3 className="h-3 w-3" /> Platform Stats
+                              </label>
+                              {profile.platformStats.map((ps) => (
+                                <div key={ps.platform} className="bg-secondary/20 rounded-2xl p-5 border border-border/30">
+                                  <div className="flex items-center gap-2 mb-4">
+                                    <Badge className="bg-primary/20 text-primary border-primary/30 text-xs font-semibold">{ps.platform}</Badge>
+                                  </div>
+                                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div>
+                                      <label className="text-muted-foreground text-xs mb-1.5 block font-medium flex items-center gap-1">
+                                        <Users className="h-3 w-3" /> Followers
+                                      </label>
+                                      <Input
+                                        type="number"
+                                        min="0"
+                                        value={ps.numberOfFollowers}
+                                        onChange={(e) => updatePlatformStat(ps.platform, "numberOfFollowers", e.target.value)}
+                                        disabled={!isEditing}
+                                        placeholder="0"
+                                        className="bg-secondary/50 border-border/50 rounded-xl disabled:opacity-70 focus:border-primary/50 transition-colors"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="text-muted-foreground text-xs mb-1.5 block font-medium flex items-center gap-1">
+                                        <Heart className="h-3 w-3" /> Avg Likes
+                                      </label>
+                                      <Input
+                                        type="number"
+                                        min="0"
+                                        value={ps.avgLikes}
+                                        onChange={(e) => updatePlatformStat(ps.platform, "avgLikes", e.target.value)}
+                                        disabled={!isEditing}
+                                        placeholder="0"
+                                        className="bg-secondary/50 border-border/50 rounded-xl disabled:opacity-70 focus:border-primary/50 transition-colors"
+                                      />
+                                    </div>
+                                    <div>
+                                      <label className="text-muted-foreground text-xs mb-1.5 block font-medium flex items-center gap-1">
+                                        <MessageCircle className="h-3 w-3" /> Avg Comments
+                                      </label>
+                                      <Input
+                                        type="number"
+                                        min="0"
+                                        value={ps.avgComments}
+                                        onChange={(e) => updatePlatformStat(ps.platform, "avgComments", e.target.value)}
+                                        disabled={!isEditing}
+                                        placeholder="0"
+                                        className="bg-secondary/50 border-border/50 rounded-xl disabled:opacity-70 focus:border-primary/50 transition-colors"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Save Button */}
+                      {isEditing && (
+                        <div className="flex justify-end pt-6 border-t border-border/30">
+                          <Button 
+                            onClick={handleSaveProfile} 
+                            disabled={profileSaving}
+                            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl glow-box px-8"
+                          >
+                            {profileSaving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                            Save Changes
+                          </Button>
+                        </div>
+                      )}
+
+                      {/* Profile Completion */}
+                      <div className="mt-8 pt-8 border-t border-border/30">
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="text-sm font-heading font-semibold text-foreground flex items-center gap-2">
+                            <Target className="h-4 w-4 text-primary" />
+                            Profile Completion
+                          </span>
+                          <span className="text-primary font-heading font-bold text-lg">{profileCompletion}%</span>
+                        </div>
+                        <Progress value={profileCompletion} className="h-3 bg-secondary/50 rounded-full" />
+                        <p className="text-muted-foreground text-xs mt-3 flex items-center gap-1.5">
+                          {profileCompletion === 100
+                            ? <><CheckCircle2 className="h-3.5 w-3.5 text-primary" /> Your profile is complete! You&apos;re all set.</>
+                            : <><Info className="h-3.5 w-3.5 text-primary" /> Complete your bio, niche, and add platform stats to unlock full features!</>
+                          }
+                        </p>
+                      </div>
+                    </>
+                  )}
                 </div>
+
+                {/* ── Change Password Card ── */}
+                <div className="glass rounded-3xl p-8 gradient-border">
+                  <h3 className="font-heading font-bold text-xl text-foreground mb-6 flex items-center gap-2">
+                    <KeyRound className="h-5 w-5 text-primary" />
+                    Change Password
+                  </h3>
+                  <form onSubmit={handleChangePassword} className="space-y-4 max-w-md">
+                    <div>
+                      <label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block font-semibold">Current Password</label>
+                      <Input
+                        type="password"
+                        value={passwordForm.currentPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                        placeholder="••••••••"
+                        className="bg-secondary/50 border-border/50 rounded-xl focus:border-primary/50"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block font-semibold">New Password</label>
+                      <Input
+                        type="password"
+                        value={passwordForm.newPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                        placeholder="••••••••"
+                        className="bg-secondary/50 border-border/50 rounded-xl focus:border-primary/50"
+                      />
+                      <p className="text-muted-foreground text-xs mt-1">Must be at least 8 characters</p>
+                    </div>
+                    <div>
+                      <label className="text-muted-foreground text-xs uppercase tracking-wider mb-2 block font-semibold">Confirm New Password</label>
+                      <Input
+                        type="password"
+                        value={passwordForm.confirmPassword}
+                        onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                        placeholder="••••••••"
+                        className="bg-secondary/50 border-border/50 rounded-xl focus:border-primary/50"
+                      />
+                    </div>
+                    <Button type="submit" disabled={passwordLoading} className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-6">
+                      {passwordLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Lock className="h-4 w-4 mr-2" />}
+                      Update Password
+                    </Button>
+                  </form>
+                </div>
+
+                {/* ── Danger Zone ── */}
+                <div className="glass rounded-3xl p-8 border border-destructive/20">
+                  <h3 className="font-heading font-bold text-xl text-destructive mb-2 flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5" />
+                    Danger Zone
+                  </h3>
+                  <p className="text-muted-foreground text-sm mb-6">
+                    Permanently delete your account and all associated data. This action cannot be undone.
+                  </p>
+                  <Button
+                    variant="outline"
+                    className="border-destructive/30 text-destructive hover:bg-destructive/10 rounded-xl"
+                    onClick={() => setDeleteDialogOpen(true)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Account
+                  </Button>
+                </div>
+
+                {/* Delete Account Dialog */}
+                <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                  <AlertDialogContent className="glass border-border/50">
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="font-heading text-foreground flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-destructive" />
+                        Delete Account
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete your account, profile, and all data. This action cannot be undone. Enter your password to confirm.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <div className="py-2">
+                      <Input
+                        type="password"
+                        placeholder="Enter your password"
+                        value={deletePassword}
+                        onChange={(e) => setDeletePassword(e.target.value)}
+                        className="bg-secondary/50 border-border/50 rounded-xl"
+                      />
+                    </div>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel disabled={deleteLoading} onClick={() => setDeletePassword("")}>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleDeleteAccount}
+                        disabled={deleteLoading || !deletePassword}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        {deleteLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                        Delete My Account
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </motion.div>
             )}
 
