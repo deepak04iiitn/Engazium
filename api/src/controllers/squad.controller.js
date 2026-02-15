@@ -18,12 +18,15 @@ export const createSquad = async (req, res, next) => {
       return next(errorHandler(400, "Invalid plan. Must be Growth, Pro, or Momentum"));
     }
 
+    const planLimits = { Growth: 10, Pro: 20, Momentum: 30 };
+    const maxMembersLimit = planLimits[plan] || 10;
+
     const squad = new Squad({
       name: name.trim(),
       plan,
       niche,
       ...(platform && { platform }),
-      maxMembers: maxMembers || 10,
+      maxMembers: maxMembers || maxMembersLimit,
       description: description || "",
       createdBy: req.user.id,
       memberCount: 1,
