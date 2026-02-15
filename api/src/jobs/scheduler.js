@@ -79,7 +79,7 @@ async function recalculateEngagement() {
               // Update squad status if needed
               const updatedSquad = await Squad.findById(squad._id);
               if (updatedSquad && updatedSquad.memberCount < updatedSquad.maxMembers) {
-                updatedSquad.status = "Recruiting";
+                updatedSquad.status = "Active";
                 await updatedSquad.save();
               }
 

@@ -30,7 +30,7 @@ export const createSquad = async (req, res, next) => {
       description: description || "",
       createdBy: req.user.id,
       memberCount: 1,
-      status: "Recruiting",
+      status: "Active",
     });
 
     await squad.save();
@@ -96,9 +96,7 @@ export const getSquads = async (req, res, next) => {
     
     // Status filter
     if (status && status !== "all") {
-      if (status === "recruiting") {
-        filter.status = "Recruiting";
-      } else if (status === "active") {
+      if (status === "active") {
         filter.status = "Active";
       } else if (status === "full") {
         filter.$expr = { $gte: ["$memberCount", "$maxMembers"] };
@@ -258,7 +256,7 @@ export const joinSquad = async (req, res, next) => {
     if (squad.memberCount >= squad.maxMembers) {
       squad.status = "Full";
     } else {
-      squad.status = "Recruiting";
+      squad.status = "Active";
     }
     await squad.save();
 
@@ -307,7 +305,7 @@ export const leaveSquad = async (req, res, next) => {
     // Update member count and status
     squad.memberCount = Math.max(0, squad.memberCount - 1);
     if (squad.memberCount < squad.maxMembers) {
-      squad.status = "Recruiting";
+      squad.status = "Active";
     }
     await squad.save();
 

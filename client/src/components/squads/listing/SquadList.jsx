@@ -29,7 +29,6 @@ const fadeUp = {
 const SquadList = ({
   loading,
   squads,
-  viewMode,
   activeFilterCount,
   clearAllFilters,
   totalPages,
@@ -53,18 +52,12 @@ const SquadList = ({
     <>
       {/* Squad Grid/List */}
       {squads.length > 0 && (
-        <div
-          className={
-            viewMode === "grid"
-              ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"
-              : "space-y-4"
-          }
-        >
+        <div className="space-y-4">
           {squads.map((squad, index) => (
             <SquadCard
               key={squad._id}
               squad={squad}
-              viewMode={viewMode}
+
               index={index}
               joiningId={joiningId}
               onJoin={onJoin}

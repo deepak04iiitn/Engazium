@@ -90,8 +90,8 @@ const squadSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["Recruiting", "Active", "Full"],
-      default: "Recruiting",
+      enum: ["Active", "Full"],
+      default: "Active",
     },
 
     description: {

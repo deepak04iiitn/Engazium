@@ -36,7 +36,7 @@ const CreateSquadDialog = ({
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[540px] bg-background border-border/30 max-h-[90vh] overflow-y-auto p-0">
+      <DialogContent className="sm:max-w-[640px] bg-background border-border/30 max-h-[90vh] overflow-y-auto p-0 scrollbar-none">
         {/* Header with gradient accent */}
         <div className="relative px-8 pt-8 pb-6 border-b border-border/20">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary/60 to-primary/20 rounded-t-lg" />

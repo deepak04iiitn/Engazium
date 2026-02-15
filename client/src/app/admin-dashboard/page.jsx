@@ -41,10 +41,10 @@ const adminSubscriptions = [
 const adminSquads = [
   { id: 1, name: "Tech Creators Hub", niche: "Tech & SaaS", members: 10, max: 10, revenue: "₹1,000/mo", status: "Active", type: "Starter" },
   { id: 2, name: "Fitness Growth Circle", niche: "Fitness", members: 17, max: 20, revenue: "₹1,700/mo", status: "Active", type: "Growth" },
-  { id: 3, name: "Foodie Network", niche: "Food & Cooking", members: 9, max: 10, revenue: "₹450/mo", status: "Recruiting", type: "Starter" },
+  { id: 3, name: "Foodie Network", niche: "Food & Cooking", members: 9, max: 10, revenue: "₹450/mo", status: "Active", type: "Starter" },
   { id: 4, name: "Fashion Forward", niche: "Fashion", members: 20, max: 20, revenue: "₹2,000/mo", status: "Active", type: "Growth" },
   { id: 5, name: "SaaS Growth Squad", niche: "Tech & SaaS", members: 18, max: 20, revenue: "₹1,800/mo", status: "Active", type: "Growth" },
-  { id: 6, name: "Finance Gurus", niche: "Finance", members: 15, max: 20, revenue: "₹750/mo", status: "Recruiting", type: "Growth" },
+  { id: 6, name: "Finance Gurus", niche: "Finance", members: 15, max: 20, revenue: "₹750/mo", status: "Active", type: "Growth" },
 ];
 
 const sidebarItems = [

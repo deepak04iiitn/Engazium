@@ -102,7 +102,7 @@ const UserSquads = ({
                             <Users className="h-3.5 w-3.5" />
                             {squad.memberCount}/{squad.maxMembers} members
                           </span>
-                          <Badge className="text-[10px]" variant={squad.status === "Recruiting" ? "default" : "secondary"}>
+                          <Badge className="text-[10px]" variant={squad.status === "Active" ? "default" : "secondary"}>
                             {squad.status}
                           </Badge>
                         </div>

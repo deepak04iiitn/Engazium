@@ -1,17 +1,18 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Shield, Zap, Star } from "lucide-react";
+import { Shield, Zap, Star, Plus } from "lucide-react";
 import { useSelector } from "react-redux";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 // Components
 import SquadsHero from "@/components/squads/listing/SquadsHero";
-import SquadFilters from "@/components/squads/listing/SquadFilters";
-import SquadControls from "@/components/squads/listing/SquadControls";
+import SquadFilterBar from "@/components/squads/listing/SquadFilterBar";
 import SquadList from "@/components/squads/listing/SquadList";
 import CreateSquadDialog from "@/components/squads/listing/CreateSquadDialog";
+import { Button } from "@/components/ui/button";
 
 const ALL_NICHES = [
   "Art & Creativity",
@@ -61,7 +62,7 @@ const Squads = () => {
   const [sortOrder, setSortOrder] = useState("desc");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(12);
-  const [viewMode, setViewMode] = useState("list");
+
   const [showFilters, setShowFilters] = useState(true);
   const [squads, setSquads] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -282,10 +283,8 @@ const Squads = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className="flex flex-col lg:flex-row gap-6 max-w-7xl mx-auto">
-              {/* Filter Sidebar */}
-              <SquadFilters
-                showFilters={showFilters}
+            <div className="max-w-7xl mx-auto">
+              <SquadFilterBar
                 selectedNiches={selectedNiches}
                 toggleNiche={toggleNiche}
                 searchQuery={searchQuery}
@@ -300,44 +299,64 @@ const Squads = () => {
                 clearAllFilters={clearAllFilters}
                 allNiches={ALL_NICHES}
                 plans={PLANS}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                sortOrder={sortOrder}
+                setSortOrder={setSortOrder}
+                totalResults={totalResults}
               />
 
-              {/* Main Content */}
-              <div className="flex-1 min-w-0">
-                {/* Controls Bar */}
-                <SquadControls
-                  totalResults={totalResults}
-                  currentCount={squads.length}
-                  showFilters={showFilters}
-                  setShowFilters={setShowFilters}
-                  viewMode={viewMode}
-                  setViewMode={setViewMode}
-                  sortBy={sortBy}
-                  setSortBy={setSortBy}
-                  sortOrder={sortOrder}
-                  setSortOrder={setSortOrder}
-                />
-
-                {/* Squad List */}
-                <SquadList
-                  loading={loading}
-                  squads={squads}
-                  viewMode={viewMode}
-                  activeFilterCount={activeFilterCount}
-                  clearAllFilters={clearAllFilters}
-                  totalPages={totalPages}
-                  currentPage={currentPage}
-                  setCurrentPage={setCurrentPage}
-                  pageSize={pageSize}
-                  setPageSize={setPageSize}
-                  joiningId={joiningId}
-                  onJoin={handleJoinSquad}
-                />
-              </div>
+              {/* Squad List */}
+              <SquadList
+                loading={loading}
+                squads={squads}
+                activeFilterCount={activeFilterCount}
+                clearAllFilters={clearAllFilters}
+                totalPages={totalPages}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                pageSize={pageSize}
+                setPageSize={setPageSize}
+                joiningId={joiningId}
+                onJoin={handleJoinSquad}
+              />
             </div>
           </div>
         </section>
       </main>
+
+      {/* Floating Action Button */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        className="fixed bottom-8 right-8 z-50 lg:hidden"
+      >
+        <Button
+          onClick={() => setIsCreateDialogOpen(true)}
+          className="h-16 w-16 rounded-full bg-primary text-primary-foreground shadow-2xl shadow-primary/40 flex items-center justify-center p-0 hover:bg-primary/90 group"
+        >
+          <Plus className="h-8 w-8 transition-transform group-hover:rotate-90 duration-300" />
+        </Button>
+      </motion.div>
+
+      {/* Desktop Floating Button (Optional but nice, maybe just keep it for mobile or all) */}
+      <motion.div
+        initial={{ opacity: 0, x: 50 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="fixed bottom-8 right-8 z-50 hidden lg:block"
+      >
+        <Button
+          onClick={() => setIsCreateDialogOpen(true)}
+          className="h-14 px-6 rounded-full bg-primary text-primary-foreground shadow-2xl shadow-primary/40 flex items-center gap-3 hover:bg-primary/90 group transition-all duration-300"
+        >
+          <div className="bg-white/20 rounded-lg p-1 group-hover:rotate-90 transition-transform duration-300">
+            <Plus className="h-5 w-5" />
+          </div>
+          <span className="font-heading font-bold tracking-wide">CREATE SQUAD</span>
+        </Button>
+      </motion.div>
 
       {/* Create Squad Dialog */}
       <CreateSquadDialog
