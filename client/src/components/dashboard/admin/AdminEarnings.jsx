@@ -13,13 +13,13 @@ import {
 
 const AdminEarnings = ({ earnings }) => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div>
-        <h2 className="text-2xl font-heading font-bold text-foreground mb-1">Earnings Dashboard</h2>
-        <p className="text-muted-foreground text-sm">Revenue analytics and insights</p>
+        <h2 className="text-lg sm:text-2xl font-heading font-bold text-foreground mb-0.5 sm:mb-1">Earnings Dashboard</h2>
+        <p className="text-muted-foreground text-xs sm:text-sm">Revenue analytics and insights</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         {[
           { label: "Lifetime", value: earnings.lifetime, icon: Award },
           { label: "This Month", value: earnings.thisMonth, icon: Target },
@@ -31,21 +31,21 @@ const AdminEarnings = ({ earnings }) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="glass rounded-2xl p-6 gradient-border text-center hover:bg-card/60 transition-all group"
+            className="glass rounded-xl sm:rounded-2xl p-4 sm:p-6 gradient-border text-center hover:bg-card/60 transition-all group"
           >
-            <stat.icon className="h-6 w-6 text-primary mx-auto mb-3 group-hover:scale-110 transition-transform" />
-            <div className="text-2xl font-heading font-bold text-foreground mb-2">{stat.value}</div>
-            <div className="text-muted-foreground text-xs uppercase tracking-wider">{stat.label}</div>
+            <stat.icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary mx-auto mb-2 sm:mb-3 group-hover:scale-110 transition-transform" />
+            <div className="text-lg sm:text-2xl font-heading font-bold text-foreground mb-1 sm:mb-2">{stat.value}</div>
+            <div className="text-muted-foreground text-[10px] sm:text-xs uppercase tracking-wider">{stat.label}</div>
           </motion.div>
         ))}
       </div>
 
-      <div className="glass rounded-3xl p-8 gradient-border">
-        <h3 className="font-heading font-bold text-xl text-foreground mb-6 flex items-center gap-2">
-          <BarChart3 className="h-5 w-5 text-primary" />
+      <div className="glass rounded-2xl sm:rounded-3xl p-4 sm:p-8 gradient-border">
+        <h3 className="font-heading font-bold text-base sm:text-xl text-foreground mb-4 sm:mb-6 flex items-center gap-2">
+          <BarChart3 className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
           Monthly Revenue Breakdown
         </h3>
-        <div className="flex items-end gap-4 h-72">
+        <div className="flex items-end gap-2 sm:gap-4 h-44 sm:h-72">
           {earnings.monthlyBreakdown.map((m, index) => {
             const maxAmount = Math.max(...earnings.monthlyBreakdown.map(x => x.amount));
             const heightPercent = (m.amount / maxAmount) * 100;
@@ -55,11 +55,11 @@ const AdminEarnings = ({ earnings }) => {
                 initial={{ height: 0 }}
                 animate={{ height: `${heightPercent}%` }}
                 transition={{ delay: 0.5 + index * 0.1, duration: 0.5, ease: "easeOut" }}
-                className="flex-1 flex flex-col items-center gap-3"
+                className="flex-1 flex flex-col items-center gap-1.5 sm:gap-3"
               >
-                <span className="text-foreground text-sm font-heading font-semibold">₹{(m.amount / 1000).toFixed(1)}K</span>
-                <div className="w-full bg-gradient-to-t from-primary via-primary/80 to-primary/40 rounded-t-xl hover:from-primary hover:via-primary hover:to-primary/60 transition-all cursor-pointer shadow-lg shadow-primary/20" style={{ height: `${heightPercent}%` }} />
-                <span className="text-muted-foreground text-sm font-semibold">{m.month}</span>
+                <span className="text-foreground text-[9px] sm:text-sm font-heading font-semibold">₹{(m.amount / 1000).toFixed(1)}K</span>
+                <div className="w-full bg-gradient-to-t from-primary via-primary/80 to-primary/40 rounded-t-lg sm:rounded-t-xl hover:from-primary hover:via-primary hover:to-primary/60 transition-all cursor-pointer shadow-lg shadow-primary/20" style={{ height: `${heightPercent}%` }} />
+                <span className="text-muted-foreground text-[9px] sm:text-sm font-semibold">{m.month}</span>
               </motion.div>
             );
           })}

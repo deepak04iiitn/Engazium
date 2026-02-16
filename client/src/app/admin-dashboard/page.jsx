@@ -51,8 +51,17 @@ const sidebarItems = [
   { key: "overview", label: "Overview", icon: BarChart3 },
   { key: "users", label: "All Users", icon: Users },
   { key: "earnings", label: "Earnings", icon: DollarSign },
-  { key: "subscriptions", label: "Subscriptions", icon: CreditCard },
-  { key: "squads", label: "All Squads", icon: Shield },
+  { key: "subscriptions", label: "Subs", icon: CreditCard },
+  { key: "squads", label: "Squads", icon: Shield },
+];
+
+// Mobile bottom tabs for admin
+const mobileTabItems = [
+  { key: "overview", label: "Overview", icon: BarChart3 },
+  { key: "users", label: "Users", icon: Users },
+  { key: "earnings", label: "Earnings", icon: DollarSign },
+  { key: "subscriptions", label: "Subs", icon: CreditCard },
+  { key: "squads", label: "Squads", icon: Shield },
 ];
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -182,8 +191,75 @@ const AdminDashboard = () => {
   );
   const activeSubs = adminSubscriptions.filter(s => s.status === "Active").length;
 
+  const renderContent = () => (
+    <div className="p-4 sm:p-5 md:p-6 pb-20 md:pb-6">
+      {/* Overview Section */}
+      {activeSection === "overview" && (
+        <AdminOverview 
+          pagination={pagination}
+          earnings={earnings}
+          activeSubs={activeSubs}
+          adminSubscriptions={adminSubscriptions}
+          adminSquads={adminSquads}
+        />
+      )}
+
+      {/* Users Section */}
+      {activeSection === "users" && (
+        <AdminUsers 
+          pagination={pagination}
+          fetchUsers={fetchUsers}
+          usersLoading={usersLoading}
+          usersError={usersError}
+          setUsersError={setUsersError}
+          users={users}
+          userSearch={userSearch}
+          setUserSearch={setUserSearch}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          handleDeleteUser={handleDeleteUser}
+          handleToggleAdmin={handleToggleAdmin}
+          toggleAdminLoading={toggleAdminLoading}
+          formatJoinDate={formatJoinDate}
+          getInitials={getInitials}
+          deleteDialogOpen={deleteDialogOpen}
+          setDeleteDialogOpen={setDeleteDialogOpen}
+          userToDelete={userToDelete}
+          setUserToDelete={setUserToDelete}
+          deleteLoading={deleteLoading}
+          viewDialogOpen={viewDialogOpen}
+          setViewDialogOpen={setViewDialogOpen}
+          viewUser={viewUser}
+          setViewUser={setViewUser}
+        />
+      )}
+
+      {/* Earnings Section */}
+      {activeSection === "earnings" && (
+        <AdminEarnings earnings={earnings} />
+      )}
+
+      {/* Subscriptions Section */}
+      {activeSection === "subscriptions" && (
+        <AdminSubscriptions 
+          adminSubscriptions={adminSubscriptions}
+          activeSubs={activeSubs}
+          subSearch={subSearch}
+          setSubSearch={setSubSearch}
+          filteredSubs={filteredSubs}
+        />
+      )}
+
+      {/* Squads Section */}
+      {activeSection === "squads" && (
+        <AdminSquads adminSquads={adminSquads} />
+      )}
+    </div>
+  );
+
   return (
     <div className="flex h-screen bg-background text-foreground overflow-hidden">
+      {/* Sidebar - handles its own mobile/desktop visibility */}
       <AdminSidebar 
         activeSection={activeSection} 
         setActiveSection={setActiveSection} 
@@ -193,88 +269,54 @@ const AdminDashboard = () => {
 
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative transition-all duration-300">
         <div className="flex-1 overflow-y-auto">
-          <header className="sticky top-0 z-30 glass-strong border-b border-border/20 h-16 flex items-center px-4 md:px-6 gap-4">
+          <header className="sticky top-0 z-30 glass-strong border-b border-border/20 h-14 sm:h-16 flex items-center px-4 md:px-6 gap-3 sm:gap-4">
             <Button 
               variant="ghost" 
               size="icon" 
-              className="md:hidden text-muted-foreground mr-2" 
+              className="md:hidden text-muted-foreground mr-1 sm:mr-2 h-9 w-9" 
               onClick={() => setIsSidebarOpen(true)}
             >
-              <Menu size={20} />
+              <Menu size={18} />
             </Button>
-            <div className="flex items-center gap-3">
-              <Shield className="h-5 w-5 text-primary" />
-              <h1 className="font-heading font-bold text-xl text-foreground">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+              <h1 className="font-heading font-bold text-base sm:text-lg md:text-xl text-foreground">
                 {sidebarItems.find(i => i.key === activeSection)?.label || "Admin"}
               </h1>
             </div>
           </header>
 
-          <div className="p-6">
-            {/* Overview Section */}
-            {activeSection === "overview" && (
-              <AdminOverview 
-                pagination={pagination}
-                earnings={earnings}
-                activeSubs={activeSubs}
-                adminSubscriptions={adminSubscriptions}
-                adminSquads={adminSquads}
-              />
-            )}
-
-            {/* Users Section */}
-            {activeSection === "users" && (
-              <AdminUsers 
-                pagination={pagination}
-                fetchUsers={fetchUsers}
-                usersLoading={usersLoading}
-                usersError={usersError}
-                setUsersError={setUsersError}
-                users={users}
-                userSearch={userSearch}
-                setUserSearch={setUserSearch}
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-                handleDeleteUser={handleDeleteUser}
-                handleToggleAdmin={handleToggleAdmin}
-                toggleAdminLoading={toggleAdminLoading}
-                formatJoinDate={formatJoinDate}
-                getInitials={getInitials}
-                deleteDialogOpen={deleteDialogOpen}
-                setDeleteDialogOpen={setDeleteDialogOpen}
-                userToDelete={userToDelete}
-                setUserToDelete={setUserToDelete}
-                deleteLoading={deleteLoading}
-                viewDialogOpen={viewDialogOpen}
-                setViewDialogOpen={setViewDialogOpen}
-                viewUser={viewUser}
-                setViewUser={setViewUser}
-              />
-            )}
-
-            {/* Earnings Section */}
-            {activeSection === "earnings" && (
-              <AdminEarnings earnings={earnings} />
-            )}
-
-            {/* Subscriptions Section */}
-            {activeSection === "subscriptions" && (
-              <AdminSubscriptions 
-                adminSubscriptions={adminSubscriptions}
-                activeSubs={activeSubs}
-                subSearch={subSearch}
-                setSubSearch={setSubSearch}
-                filteredSubs={filteredSubs}
-              />
-            )}
-
-            {/* Squads Section */}
-            {activeSection === "squads" && (
-              <AdminSquads adminSquads={adminSquads} />
-            )}
-          </div>
+          {renderContent()}
         </div>
       </main>
+
+      {/* Mobile Bottom Tab Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-strong border-t border-border/20 safe-area-bottom bg-[#0f111a]/95 backdrop-blur-xl">
+        <div className="flex items-center justify-around h-16">
+          {mobileTabItems.map((item) => {
+            const isActive = activeSection === item.key;
+            return (
+              <button
+                key={item.key}
+                onClick={() => setActiveSection(item.key)}
+                className={`flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-lg transition-all duration-200 min-w-0 flex-1 ${
+                  isActive 
+                    ? "text-indigo-400" 
+                    : "text-muted-foreground"
+                }`}
+              >
+                <div className={`p-1 rounded-lg transition-all duration-200 ${isActive ? "bg-indigo-500/15" : ""}`}>
+                  <item.icon className={`h-5 w-5 transition-transform duration-200 ${isActive ? "scale-110" : ""}`} />
+                </div>
+                <span className={`text-[10px] font-medium leading-none truncate ${isActive ? "font-bold" : ""}`}>
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+
     </div>
   );
 };

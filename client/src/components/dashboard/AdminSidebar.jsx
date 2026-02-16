@@ -90,8 +90,7 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
       <motion.aside
         className={cn(
           "fixed md:relative z-50 h-screen flex flex-col border-r border-indigo-500/10 bg-[#0f111a]/95 backdrop-blur-xl transition-all duration-300 ease-in-out",
-          isOpen ? "w-64" : "w-20",
-          !isOpen && isMobile && "-translate-x-full" 
+          isOpen ? "w-64" : "w-20 -translate-x-full md:translate-x-0"
         )}
       >
         {/* Header */}

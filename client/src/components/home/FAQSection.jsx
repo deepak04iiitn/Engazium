@@ -53,25 +53,25 @@ const faqs = [
 
 const FAQSection = () => {
   return (
-    <section id="faq" className="relative py-24 overflow-hidden">
+    <section id="faq" className="relative py-14 sm:py-20 md:py-24 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/20 to-background" />
 
-      <div className="container relative z-10 mx-auto px-6">
+      <div className="container relative z-10 mx-auto px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-8 sm:mb-12 md:mb-16"
         >
-          <span className="text-primary font-heading text-sm font-semibold uppercase tracking-wider">
+          <span className="text-primary font-heading text-xs sm:text-sm font-semibold uppercase tracking-wider">
             FAQ
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-3 mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-2 sm:mt-3 mb-3 sm:mb-4">
             Got{" "}
             <span className="text-gradient">Questions?</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+          <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base md:text-lg px-2">
             Everything you need to know about Engazium and how it helps you grow.
           </p>
         </motion.div>
@@ -83,17 +83,17 @@ const FAQSection = () => {
           transition={{ duration: 0.5 }}
           className="max-w-3xl mx-auto"
         >
-          <Accordion type="single" collapsible className="space-y-3">
+          <Accordion type="single" collapsible className="space-y-2 sm:space-y-3">
             {faqs.map((faq, index) => (
               <AccordionItem
                 key={index}
                 value={`item-${index}`}
-                className="glass rounded-xl px-6 gradient-border border-none"
+                className="glass rounded-lg sm:rounded-xl px-4 sm:px-6 gradient-border border-none"
               >
-                <AccordionTrigger className="text-left font-heading font-semibold text-foreground hover:text-primary hover:no-underline py-5 text-sm md:text-base">
+                <AccordionTrigger className="text-left font-heading font-semibold text-foreground hover:text-primary hover:no-underline py-3.5 sm:py-4 md:py-5 text-xs sm:text-sm md:text-base">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground text-sm leading-relaxed pb-5">
+                <AccordionContent className="text-muted-foreground text-xs sm:text-sm leading-relaxed pb-3.5 sm:pb-4 md:pb-5">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

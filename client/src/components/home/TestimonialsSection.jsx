@@ -69,34 +69,84 @@ const testimonials = [
 
 const TestimonialsSection = () => {
   return (
-    <section className="relative py-24 overflow-hidden">
+    <section className="relative py-14 sm:py-20 md:py-24 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/10 to-background" />
 
       {/* Glow */}
-      <div className="absolute top-0 right-1/4 w-[350px] h-[350px] bg-primary/5 rounded-full blur-[120px]" />
-      <div className="absolute bottom-0 left-1/4 w-[250px] h-[250px] bg-glow-secondary/5 rounded-full blur-[100px]" />
+      <div className="absolute top-0 right-1/4 w-[200px] h-[200px] md:w-[350px] md:h-[350px] bg-primary/5 rounded-full blur-[80px] md:blur-[120px]" />
+      <div className="absolute bottom-0 left-1/4 w-[150px] h-[150px] md:w-[250px] md:h-[250px] bg-glow-secondary/5 rounded-full blur-[60px] md:blur-[100px]" />
 
-      <div className="container relative z-10 mx-auto px-6">
+      <div className="container relative z-10 mx-auto px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
+          viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="text-center mb-8 sm:mb-12 md:mb-16"
         >
-          <span className="text-primary font-heading text-sm font-semibold uppercase tracking-wider">
+          <span className="text-primary font-heading text-xs sm:text-sm font-semibold uppercase tracking-wider">
             Testimonials
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-3 mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-2 sm:mt-3 mb-3 sm:mb-4">
             Creators Are{" "}
             <span className="text-gradient">Loving It</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+          <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base md:text-lg px-2">
             Don't take our word for it — hear from creators who've transformed their growth with Engazium.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        {/* Mobile: horizontal scroll cards | Desktop: grid */}
+        {/* Mobile View */}
+        <div className="md:hidden">
+          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 scrollbar-none">
+            {testimonials.map((testimonial, index) => (
+              <motion.div
+                key={testimonial.name}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-20px" }}
+                transition={{ duration: 0.4, delay: index * 0.05 }}
+                className="glass rounded-xl p-4 gradient-border min-w-[260px] snap-center flex-shrink-0 flex flex-col"
+              >
+                <Quote className="h-5 w-5 text-primary/20 mb-2" />
+
+                <p className="text-muted-foreground text-xs leading-relaxed mb-3 flex-1 line-clamp-4">
+                  &ldquo;{testimonial.quote}&rdquo;
+                </p>
+
+                <div className="flex items-center gap-1 mb-3">
+                  {Array.from({ length: testimonial.rating }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className="h-3 w-3 fill-primary text-primary"
+                    />
+                  ))}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-8 w-8 border border-border/50">
+                    <AvatarImage src={testimonial.avatar} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-[10px] font-heading font-semibold">
+                      {testimonial.initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0">
+                    <p className="font-heading font-semibold text-foreground text-xs truncate">
+                      {testimonial.name}
+                    </p>
+                    <p className="text-muted-foreground text-[10px] truncate">
+                      {testimonial.niche}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        {/* Desktop View */}
+        <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {testimonials.map((testimonial, index) => (
             <motion.div
               key={testimonial.name}
@@ -109,7 +159,7 @@ const TestimonialsSection = () => {
               <Quote className="h-8 w-8 text-primary/20 mb-4" />
 
               <p className="text-muted-foreground text-sm leading-relaxed mb-6 flex-1">
-                "{testimonial.quote}"
+                &ldquo;{testimonial.quote}&rdquo;
               </p>
 
               <div className="flex items-center gap-1 mb-4">

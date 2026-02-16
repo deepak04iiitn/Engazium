@@ -8,6 +8,7 @@ import {
   BarChart3,
   Home,
   Menu,
+  LayoutDashboard,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
@@ -37,6 +38,15 @@ const sidebarItems = [
   { key: "squads", label: "My Squads", icon: Users },
   { key: "subscriptions", label: "Subscriptions", icon: CreditCard },
   { key: "analytics", label: "Analytics", icon: BarChart3 },
+];
+
+// Mobile bottom tabs - a subset of the sidebar items
+const mobileTabItems = [
+  { key: "overview", label: "Home", icon: LayoutDashboard },
+  { key: "squads", label: "Squads", icon: Users },
+  { key: "profile", label: "Profile", icon: User },
+  { key: "analytics", label: "Stats", icon: BarChart3 },
+  { key: "subscriptions", label: "Billing", icon: CreditCard },
 ];
 
 const Dashboard = () => {
@@ -345,8 +355,87 @@ const Dashboard = () => {
 
   if (!currentUser) return null;
 
+  const renderContent = () => (
+    <div className="p-4 sm:p-5 md:p-6 pb-20 md:pb-6">
+      {/* Overview Section */}
+      {activeSection === "overview" && (
+        <UserOverview 
+          currentUser={currentUser}
+          computedAnalytics={computedAnalytics}
+          profileCompletion={profileCompletion}
+          squadsLoading={squadsLoading}
+          mySquads={mySquads}
+          setActiveSection={setActiveSection}
+        />
+      )}
+
+      {/* Profile Section */}
+      {activeSection === "profile" && (
+        <UserProfile 
+          currentUser={currentUser}
+          profile={profile}
+          setProfile={setProfile}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
+          profileLoading={profileLoading}
+          profileSaving={profileSaving}
+          profileError={profileError}
+          setProfileError={setProfileError}
+          profileSuccess={profileSuccess}
+          handleSaveProfile={handleSaveProfile}
+          handleCancelEdit={handleCancelEdit}
+          profileCompletion={profileCompletion}
+          formatJoinDate={formatJoinDate}
+          togglePlatform={togglePlatform}
+          updatePlatformStat={updatePlatformStat}
+          selectedPlatforms={selectedPlatforms}
+          passwordForm={passwordForm}
+          setPasswordForm={setPasswordForm}
+          passwordLoading={passwordLoading}
+          handleChangePassword={handleChangePassword}
+          deleteDialogOpen={deleteDialogOpen}
+          setDeleteDialogOpen={setDeleteDialogOpen}
+          deletePassword={deletePassword}
+          setDeletePassword={setDeletePassword}
+          deleteLoading={deleteLoading}
+          handleDeleteAccount={handleDeleteAccount}
+        />
+      )}
+
+      {/* Squads Section & Create Squad Section */}
+      {(activeSection === "squads" || activeSection === "create-squad") && (
+        <UserSquads 
+          activeSection={activeSection}
+          squadsLoading={squadsLoading}
+          mySquads={mySquads}
+          createSquadForm={createSquadForm}
+          setCreateSquadForm={setCreateSquadForm}
+          handleCreateSquad={handleCreateSquad}
+          createSquadLoading={createSquadLoading}
+        />
+      )}
+
+      {/* Subscriptions Section */}
+      {activeSection === "subscriptions" && (
+        <UserSubscriptions subscriptions={subscriptions} />
+      )}
+
+      {/* Analytics Section */}
+      {activeSection === "analytics" && (
+        <UserAnalytics 
+          squadsLoading={squadsLoading}
+          computedAnalytics={computedAnalytics}
+          mySquads={mySquads}
+          selectedSquadAnalytics={selectedSquadAnalytics}
+          setSelectedSquadAnalytics={setSelectedSquadAnalytics}
+        />
+      )}
+    </div>
+  );
+
   return (
     <div className="flex h-screen bg-background text-foreground overflow-hidden">
+      {/* Sidebar - handles its own mobile/desktop visibility */}
       <UserSidebar 
         activeSection={activeSection} 
         setActiveSection={setActiveSection} 
@@ -356,113 +445,68 @@ const Dashboard = () => {
 
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative transition-all duration-300">
         <div className="flex-1 overflow-y-auto">
-          <header className="sticky top-0 z-30 glass-strong border-b border-border/20 h-16 flex items-center px-4 md:px-6 gap-4">
+          {/* Desktop Header */}
+          <header className="sticky top-0 z-30 glass-strong border-b border-border/20 h-14 sm:h-16 flex items-center px-4 md:px-6 gap-3 sm:gap-4">
             <Button 
               variant="ghost" 
               size="icon" 
-              className="md:hidden text-muted-foreground mr-2" 
+              className="md:hidden text-muted-foreground mr-1 sm:mr-2 h-9 w-9" 
               onClick={() => setIsSidebarOpen(true)}
             >
-              <Menu size={20} />
+              <Menu size={18} />
             </Button>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               {sidebarItems.find(i => i.key === activeSection) && (
                 <>
                   {(() => {
                     const Icon = sidebarItems.find(i => i.key === activeSection).icon;
-                    return <Icon className="h-5 w-5 text-primary" />;
+                    return <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />;
                   })()}
-                  <h1 className="font-heading font-bold text-xl text-foreground">
+                  <h1 className="font-heading font-bold text-base sm:text-lg md:text-xl text-foreground">
                     {sidebarItems.find(i => i.key === activeSection)?.label || "Dashboard"}
                   </h1>
                 </>
               )}
             </div>
-            <div className="ml-auto flex items-center gap-3">
-              <Badge className="bg-primary/20 text-primary border-primary/30 px-3 py-1.5 text-sm font-semibold">
-                <Users className="h-3.5 w-3.5 mr-1.5" />
+            <div className="ml-auto flex items-center gap-2 sm:gap-3">
+              <Badge className="bg-primary/20 text-primary border-primary/30 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-semibold">
+                <Users className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1 sm:mr-1.5" />
                 {mySquads.length} Squad{mySquads.length !== 1 ? "s" : ""}
               </Badge>
             </div>
           </header>
 
-          <div className="p-6">
-            {/* Overview Section */}
-            {activeSection === "overview" && (
-              <UserOverview 
-                currentUser={currentUser}
-                computedAnalytics={computedAnalytics}
-                profileCompletion={profileCompletion}
-                squadsLoading={squadsLoading}
-                mySquads={mySquads}
-                setActiveSection={setActiveSection}
-              />
-            )}
-
-            {/* Profile Section */}
-            {activeSection === "profile" && (
-              <UserProfile 
-                currentUser={currentUser}
-                profile={profile}
-                setProfile={setProfile}
-                isEditing={isEditing}
-                setIsEditing={setIsEditing}
-                profileLoading={profileLoading}
-                profileSaving={profileSaving}
-                profileError={profileError}
-                setProfileError={setProfileError}
-                profileSuccess={profileSuccess}
-                handleSaveProfile={handleSaveProfile}
-                handleCancelEdit={handleCancelEdit}
-                profileCompletion={profileCompletion}
-                formatJoinDate={formatJoinDate}
-                togglePlatform={togglePlatform}
-                updatePlatformStat={updatePlatformStat}
-                selectedPlatforms={selectedPlatforms}
-                passwordForm={passwordForm}
-                setPasswordForm={setPasswordForm}
-                passwordLoading={passwordLoading}
-                handleChangePassword={handleChangePassword}
-                deleteDialogOpen={deleteDialogOpen}
-                setDeleteDialogOpen={setDeleteDialogOpen}
-                deletePassword={deletePassword}
-                setDeletePassword={setDeletePassword}
-                deleteLoading={deleteLoading}
-                handleDeleteAccount={handleDeleteAccount}
-              />
-            )}
-
-            {/* Squads Section & Create Squad Section */}
-            {(activeSection === "squads" || activeSection === "create-squad") && (
-              <UserSquads 
-                activeSection={activeSection}
-                squadsLoading={squadsLoading}
-                mySquads={mySquads}
-                createSquadForm={createSquadForm}
-                setCreateSquadForm={setCreateSquadForm}
-                handleCreateSquad={handleCreateSquad}
-                createSquadLoading={createSquadLoading}
-              />
-            )}
-
-            {/* Subscriptions Section */}
-            {activeSection === "subscriptions" && (
-              <UserSubscriptions subscriptions={subscriptions} />
-            )}
-
-            {/* Analytics Section */}
-            {activeSection === "analytics" && (
-              <UserAnalytics 
-                squadsLoading={squadsLoading}
-                computedAnalytics={computedAnalytics}
-                mySquads={mySquads}
-                selectedSquadAnalytics={selectedSquadAnalytics}
-                setSelectedSquadAnalytics={setSelectedSquadAnalytics}
-              />
-            )}
-          </div>
+          {renderContent()}
         </div>
       </main>
+
+      {/* Mobile Bottom Tab Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-strong border-t border-border/20 safe-area-bottom">
+        <div className="flex items-center justify-around h-16">
+          {mobileTabItems.map((item) => {
+            const isActive = activeSection === item.key;
+            return (
+              <button
+                key={item.key}
+                onClick={() => setActiveSection(item.key)}
+                className={`flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-lg transition-all duration-200 min-w-0 flex-1 ${
+                  isActive 
+                    ? "text-primary" 
+                    : "text-muted-foreground"
+                }`}
+              >
+                <div className={`p-1 rounded-lg transition-all duration-200 ${isActive ? "bg-primary/15" : ""}`}>
+                  <item.icon className={`h-5 w-5 transition-transform duration-200 ${isActive ? "scale-110" : ""}`} />
+                </div>
+                <span className={`text-[10px] font-medium leading-none truncate ${isActive ? "font-bold" : ""}`}>
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </nav>
+
     </div>
   );
 };

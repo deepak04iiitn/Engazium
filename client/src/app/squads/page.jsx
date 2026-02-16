@@ -315,21 +315,21 @@ const Squads = () => {
         />
 
         {/* Browse Squads */}
-        <section id="browse-squads" className="relative py-24 overflow-hidden">
+        <section id="browse-squads" className="relative py-14 sm:py-20 md:py-24 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/5 to-background" />
-          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 left-0 w-[200px] sm:w-[300px] md:w-[400px] h-[200px] sm:h-[300px] md:h-[400px] bg-primary/5 rounded-full blur-[80px] md:blur-[120px]" />
 
-          <div className="container relative z-10 mx-auto px-6">
+          <div className="container relative z-10 mx-auto px-4 sm:px-6">
             {/* Header */}
-            <div className="flex flex-col items-center mb-12">
-               <div className="text-center mb-10">
-                <span className="text-primary font-heading text-sm font-semibold uppercase tracking-wider">
+            <div className="flex flex-col items-center mb-8 sm:mb-10 md:mb-12">
+               <div className="text-center mb-6 sm:mb-8 md:mb-10">
+                <span className="text-primary font-heading text-xs sm:text-sm font-semibold uppercase tracking-wider">
                     Engazium Squads
                 </span>
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-3 mb-4">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-2 sm:mt-3 mb-3 sm:mb-4">
                     Explore <span className="text-gradient">Active Squads</span>
                 </h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+                <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base md:text-lg px-2">
                     Find open squads in your niche or jump back into your joined squads.
                 </p>
                </div>
@@ -338,18 +338,18 @@ const Squads = () => {
               <Tabs
                 value={activeTab}
                 onValueChange={setActiveTab}
-                className="w-full max-w-md"
+                className="w-full max-w-sm sm:max-w-md"
               >
-                <TabsList className="grid w-full grid-cols-2 p-1.5 bg-secondary/30 backdrop-blur-xl border border-white/10 rounded-2xl h-14">
+                <TabsList className="grid w-full grid-cols-2 p-1 sm:p-1.5 bg-secondary/30 backdrop-blur-xl border border-white/10 rounded-xl sm:rounded-2xl h-11 sm:h-14">
                   <TabsTrigger
                     value="browse"
-                    className="rounded-xl font-heading font-bold tracking-wide data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-300"
+                    className="rounded-lg sm:rounded-xl font-heading font-bold tracking-wide text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-300"
                   >
                     BROWSE SQUAD
                   </TabsTrigger>
                   <TabsTrigger
                     value="my"
-                    className="rounded-xl font-heading font-bold tracking-wide data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-300"
+                    className="rounded-lg sm:rounded-xl font-heading font-bold tracking-wide text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-300"
                   >
                     MY SQUADS
                   </TabsTrigger>
@@ -403,7 +403,7 @@ const Squads = () => {
                   />
                 </>
               ) : (
-                <div className="space-y-8">
+                <div className="space-y-6 sm:space-y-8">
                   {currentUser ? (
                     <SquadList
                       loading={mySquadsLoading}
@@ -414,21 +414,21 @@ const Squads = () => {
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="glass rounded-3xl p-16 text-center gradient-border max-w-2xl mx-auto"
+                      className="glass rounded-2xl sm:rounded-3xl p-8 sm:p-12 md:p-16 text-center gradient-border max-w-2xl mx-auto"
                     >
-                      <div className="w-24 h-24 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-8 rotate-3 transition-transform hover:rotate-0 duration-500">
-                        <Shield className="h-12 w-12 text-primary" />
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-xl sm:rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5 sm:mb-6 md:mb-8 rotate-3 transition-transform hover:rotate-0 duration-500">
+                        <Shield className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 text-primary" />
                       </div>
-                      <h3 className="text-3xl font-heading font-bold text-foreground mb-4">
+                      <h3 className="text-xl sm:text-2xl md:text-3xl font-heading font-bold text-foreground mb-3 sm:mb-4">
                         Members Only Area
                       </h3>
-                      <p className="text-muted-foreground text-lg mb-10 leading-relaxed">
+                      <p className="text-muted-foreground text-sm sm:text-base md:text-lg mb-6 sm:mb-8 md:mb-10 leading-relaxed px-2">
                         Sign in to access your joined squads, track your performance,
                         and collaborate with your team.
                       </p>
                       <Button
                         size="lg"
-                        className="rounded-2xl px-10 h-14 font-heading font-bold tracking-wide hover:scale-105 transition-all shadow-xl shadow-primary/20"
+                        className="rounded-xl sm:rounded-2xl px-8 sm:px-10 h-11 sm:h-12 md:h-14 font-heading font-bold tracking-wide hover:scale-105 transition-all shadow-xl shadow-primary/20 text-sm sm:text-base"
                         onClick={() => router.push("/sign-in")}
                       >
                         SIGN IN TO VIEW
@@ -442,26 +442,23 @@ const Squads = () => {
         </section>
       </main>
 
-      {/* Floating Action Button */}
-      {/* ... keeping FAB ... */}
-
-      {/* Floating Action Button */}
+      {/* Floating Action Button - Mobile */}
       <motion.div
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1 }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
-        className="fixed bottom-8 right-8 z-50 lg:hidden"
+        className="fixed bottom-6 right-4 sm:bottom-8 sm:right-8 z-50 lg:hidden"
       >
         <Button
           onClick={() => setIsCreateDialogOpen(true)}
-          className="h-16 w-16 rounded-full bg-primary text-primary-foreground shadow-2xl shadow-primary/40 flex items-center justify-center p-0 hover:bg-primary/90 group"
+          className="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-primary text-primary-foreground shadow-2xl shadow-primary/40 flex items-center justify-center p-0 hover:bg-primary/90 group"
         >
-          <Plus className="h-8 w-8 transition-transform group-hover:rotate-90 duration-300" />
+          <Plus className="h-6 w-6 sm:h-8 sm:w-8 transition-transform group-hover:rotate-90 duration-300" />
         </Button>
       </motion.div>
 
-      {/* Desktop Floating Button (Optional but nice, maybe just keep it for mobile or all) */}
+      {/* Desktop Floating Button */}
       <motion.div
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}

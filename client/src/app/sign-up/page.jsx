@@ -78,11 +78,11 @@ const SignUp = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden px-4 pt-28 pb-12">
+    <div className="min-h-screen bg-background flex items-center justify-center relative overflow-hidden px-4 sm:px-6 pt-24 sm:pt-28 pb-8 sm:pb-12">
       {/* Background effects */}
       <div className="absolute inset-0">
-        <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-primary/8 rounded-full blur-[120px]" />
-        <div className="absolute bottom-1/3 left-1/4 w-[300px] h-[300px] bg-accent/6 rounded-full blur-[100px]" />
+        <div className="absolute top-1/3 right-1/4 w-[250px] sm:w-[400px] h-[250px] sm:h-[400px] bg-primary/8 rounded-full blur-[80px] sm:blur-[120px]" />
+        <div className="absolute bottom-1/3 left-1/4 w-[200px] sm:w-[300px] h-[200px] sm:h-[300px] bg-accent/6 rounded-full blur-[70px] sm:blur-[100px]" />
       </div>
 
       <motion.div
@@ -94,33 +94,33 @@ const SignUp = () => {
         {/* Back link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8 text-sm"
+          className="inline-flex items-center gap-1.5 sm:gap-2 text-muted-foreground hover:text-primary transition-colors mb-5 sm:mb-8 text-xs sm:text-sm"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           Back to Home
         </Link>
 
         {/* Card */}
-        <div className="glass-strong rounded-2xl p-8 gradient-border">
+        <div className="glass-strong rounded-2xl p-5 sm:p-8 gradient-border">
           {/* Logo */}
-          <div className="flex items-center gap-2 mb-8">
+          <div className="flex items-center gap-2 mb-5 sm:mb-8">
             <Image
               src={logo}
               alt="Engazium"
               height={44}
-              className="h-11 w-auto"
+              className="h-9 sm:h-11 w-auto"
             />
-            <span className="font-heading text-xl font-bold text-foreground">Engazium</span>
+            <span className="font-heading text-lg sm:text-xl font-bold text-foreground">Engazium</span>
           </div>
 
-          <h1 className="font-heading text-2xl font-bold text-foreground mb-2">Create your account</h1>
-          <p className="text-muted-foreground text-sm mb-8">
+          <h1 className="font-heading text-xl sm:text-2xl font-bold text-foreground mb-1 sm:mb-2">Create your account</h1>
+          <p className="text-muted-foreground text-xs sm:text-sm mb-5 sm:mb-8">
             Join the community and start growing together
           </p>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="username" className="text-foreground text-sm">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="username" className="text-foreground text-xs sm:text-sm">
                 Username
               </Label>
               <Input
@@ -129,12 +129,12 @@ const SignUp = () => {
                 placeholder="your_username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="bg-secondary/50 border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary/50 h-11 rounded-xl"
+                className="bg-secondary/50 border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary/50 h-10 sm:h-11 rounded-xl text-sm"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-foreground text-sm">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="email" className="text-foreground text-xs sm:text-sm">
                 Email
               </Label>
               <Input
@@ -143,12 +143,12 @@ const SignUp = () => {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-secondary/50 border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary/50 h-11 rounded-xl"
+                className="bg-secondary/50 border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary/50 h-10 sm:h-11 rounded-xl text-sm"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-foreground text-sm">
+            <div className="space-y-1.5 sm:space-y-2">
+              <Label htmlFor="password" className="text-foreground text-xs sm:text-sm">
                 Password
               </Label>
               <div className="relative">
@@ -158,7 +158,7 @@ const SignUp = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-secondary/50 border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary/50 h-11 rounded-xl pr-10"
+                  className="bg-secondary/50 border-border/50 text-foreground placeholder:text-muted-foreground focus:border-primary/50 h-10 sm:h-11 rounded-xl pr-10 text-sm"
                 />
                 <button
                   type="button"
@@ -168,27 +168,27 @@ const SignUp = () => {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              <p className="text-xs text-muted-foreground">Must be at least 8 characters</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">Must be at least 8 characters</p>
             </div>
 
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 glow-box h-11 rounded-xl font-heading font-semibold"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 glow-box h-10 sm:h-11 rounded-xl font-heading font-semibold text-sm"
             >
               {isLoading ? "Creating account..." : "Create Account"}
             </Button>
           </form>
 
-          <p className="mt-4 text-xs text-muted-foreground text-center leading-relaxed">
+          <p className="mt-3 sm:mt-4 text-[10px] sm:text-xs text-muted-foreground text-center leading-relaxed">
             By signing up, you agree to our{" "}
             <span className="text-primary cursor-pointer hover:text-primary/80 transition-colors">Terms of Service</span>{" "}
             and{" "}
             <span className="text-primary cursor-pointer hover:text-primary/80 transition-colors">Privacy Policy</span>
           </p>
 
-          <div className="mt-6 text-center">
-            <p className="text-muted-foreground text-sm">
+          <div className="mt-5 sm:mt-6 text-center">
+            <p className="text-muted-foreground text-xs sm:text-sm">
               Already have an account?{" "}
               <Link href="/sign-in" className="text-primary hover:text-primary/80 transition-colors font-medium">
                 Sign in
