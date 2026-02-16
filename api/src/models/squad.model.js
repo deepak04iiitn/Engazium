@@ -99,6 +99,17 @@ const squadSchema = new mongoose.Schema(
       default: "",
       maxlength: 300,
     },
+
+    slug: {
+      type: String,
+      unique: true,
+      index: true,
+    },
+
+    nicheSlug: {
+      type: String,
+      index: true,
+    },
   },
   { timestamps: true }
 );

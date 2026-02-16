@@ -4,6 +4,19 @@ import SquadMember from "../models/squadMember.model.js";
 import Post from "../models/post.model.js";
 import Engagement from "../models/engagement.model.js";
 
+// Helper to create URL-friendly slugs
+const slugify = (text) => {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/[^\w-]+/g, "") // Remove all non-word chars
+    .replace(/--+/g, "-") // Replace multiple - with single -
+    .replace(/^-+/, "") // Trim - from start of text
+    .replace(/-+$/, ""); // Trim - from end of text
+};
+
 // POST /api/squads — create a new squad
 export const createSquad = async (req, res, next) => {
   try {
@@ -23,8 +36,10 @@ export const createSquad = async (req, res, next) => {
 
     const squad = new Squad({
       name: name.trim(),
+      slug: slugify(name),
       plan,
       niche,
+      nicheSlug: slugify(niche),
       ...(platform && { platform }),
       maxMembers: maxMembers || maxMembersLimit,
       description: description || "",
@@ -186,6 +201,60 @@ export const getSquadById = async (req, res, next) => {
     const squad = await Squad.findById(req.params.id)
       .populate("createdBy", "username")
       .lean();
+
+    if (!squad) {
+      return next(errorHandler(404, "Squad not found"));
+    }
+
+    // Get members
+    const members = await SquadMember.find({ squad: squad._id })
+      .populate("user", "username email niche")
+      .sort({ engagementPercentage: -1 })
+      .lean();
+
+    // Avg engagement
+    const avgEngagement =
+      members.length > 0
+        ? Math.round(
+            (members.reduce((sum, m) => sum + m.engagementPercentage, 0) /
+              members.length) *
+              10
+          ) / 10
+        : 0;
+
+    res.status(200).json({
+      success: true,
+      squad: {
+        ...squad,
+        avgEngagement,
+        members,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// GET /api/squads/niche/:niche/slug/:slug — get single squad by slug
+export const getSquadBySlug = async (req, res, next) => {
+  try {
+    const { niche, slug } = req.params;
+
+    let squad = await Squad.findOne({ nicheSlug: niche, slug })
+      .populate("createdBy", "username")
+      .lean();
+
+    // Fallback: search by name/niche directly if slugify was different or missing
+    if (!squad) {
+      squad = await Squad.findOne({
+        $or: [
+          { name: new RegExp(`^${slug.replace(/-/g, " ")}$`, "i") },
+          { slug: slug },
+        ],
+      })
+        .populate("createdBy", "username")
+        .lean();
+    }
 
     if (!squad) {
       return next(errorHandler(404, "Squad not found"));

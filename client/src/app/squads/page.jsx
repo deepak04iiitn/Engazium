@@ -13,6 +13,8 @@ import SquadFilterBar from "@/components/squads/listing/SquadFilterBar";
 import SquadList from "@/components/squads/listing/SquadList";
 import CreateSquadDialog from "@/components/squads/listing/CreateSquadDialog";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { slugify } from "@/lib/slugify";
 
 const ALL_NICHES = [
   "Art & Creativity",
@@ -53,6 +55,7 @@ const PLANS = [
 ];
 
 const Squads = () => {
+  const [activeTab, setActiveTab] = useState("browse");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedNiches, setSelectedNiches] = useState([]);
   const [selectedPlans, setSelectedPlans] = useState([]);
@@ -66,6 +69,8 @@ const Squads = () => {
   const [showFilters, setShowFilters] = useState(true);
   const [squads, setSquads] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mySquads, setMySquads] = useState([]);
+  const [mySquadsLoading, setMySquadsLoading] = useState(false);
   const [joiningId, setJoiningId] = useState(null);
   const { currentUser } = useSelector((state) => state.user);
   const router = useRouter();
@@ -135,12 +140,42 @@ const Squads = () => {
     sortOrder,
   ]);
 
+  const fetchMySquads = useCallback(async () => {
+    if (!currentUser) return;
+    try {
+      setMySquadsLoading(true);
+      const res = await fetch("/api/squads/my/memberships", {
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Extract squad objects from memberships
+        const squadsData = data.memberships
+          .map((m) => m.squad)
+          .filter(Boolean);
+        setMySquads(squadsData);
+      }
+    } catch (err) {
+      console.error("Failed to fetch my squads:", err);
+    } finally {
+      setMySquadsLoading(false);
+    }
+  }, [currentUser]);
+
   useEffect(() => {
-    const debounce = setTimeout(() => {
-      fetchSquads();
-    }, 300);
-    return () => clearTimeout(debounce);
-  }, [fetchSquads]);
+    if (activeTab === "browse") {
+      const debounce = setTimeout(() => {
+        fetchSquads();
+      }, 300);
+      return () => clearTimeout(debounce);
+    }
+  }, [fetchSquads, activeTab]);
+
+  useEffect(() => {
+    if (currentUser && (activeTab === "my" || activeTab === "browse")) {
+      fetchMySquads();
+    }
+  }, [fetchMySquads, currentUser, activeTab]);
 
   // Reset to page 1 when filters change (but not when page changes)
   useEffect(() => {
@@ -198,7 +233,17 @@ const Squads = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to join squad");
       toast.success("Successfully joined the squad!");
-      router.push(`/squads/${squadId}`);
+      fetchMySquads(); // Refresh membership lists
+      
+      // Fetch the squad details to get its niche and slug for redirection
+      const squadRes = await fetch(`/api/squads/${squadId}`, { credentials: "include" });
+      const squadData = await squadRes.json();
+      if (squadRes.ok && squadData.squad) {
+        const s = squadData.squad;
+        router.push(`/squads/${slugify(s.niche)}/${s.slug || slugify(s.name)}`);
+      } else {
+        router.push("/squads");
+      }
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -231,7 +276,9 @@ const Squads = () => {
         description: "",
       });
       setIsCreateDialogOpen(false);
-      router.push(`/squads/${data.squad._id}`);
+      fetchMySquads();
+      const s = data.squad;
+      router.push(`/squads/${slugify(s.niche)}/${s.slug || slugify(s.name)}`);
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -248,10 +295,15 @@ const Squads = () => {
   };
 
   const handleBrowseClick = () => {
-    document
-      .getElementById("browse-squads")
-      ?.scrollIntoView({ behavior: "smooth" });
+    setActiveTab("browse");
+    setTimeout(() => {
+      document
+        .getElementById("browse-squads")
+        ?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   };
+
+  const joinedSquadIds = mySquads.map((s) => s._id);
 
   return (
     <div className="min-h-screen bg-background">
@@ -269,61 +321,129 @@ const Squads = () => {
 
           <div className="container relative z-10 mx-auto px-6">
             {/* Header */}
-            <div className="text-center mb-12">
-              <span className="text-primary font-heading text-sm font-semibold uppercase tracking-wider">
-                Explore
-              </span>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-3 mb-4">
-                Browse <span className="text-gradient">Active Squads</span>
-              </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-                Find open squads in your niche or create your own from the
-                dashboard.
-              </p>
+            <div className="flex flex-col items-center mb-12">
+               <div className="text-center mb-10">
+                <span className="text-primary font-heading text-sm font-semibold uppercase tracking-wider">
+                    Engazium Squads
+                </span>
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-3 mb-4">
+                    Explore <span className="text-gradient">Active Squads</span>
+                </h2>
+                <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+                    Find open squads in your niche or jump back into your joined squads.
+                </p>
+               </div>
+
+              {/* Tabs Switcher */}
+              <Tabs
+                value={activeTab}
+                onValueChange={setActiveTab}
+                className="w-full max-w-md"
+              >
+                <TabsList className="grid w-full grid-cols-2 p-1.5 bg-secondary/30 backdrop-blur-xl border border-white/10 rounded-2xl h-14">
+                  <TabsTrigger
+                    value="browse"
+                    className="rounded-xl font-heading font-bold tracking-wide data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-300"
+                  >
+                    BROWSE SQUAD
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="my"
+                    className="rounded-xl font-heading font-bold tracking-wide data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-300"
+                  >
+                    MY SQUADS
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="browse" className="mt-0" />
+                <TabsContent value="my" className="mt-0" />
+              </Tabs>
             </div>
 
             {/* Main Content Area */}
             <div className="max-w-7xl mx-auto">
-              <SquadFilterBar
-                selectedNiches={selectedNiches}
-                toggleNiche={toggleNiche}
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                statusFilter={statusFilter}
-                setStatusFilter={setStatusFilter}
-                selectedPlans={selectedPlans}
-                togglePlan={togglePlan}
-                memberRangeFilter={memberRangeFilter}
-                setMemberRangeFilter={setMemberRangeFilter}
-                activeFilterCount={activeFilterCount}
-                clearAllFilters={clearAllFilters}
-                allNiches={ALL_NICHES}
-                plans={PLANS}
-                sortBy={sortBy}
-                setSortBy={setSortBy}
-                sortOrder={sortOrder}
-                setSortOrder={setSortOrder}
-                totalResults={totalResults}
-              />
+              {activeTab === "browse" ? (
+                <>
+                  <SquadFilterBar
+                    selectedNiches={selectedNiches}
+                    toggleNiche={toggleNiche}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    statusFilter={statusFilter}
+                    setStatusFilter={setStatusFilter}
+                    selectedPlans={selectedPlans}
+                    togglePlan={togglePlan}
+                    memberRangeFilter={memberRangeFilter}
+                    setMemberRangeFilter={setMemberRangeFilter}
+                    activeFilterCount={activeFilterCount}
+                    clearAllFilters={clearAllFilters}
+                    allNiches={ALL_NICHES}
+                    plans={PLANS}
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    sortOrder={sortOrder}
+                    setSortOrder={setSortOrder}
+                    totalResults={totalResults}
+                  />
 
-              {/* Squad List */}
-              <SquadList
-                loading={loading}
-                squads={squads}
-                activeFilterCount={activeFilterCount}
-                clearAllFilters={clearAllFilters}
-                totalPages={totalPages}
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-                pageSize={pageSize}
-                setPageSize={setPageSize}
-                joiningId={joiningId}
-                onJoin={handleJoinSquad}
-              />
+                  {/* Squad List */}
+                  <SquadList
+                    loading={loading}
+                    squads={squads}
+                    activeFilterCount={activeFilterCount}
+                    clearAllFilters={clearAllFilters}
+                    totalPages={totalPages}
+                    currentPage={currentPage}
+                    setCurrentPage={setCurrentPage}
+                    pageSize={pageSize}
+                    setPageSize={setPageSize}
+                    joiningId={joiningId}
+                    onJoin={handleJoinSquad}
+                    joinedSquadIds={joinedSquadIds}
+                  />
+                </>
+              ) : (
+                <div className="space-y-8">
+                  {currentUser ? (
+                    <SquadList
+                      loading={mySquadsLoading}
+                      squads={mySquads}
+                      isMySquadsView={true}
+                    />
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="glass rounded-3xl p-16 text-center gradient-border max-w-2xl mx-auto"
+                    >
+                      <div className="w-24 h-24 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-8 rotate-3 transition-transform hover:rotate-0 duration-500">
+                        <Shield className="h-12 w-12 text-primary" />
+                      </div>
+                      <h3 className="text-3xl font-heading font-bold text-foreground mb-4">
+                        Members Only Area
+                      </h3>
+                      <p className="text-muted-foreground text-lg mb-10 leading-relaxed">
+                        Sign in to access your joined squads, track your performance,
+                        and collaborate with your team.
+                      </p>
+                      <Button
+                        size="lg"
+                        className="rounded-2xl px-10 h-14 font-heading font-bold tracking-wide hover:scale-105 transition-all shadow-xl shadow-primary/20"
+                        onClick={() => router.push("/sign-in")}
+                      >
+                        SIGN IN TO VIEW
+                      </Button>
+                    </motion.div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </section>
       </main>
+
+      {/* Floating Action Button */}
+      {/* ... keeping FAB ... */}
 
       {/* Floating Action Button */}
       <motion.div

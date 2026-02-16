@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { slugify } from "@/lib/slugify";
 
 const getPlanIcon = (plan) => {
   if (plan === "Momentum") return <Star className="h-3.5 w-3.5 text-primary" />;
@@ -24,7 +25,7 @@ const getPlanPostLimit = (plan) => {
   return limits[plan] || 1;
 };
 
-const SquadCard = ({ squad, index, joiningId, onJoin }) => {
+const SquadCard = ({ squad, index, joiningId, onJoin, isMember }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -49,16 +50,24 @@ const SquadCard = ({ squad, index, joiningId, onJoin }) => {
               )}
             </p>
           </div>
-          <Badge
-            variant={squad.status === "Active" ? "default" : "secondary"}
-            className={`self-start md:self-center px-3 py-1 ${
-              squad.status === "Active"
-                ? "bg-primary/20 text-primary border-primary/40"
-                : "bg-secondary text-muted-foreground"
-            }`}
-          >
-            {squad.status}
-          </Badge>
+          <div className="flex items-center gap-2 self-start md:self-center">
+            {isMember && (
+              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 px-3 py-1">
+                <CheckCircle2 className="h-3 w-3 mr-1" />
+                Joined
+              </Badge>
+            )}
+            <Badge
+              variant={squad.status === "Active" ? "default" : "secondary"}
+              className={`px-3 py-1 ${
+                squad.status === "Active"
+                  ? "bg-primary/20 text-primary border-primary/40"
+                  : "bg-secondary text-muted-foreground"
+              }`}
+            >
+              {squad.status}
+            </Badge>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 mb-4">
@@ -126,30 +135,44 @@ const SquadCard = ({ squad, index, joiningId, onJoin }) => {
       </div>
 
       <div className="mt-4 md:mt-0 md:pl-6 md:border-l md:border-border/40 flex items-center justify-center">
-        <Button
-          size="lg"
-          className={`w-full md:w-auto min-w-[160px] rounded-xl font-heading font-semibold transition-all duration-300 ${
-            squad.status === "Active"
-              ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 hover:shadow-lg hover:shadow-primary/25"
-              : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-          }`}
-          disabled={squad.status === "Full" || squad.memberCount >= squad.maxMembers || joiningId === squad._id}
-          onClick={() => onJoin(squad._id)}
-        >
-          {joiningId === squad._id ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Joining...
-            </>
-          ) : (squad.status === "Active" || (squad.status === "Recruiting" && squad.memberCount < squad.maxMembers) || (squad.status !== "Full" && squad.memberCount < squad.maxMembers)) ? (
-            <>
-              Join Squad
+        {isMember ? (
+          <Button
+            size="lg"
+            variant="outline"
+            className="w-full md:w-auto min-w-[160px] rounded-xl font-heading font-semibold border-primary/30 text-primary hover:bg-primary/10 transition-all duration-300 hover:scale-105"
+            asChild
+          >
+            <a href={`/squads/${slugify(squad.niche)}/${squad.slug || slugify(squad.name)}`}>
+              Enter Squad
               <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </>
-          ) : (
-            <span>Squad Full</span>
-          )}
-        </Button>
+            </a>
+          </Button>
+        ) : (
+          <Button
+            size="lg"
+            className={`w-full md:w-auto min-w-[160px] rounded-xl font-heading font-semibold transition-all duration-300 ${
+              squad.status === "Active"
+                ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105 hover:shadow-lg hover:shadow-primary/25"
+                : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+            }`}
+            disabled={squad.status === "Full" || squad.memberCount >= squad.maxMembers || joiningId === squad._id}
+            onClick={() => onJoin(squad._id)}
+          >
+            {joiningId === squad._id ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Joining...
+              </>
+            ) : (squad.status === "Active" || (squad.status === "Recruiting" && squad.memberCount < squad.maxMembers) || (squad.status !== "Full" && squad.memberCount < squad.maxMembers)) ? (
+              <>
+                Join Squad
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </>
+            ) : (
+              <span>Squad Full</span>
+            )}
+          </Button>
+        )}
       </div>
     </motion.div>
   );

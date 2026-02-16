@@ -38,6 +38,8 @@ const SquadList = ({
   setPageSize,
   joiningId,
   onJoin,
+  isMySquadsView,
+  joinedSquadIds = [],
 }) => {
   if (loading) {
     return (
@@ -57,10 +59,10 @@ const SquadList = ({
             <SquadCard
               key={squad._id}
               squad={squad}
-
               index={index}
               joiningId={joiningId}
               onJoin={onJoin}
+              isMember={isMySquadsView || joinedSquadIds.includes(squad._id)}
             />
           ))}
         </div>
@@ -76,14 +78,24 @@ const SquadList = ({
             <Users className="h-10 w-10 text-primary/50" />
           </div>
           <h3 className="font-heading font-semibold text-xl text-foreground mb-2">
-            No squads found
+            {isMySquadsView ? "You haven't joined any squads yet" : "No squads found"}
           </h3>
           <p className="text-muted-foreground max-w-md mx-auto mb-6">
-            {activeFilterCount > 0
+            {isMySquadsView
+              ? "Explore active squads and join one to start collaborating!"
+              : activeFilterCount > 0
               ? "Try adjusting your filters to see more results"
               : "Be the first to create a squad from your dashboard!"}
           </p>
-          {activeFilterCount > 0 && (
+          {isMySquadsView ? (
+             <Button
+                variant="outline"
+                className="border-primary/30 text-primary hover:bg-primary/10 rounded-xl"
+                asChild
+             >
+                <a href="#browse-squads">Browse Squads</a>
+             </Button>
+          ) : activeFilterCount > 0 && (
             <Button
               onClick={clearAllFilters}
               variant="outline"

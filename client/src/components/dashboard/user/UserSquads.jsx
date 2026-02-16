@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { slugify } from "@/lib/slugify";
 
 const NICHE_OPTIONS = [
   "Art & Creativity", "Technology", "Gaming", "Education", "Business & Finance",
@@ -54,7 +55,7 @@ const UserSquads = ({
                 const squad = membership.squad;
                 if (!squad) return null;
                 return (
-                  <Link href={`/squads/${squad._id}`} key={membership._id}>
+                  <Link href={`/squads/${slugify(squad.niche)}/${squad.slug || slugify(squad.name)}`} key={membership._id}>
                     <motion.div 
                       initial={{ opacity: 0, y: 20 }} 
                       animate={{ opacity: 1, y: 0 }} 

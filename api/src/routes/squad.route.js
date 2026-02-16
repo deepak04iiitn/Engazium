@@ -8,6 +8,7 @@ import {
   leaveSquad,
   getMySquads,
   deleteSquad,
+  getSquadBySlug,
 } from "../controllers/squad.controller.js";
 
 const router = express.Router();
@@ -24,6 +25,7 @@ router.get("/my/memberships", getMySquads);
 // Squad CRUD
 router.post("/", createSquad);
 router.get("/:id", getSquadById);
+router.get("/niche/:niche/slug/:slug", getSquadBySlug);
 router.delete("/:id", deleteSquad);
 
 // Join / Leave

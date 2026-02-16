@@ -20,7 +20,7 @@ import MemberList from "@/components/squads/details/MemberList";
 import SquadStats from "@/components/squads/details/SquadStats";
 
 const SquadDetailPage = () => {
-  const { id } = useParams();
+  const { niche, name } = useParams();
   const router = useRouter();
   const { currentUser } = useSelector((state) => state.user);
 
@@ -56,10 +56,12 @@ const SquadDetailPage = () => {
   const isAdmin = currentMembership?.role === "admin";
   const isMember = !!currentMembership;
 
-  // Fetch squad details + members
+  const id = squad?._id; // Get mongo ID after squad is fetched
+
+  // Fetch squad details + members by niche and name
   const fetchSquad = useCallback(async () => {
     try {
-      const res = await fetch(`/api/squads/${id}`, { credentials: "include" });
+      const res = await fetch(`/api/squads/niche/${niche}/slug/${name}`, { credentials: "include" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to fetch squad");
       setSquad(data.squad);
@@ -69,11 +71,11 @@ const SquadDetailPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [niche, name]);
 
   // Fetch posts
   const fetchPosts = useCallback(async () => {
-    if (!isMember) return;
+    if (!isMember || !id) return;
     setPostsLoading(true);
     try {
       const res = await fetch(`/api/posts/squad/${id}`, {
@@ -92,7 +94,7 @@ const SquadDetailPage = () => {
 
   // Fetch engagement stats
   const fetchEngagementStats = useCallback(async () => {
-    if (!isMember) return;
+    if (!isMember || !id) return;
     try {
       const res = await fetch(`/api/engagement/stats/${id}`, {
         credentials: "include",
@@ -106,7 +108,7 @@ const SquadDetailPage = () => {
 
   // Fetch post count
   const fetchPostCount = useCallback(async () => {
-    if (!isMember) return;
+    if (!isMember || !id) return;
     try {
       const res = await fetch(`/api/posts/my-count/${id}`, {
         credentials: "include",
@@ -128,12 +130,12 @@ const SquadDetailPage = () => {
 
   // Fetch posts and stats once we know user is a member
   useEffect(() => {
-    if (isMember) {
+    if (isMember && id) {
       fetchPosts();
       fetchEngagementStats();
       fetchPostCount();
     }
-  }, [isMember, fetchPosts, fetchEngagementStats, fetchPostCount]);
+  }, [isMember, id, fetchPosts, fetchEngagementStats, fetchPostCount]);
 
   // Timer effect for engagement tracking
   useEffect(() => {
@@ -483,4 +485,3 @@ const SquadDetailPage = () => {
 };
 
 export default SquadDetailPage;
-

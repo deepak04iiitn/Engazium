@@ -12,6 +12,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
 import { updateUserSuccess, deleteUserSuccess } from "@/redux/user/userSlice";
+import { slugify } from "@/lib/slugify";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
@@ -264,7 +265,8 @@ const Dashboard = () => {
       if (!res.ok) throw new Error(data.message || "Failed to create squad");
       toast.success("Squad created successfully!");
       setCreateSquadForm({ name: "", niche: "", plan: "Growth", description: "" });
-      router.push(`/squads/${data.squad._id}`);
+      const s = data.squad;
+      router.push(`/squads/${slugify(s.niche)}/${s.slug || slugify(s.name)}`);
     } catch (err) {
       toast.error(err.message);
     } finally {
