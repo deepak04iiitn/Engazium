@@ -3,7 +3,12 @@ import { Instagram, Twitter, Youtube } from "lucide-react";
 import logo from "@/assets/Engazium_Logo.png";
 
 const footerLinks = {
-  Product: ["How It Works", "Features", "Pricing", "Squads"],
+  Product: [
+    { label: "How It Works", href: "/how-it-works" },
+    { label: "Features", href: "#features" },
+    { label: "Pricing", href: "#pricing" },
+    { label: "Squads", href: "/squads" },
+  ],
   Company: [
     { label: "About", href: "/about-us" },
     { label: "Blog", href: "#" },
@@ -20,31 +25,32 @@ const footerLinks = {
 
 const Footer = () => {
   return (
-    <footer className="relative border-t border-border/30 py-16">
-      <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-12">
+    <footer className="border-t border-border/40 bg-card/50 dark:bg-transparent">
+      <div className="container mx-auto px-5 sm:px-6 py-14 sm:py-16 md:py-20">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-10 md:gap-12">
           {/* Brand */}
-          <div className="md:col-span-2">
+          <div className="col-span-2">
             <a href="/" className="flex items-center gap-2 mb-4">
               <Image
                 src={logo}
                 alt="Engazium"
-                height={44}
-                className="h-11 w-auto"
+                height={40}
+                className="h-9 sm:h-10 w-auto"
               />
-              <span className="font-heading text-xl font-bold text-foreground">
+              <span className="font-heading text-lg sm:text-xl font-bold text-foreground">
                 Engazium
               </span>
             </a>
             <p className="text-muted-foreground text-sm leading-relaxed max-w-xs mb-6">
-              The engagement & reach hub for creators. Build engagement, expand reach, grow together.
+              The engagement & reach hub for creators. Build engagement, expand
+              reach, grow together.
             </p>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {[Instagram, Twitter, Youtube].map((Icon, i) => (
                 <a
                   key={i}
                   href="#"
-                  className="w-9 h-9 rounded-lg bg-secondary flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+                  className="w-9 h-9 rounded-xl bg-secondary/70 flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
                 >
                   <Icon className="h-4 w-4" />
                 </a>
@@ -52,27 +58,23 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Links */}
+          {/* Link columns */}
           {Object.entries(footerLinks).map(([category, links]) => (
             <div key={category}>
               <h4 className="font-heading font-semibold text-foreground text-sm mb-4">
                 {category}
               </h4>
-              <ul className="space-y-3">
-                {links.map((link) => {
-                  const label = typeof link === "string" ? link : link.label;
-                  const href = typeof link === "string" ? "#" : link.href;
-                  return (
-                    <li key={label}>
-                      <a
-                        href={href}
-                        className="text-muted-foreground text-sm hover:text-primary transition-colors"
-                      >
-                        {label}
-                      </a>
-                    </li>
-                  );
-                })}
+              <ul className="space-y-2.5">
+                {links.map((link) => (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      className="text-muted-foreground text-sm hover:text-foreground transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
           ))}
@@ -83,10 +85,16 @@ const Footer = () => {
             © 2026 Engazium. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
-            <a href="#" className="text-muted-foreground text-sm hover:text-primary transition-colors">
+            <a
+              href="#"
+              className="text-muted-foreground text-sm hover:text-foreground transition-colors"
+            >
               Privacy Policy
             </a>
-            <a href="#" className="text-muted-foreground text-sm hover:text-primary transition-colors">
+            <a
+              href="#"
+              className="text-muted-foreground text-sm hover:text-foreground transition-colors"
+            >
               Terms of Service
             </a>
           </div>

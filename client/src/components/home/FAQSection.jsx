@@ -1,6 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import {
   Accordion,
   AccordionContent,
@@ -51,55 +54,78 @@ const faqs = [
   },
 ];
 
+const anim = {
+  initial: { opacity: 0, y: 20 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-40px" },
+  transition: { duration: 0.5 },
+};
+
 const FAQSection = () => {
   return (
-    <section id="faq" className="relative py-14 sm:py-20 md:py-24 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/20 to-background" />
+    <section id="faq" className="relative py-20 sm:py-28 md:py-36 overflow-hidden">
+      <div className="container mx-auto px-5 sm:px-6">
+        <div className="grid lg:grid-cols-[1fr_1.2fr] gap-12 lg:gap-16 max-w-6xl mx-auto">
+          {/* Left — header + CTA */}
+          <motion.div {...anim} className="lg:sticky lg:top-32 lg:self-start">
+            <span className="text-primary font-heading text-xs sm:text-sm font-semibold uppercase tracking-wider">
+              FAQ
+            </span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold mt-3 tracking-tight">
+              Got{" "}
+              <span className="text-gradient">questions?</span>
+            </h2>
+            <p className="text-muted-foreground mt-4 text-sm sm:text-base md:text-lg max-w-md">
+              Everything you need to know about Engazium and how it helps you
+              grow.
+            </p>
 
-      <div className="container relative z-10 mx-auto px-4 sm:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-8 sm:mb-12 md:mb-16"
-        >
-          <span className="text-primary font-heading text-xs sm:text-sm font-semibold uppercase tracking-wider">
-            FAQ
-          </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-2 sm:mt-3 mb-3 sm:mb-4">
-            Got{" "}
-            <span className="text-gradient">Questions?</span>
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base md:text-lg px-2">
-            Everything you need to know about Engazium and how it helps you grow.
-          </p>
-        </motion.div>
+            {/* Integrated CTA */}
+            <div className="mt-8 sm:mt-10 p-6 sm:p-7 bg-card rounded-2xl border border-border/50 shadow-sm dark:shadow-none dark:border-border/30">
+              <h3 className="font-heading font-semibold text-foreground text-lg mb-2">
+                Ready to grow together?
+              </h3>
+              <p className="text-muted-foreground text-sm mb-5 leading-relaxed">
+                Join thousands of micro creators boosting their engagement and
+                reach.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link href="/sign-up" className="flex-1">
+                  <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 glow-box rounded-xl font-heading font-semibold group text-sm py-5">
+                    Start Free Trial
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+                <Button
+                  variant="outline"
+                  className="border-border text-foreground hover:bg-secondary/80 rounded-xl font-heading text-sm py-5"
+                >
+                  Talk to Us
+                </Button>
+              </div>
+            </div>
+          </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.5 }}
-          className="max-w-3xl mx-auto"
-        >
-          <Accordion type="single" collapsible className="space-y-2 sm:space-y-3">
-            {faqs.map((faq, index) => (
-              <AccordionItem
-                key={index}
-                value={`item-${index}`}
-                className="glass rounded-lg sm:rounded-xl px-4 sm:px-6 gradient-border border-none"
-              >
-                <AccordionTrigger className="text-left font-heading font-semibold text-foreground hover:text-primary hover:no-underline py-3.5 sm:py-4 md:py-5 text-xs sm:text-sm md:text-base">
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground text-xs sm:text-sm leading-relaxed pb-3.5 sm:pb-4 md:pb-5">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </motion.div>
+          {/* Right — Accordion */}
+          <motion.div {...anim}>
+            <Accordion type="single" collapsible className="space-y-3">
+              {faqs.map((faq, index) => (
+                <AccordionItem
+                  key={index}
+                  value={`item-${index}`}
+                  className="bg-card rounded-xl sm:rounded-2xl px-5 sm:px-6 border border-border/50 shadow-sm dark:shadow-none dark:border-border/30 data-[state=open]:border-primary/20 dark:data-[state=open]:border-primary/20 transition-colors"
+                >
+                  <AccordionTrigger className="text-left font-heading font-semibold text-foreground hover:text-primary hover:no-underline py-4 sm:py-5 text-sm sm:text-[15px]">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground text-sm leading-relaxed pb-4 sm:pb-5">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </motion.div>
+        </div>
       </div>
     </section>
   );

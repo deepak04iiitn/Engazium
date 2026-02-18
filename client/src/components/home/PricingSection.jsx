@@ -56,50 +56,47 @@ const plans = [
   },
 ];
 
+const anim = (delay = 0) => ({
+  initial: { opacity: 0, y: 20 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-40px" },
+  transition: { duration: 0.5, delay },
+});
+
 const PricingSection = () => {
   return (
-    <section id="pricing" className="relative py-14 sm:py-20 md:py-24 overflow-hidden">
-      <div className="container relative z-10 mx-auto px-4 sm:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-8 sm:mb-12 md:mb-16"
-        >
+    <section id="pricing" className="relative py-20 sm:py-28 md:py-36 overflow-hidden">
+      <div className="container mx-auto px-5 sm:px-6">
+        {/* Header */}
+        <motion.div {...anim()} className="text-center mb-12 sm:mb-16 md:mb-20">
           <span className="text-primary font-heading text-xs sm:text-sm font-semibold uppercase tracking-wider">
             Pricing
           </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-2 sm:mt-3 mb-3 sm:mb-4">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold mt-3 tracking-tight">
             Simple,{" "}
-            <span className="text-gradient">Creator-Friendly</span>{" "}
-            Pricing
+            <span className="text-gradient">creator-friendly</span> pricing
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base md:text-lg px-2">
+          <p className="text-muted-foreground mt-4 max-w-lg mx-auto text-sm sm:text-base md:text-lg">
             Pay per squad. No hidden fees. Cancel anytime.
           </p>
         </motion.div>
 
-        {/* Mobile: horizontal scroll | Tablet+: grid */}
-        {/* Mobile View - Horizontal Scroll */}
+        {/* Mobile: horizontal scroll */}
         <div className="md:hidden">
-          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 scrollbar-none">
-            {plans.map((plan, index) => (
+          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-5 px-5 scrollbar-none">
+            {plans.map((plan, i) => (
               <motion.div
                 key={plan.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-30px" }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
-                className={`relative rounded-xl p-5 min-w-[280px] snap-center flex-shrink-0 ${
+                {...anim(0.08 * i)}
+                className={`relative rounded-2xl p-5 min-w-[280px] snap-center shrink-0 border ${
                   plan.popular
-                    ? "glass glow-box gradient-border"
-                    : "glass gradient-border"
+                    ? "bg-card border-primary/30 shadow-md dark:shadow-none"
+                    : "bg-card border-border/50 shadow-sm dark:shadow-none dark:border-border/30"
                 }`}
               >
                 {plan.popular && (
                   <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
-                    <span className="inline-flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-heading font-semibold px-2.5 py-0.5 rounded-full">
+                    <span className="inline-flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-heading font-semibold px-3 py-0.5 rounded-full">
                       <Zap className="h-2.5 w-2.5" />
                       Popular
                     </span>
@@ -124,10 +121,10 @@ const PricingSection = () => {
                   </span>
                 </div>
 
-                <ul className="space-y-2 mb-5">
+                <ul className="space-y-2.5 mb-6">
                   {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2">
-                      <div className="flex-shrink-0 w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
+                    <li key={feature} className="flex items-start gap-2.5">
+                      <div className="w-4 h-4 rounded-full bg-primary/10 flex items-center justify-center mt-0.5 shrink-0">
                         <Check className="h-2.5 w-2.5 text-primary" />
                       </div>
                       <span className="text-xs text-secondary-foreground leading-relaxed">
@@ -138,9 +135,9 @@ const PricingSection = () => {
                 </ul>
 
                 <Button
-                  className={`w-full rounded-lg py-4 text-sm font-heading font-semibold ${
+                  className={`w-full rounded-xl py-4 text-sm font-heading font-semibold ${
                     plan.popular
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90 glow-box"
                       : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                   }`}
                 >
@@ -149,32 +146,23 @@ const PricingSection = () => {
               </motion.div>
             ))}
           </div>
-          {/* Scroll indicator dots */}
-          <div className="flex justify-center gap-1.5 mt-3">
-            {plans.map((plan) => (
-              <div key={plan.name} className={`w-1.5 h-1.5 rounded-full ${plan.popular ? 'bg-primary' : 'bg-border'}`} />
-            ))}
-          </div>
         </div>
 
-        {/* Desktop View - Grid */}
-        <div className="hidden md:grid grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto">
-          {plans.map((plan, index) => (
+        {/* Desktop: grid */}
+        <div className="hidden md:grid grid-cols-3 gap-5 lg:gap-6 max-w-5xl mx-auto items-start">
+          {plans.map((plan, i) => (
             <motion.div
               key={plan.name}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, delay: index * 0.15 }}
-              className={`relative rounded-2xl p-8 ${
+              {...anim(0.1 * i)}
+              className={`relative rounded-3xl p-7 lg:p-8 border transition-shadow duration-300 ${
                 plan.popular
-                  ? "glass glow-box gradient-border"
-                  : "glass gradient-border"
+                  ? "bg-card border-primary/30 shadow-lg dark:shadow-none dark:border-primary/25 -mt-2 mb-[-8px]"
+                  : "bg-card border-border/50 shadow-sm dark:shadow-none dark:border-border/30 hover:shadow-md dark:hover:shadow-none"
               }`}
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="inline-flex items-center gap-1 bg-primary text-primary-foreground text-xs font-heading font-semibold px-3 py-1 rounded-full">
+                  <span className="inline-flex items-center gap-1 bg-primary text-primary-foreground text-xs font-heading font-semibold px-4 py-1 rounded-full shadow-sm">
                     <Zap className="h-3 w-3" />
                     Most Popular
                   </span>
@@ -202,7 +190,7 @@ const PricingSection = () => {
               <ul className="space-y-3 mb-8">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-center gap-3">
-                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                    <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                       <Check className="h-3 w-3 text-primary" />
                     </div>
                     <span className="text-sm text-secondary-foreground">
@@ -215,7 +203,7 @@ const PricingSection = () => {
               <Button
                 className={`w-full rounded-xl py-5 font-heading font-semibold ${
                   plan.popular
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90 glow-box"
                     : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                 }`}
               >

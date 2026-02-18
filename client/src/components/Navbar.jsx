@@ -5,7 +5,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, LogOut, User, ChevronDown, LayoutDashboard, Sun, Moon } from "lucide-react";
+import {
+  Menu,
+  X,
+  LogOut,
+  User,
+  ChevronDown,
+  LayoutDashboard,
+  Sun,
+  Moon,
+} from "lucide-react";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutSuccess } from "@/redux/user/userSlice";
 import { useTheme } from "next-themes";
@@ -23,6 +32,7 @@ const navLinks = [
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const profileRef = useRef(null);
   const { currentUser } = useSelector((state) => state.user);
@@ -30,12 +40,17 @@ const Navbar = () => {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
 
-  // Avoid hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Close dropdown when clicking outside
+  // Track scroll for background change
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (profileRef.current && !profileRef.current.contains(e.target)) {
@@ -67,43 +82,63 @@ const Navbar = () => {
     <motion.nav
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6 }}
-      className="fixed top-0 left-0 right-0 z-50 glass-strong"
+      transition={{ duration: 0.5 }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-card/90 dark:bg-card/80 backdrop-blur-xl border-b border-border/40 shadow-sm dark:shadow-none"
+          : "bg-transparent"
+      }`}
     >
-      <div className="container mx-auto flex items-center justify-between px-6 py-4">
+      <div className="container mx-auto flex items-center justify-between px-5 sm:px-6 py-3.5 sm:py-4">
+        {/* Logo */}
         <a href="/" className="flex items-center gap-2">
           <Image
             src={logo}
             alt="Engazium"
-            height={44}
-            className="h-11 w-auto"
+            height={40}
+            className="h-9 sm:h-10 w-auto"
           />
-          <span className="font-heading text-xl font-bold text-foreground">
+          <span className="font-heading text-lg sm:text-xl font-bold text-foreground">
             Engazium
           </span>
         </a>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-1">
           {navLinks.map((link) => (
             <a
               key={link.label}
               href={link.href}
-              className="text-muted-foreground hover:text-primary transition-colors duration-300 text-sm font-medium"
+              className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 rounded-lg"
             >
               {link.label}
             </a>
           ))}
+        </div>
 
-          {/* Theme Toggle */}
+        {/* Desktop Right */}
+        <div className="hidden md:flex items-center gap-2.5">
+          {/* Theme toggle */}
           {mounted && (
             <button
               onClick={toggleTheme}
-              className="relative h-9 w-9 rounded-xl bg-secondary/50 hover:bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-all duration-300"
+              className="relative h-9 w-9 rounded-xl bg-secondary/60 hover:bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-all duration-200"
               aria-label="Toggle theme"
             >
-              <Sun className={`h-4 w-4 absolute transition-all duration-300 ${theme === "dark" ? "rotate-90 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"}`} />
-              <Moon className={`h-4 w-4 absolute transition-all duration-300 ${theme === "dark" ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-0 opacity-0"}`} />
+              <Sun
+                className={`h-[15px] w-[15px] absolute transition-all duration-300 ${
+                  theme === "dark"
+                    ? "rotate-90 scale-0 opacity-0"
+                    : "rotate-0 scale-100 opacity-100"
+                }`}
+              />
+              <Moon
+                className={`h-[15px] w-[15px] absolute transition-all duration-300 ${
+                  theme === "dark"
+                    ? "rotate-0 scale-100 opacity-100"
+                    : "-rotate-90 scale-0 opacity-0"
+                }`}
+              />
             </button>
           )}
 
@@ -111,52 +146,66 @@ const Navbar = () => {
             <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setProfileOpen(!profileOpen)}
-                className="flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-secondary/50 transition-colors"
+                className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-secondary/60 transition-colors"
               >
-                <div className="h-9 w-9 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center">
-                  <span className="text-sm font-bold text-primary uppercase">
+                <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
+                  <span className="text-xs font-bold text-primary uppercase">
                     {currentUser.username?.charAt(0)}
                   </span>
                 </div>
                 <span className="text-sm font-medium text-foreground max-w-[100px] truncate">
                   {currentUser.username}
                 </span>
-                <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${profileOpen ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  className={`h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 ${
+                    profileOpen ? "rotate-180" : ""
+                  }`}
+                />
               </button>
 
               <AnimatePresence>
                 {profileOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                    initial={{ opacity: 0, y: 6, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute right-0 mt-2 w-56 glass-strong rounded-xl border border-border/30 shadow-xl overflow-hidden"
+                    exit={{ opacity: 0, y: 6, scale: 0.97 }}
+                    transition={{ duration: 0.12 }}
+                    className="absolute right-0 mt-2 w-56 bg-card rounded-xl border border-border/50 shadow-lg dark:shadow-none overflow-hidden"
                   >
-                    <div className="px-4 py-3 border-b border-border/20">
-                      <p className="text-sm font-semibold text-foreground truncate">{currentUser.username}</p>
-                      <p className="text-xs text-muted-foreground truncate">{currentUser.email}</p>
+                    <div className="px-4 py-3 border-b border-border/30">
+                      <p className="text-sm font-semibold text-foreground truncate">
+                        {currentUser.username}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {currentUser.email}
+                      </p>
                     </div>
                     <div className="p-1.5">
                       <Link
                         href="/profile"
                         onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+                        className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-secondary/60 rounded-lg transition-colors"
                       >
                         <User className="h-4 w-4 text-muted-foreground" />
                         My Profile
                       </Link>
                       <Link
-                        href={currentUser.isUserAdmin ? "/admin-dashboard" : "/dashboard"}
+                        href={
+                          currentUser.isUserAdmin
+                            ? "/admin-dashboard"
+                            : "/dashboard"
+                        }
                         onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-secondary/50 rounded-lg transition-colors"
+                        className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-secondary/60 rounded-lg transition-colors"
                       >
                         <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
-                        {currentUser.isUserAdmin ? "Admin Dashboard" : "Dashboard"}
+                        {currentUser.isUserAdmin
+                          ? "Admin Dashboard"
+                          : "Dashboard"}
                       </Link>
                       <button
                         onClick={handleLogout}
-                        className="flex items-center gap-2.5 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-colors w-full"
+                        className="flex items-center gap-2.5 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors w-full"
                       >
                         <LogOut className="h-4 w-4" />
                         Logout
@@ -169,12 +218,19 @@ const Navbar = () => {
           ) : (
             <>
               <Link href="/sign-in">
-                <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10 hover:text-primary">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-foreground hover:bg-secondary/60 font-medium text-sm px-4"
+                >
                   Log In
                 </Button>
               </Link>
               <Link href="/sign-up">
-                <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box">
+                <Button
+                  size="sm"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box font-heading font-semibold text-sm px-5 rounded-xl"
+                >
                   Get Started
                 </Button>
               </Link>
@@ -182,26 +238,35 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile Right Section */}
+        {/* Mobile Right */}
         <div className="flex items-center gap-2 md:hidden">
-          {/* Theme Toggle - Mobile */}
           {mounted && (
             <button
               onClick={toggleTheme}
-              className="relative h-9 w-9 rounded-xl bg-secondary/50 hover:bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-all duration-300"
+              className="relative h-9 w-9 rounded-xl bg-secondary/60 hover:bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-all duration-200"
               aria-label="Toggle theme"
             >
-              <Sun className={`h-4 w-4 absolute transition-all duration-300 ${theme === "dark" ? "rotate-90 scale-0 opacity-0" : "rotate-0 scale-100 opacity-100"}`} />
-              <Moon className={`h-4 w-4 absolute transition-all duration-300 ${theme === "dark" ? "rotate-0 scale-100 opacity-100" : "-rotate-90 scale-0 opacity-0"}`} />
+              <Sun
+                className={`h-[15px] w-[15px] absolute transition-all duration-300 ${
+                  theme === "dark"
+                    ? "rotate-90 scale-0 opacity-0"
+                    : "rotate-0 scale-100 opacity-100"
+                }`}
+              />
+              <Moon
+                className={`h-[15px] w-[15px] absolute transition-all duration-300 ${
+                  theme === "dark"
+                    ? "rotate-0 scale-100 opacity-100"
+                    : "-rotate-90 scale-0 opacity-0"
+                }`}
+              />
             </button>
           )}
-
-          {/* Mobile Menu Toggle */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="text-foreground"
+            className="h-9 w-9 flex items-center justify-center text-foreground rounded-xl hover:bg-secondary/60 transition-colors"
           >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
+            {isOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
@@ -213,43 +278,69 @@ const Navbar = () => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="md:hidden glass-strong border-t border-border/30 overflow-hidden"
+            transition={{ duration: 0.25 }}
+            className="md:hidden bg-card border-t border-border/40 overflow-hidden"
           >
-            <div className="flex flex-col gap-4 px-6 py-6">
+            <div className="flex flex-col gap-1 px-5 py-5">
               {navLinks.map((link) => (
                 <a
                   key={link.label}
                   href={link.href}
                   onClick={() => setIsOpen(false)}
-                  className="text-muted-foreground hover:text-primary transition-colors text-sm font-medium"
+                  className="text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors text-sm font-medium px-3 py-2.5 rounded-lg"
                 >
                   {link.label}
                 </a>
               ))}
-              <div className="flex flex-col gap-3 pt-2">
+
+              <div className="border-t border-border/30 mt-3 pt-4 flex flex-col gap-2.5">
                 {currentUser ? (
                   <>
-                    <div className="flex items-center gap-3 px-1 py-2">
-                      <div className="h-10 w-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0">
-                        <span className="text-sm font-bold text-primary uppercase">
+                    <div className="flex items-center gap-3 px-3 py-2">
+                      <div className="h-9 w-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                        <span className="text-xs font-bold text-primary uppercase">
                           {currentUser.username?.charAt(0)}
                         </span>
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-foreground truncate">{currentUser.username}</p>
-                        <p className="text-xs text-muted-foreground truncate">{currentUser.email}</p>
+                        <p className="text-sm font-semibold text-foreground truncate">
+                          {currentUser.username}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {currentUser.email}
+                        </p>
                       </div>
                     </div>
-                    <Link href="/profile" onClick={() => setIsOpen(false)}>
-                      <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10 hover:text-primary w-full">
+                    <Link
+                      href="/profile"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-border text-foreground hover:bg-secondary/60 w-full rounded-xl"
+                      >
                         <User className="mr-1.5 h-4 w-4" />
                         My Profile
                       </Button>
                     </Link>
-                    <Link href={currentUser.isUserAdmin ? "/admin-dashboard" : "/dashboard"} onClick={() => setIsOpen(false)}>
-                      <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10 hover:text-primary w-full">
+                    <Link
+                      href={
+                        currentUser.isUserAdmin
+                          ? "/admin-dashboard"
+                          : "/dashboard"
+                      }
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-border text-foreground hover:bg-secondary/60 w-full rounded-xl"
+                      >
                         <LayoutDashboard className="mr-1.5 h-4 w-4" />
-                        {currentUser.isUserAdmin ? "Admin Dashboard" : "Dashboard"}
+                        {currentUser.isUserAdmin
+                          ? "Admin Dashboard"
+                          : "Dashboard"}
                       </Button>
                     </Link>
                     <Button
@@ -259,7 +350,7 @@ const Navbar = () => {
                       }}
                       variant="outline"
                       size="sm"
-                      className="border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-400 w-full"
+                      className="border-destructive/30 text-destructive hover:bg-destructive/10 w-full rounded-xl"
                     >
                       <LogOut className="mr-1.5 h-4 w-4" />
                       Logout
@@ -268,12 +359,19 @@ const Navbar = () => {
                 ) : (
                   <>
                     <Link href="/sign-in" onClick={() => setIsOpen(false)}>
-                      <Button variant="outline" size="sm" className="border-primary/30 text-primary hover:bg-primary/10 hover:text-primary w-full">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-border text-foreground hover:bg-secondary/60 w-full rounded-xl"
+                      >
                         Log In
                       </Button>
                     </Link>
                     <Link href="/sign-up" onClick={() => setIsOpen(false)}>
-                      <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 w-full">
+                      <Button
+                        size="sm"
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-xl font-heading font-semibold"
+                      >
                         Get Started
                       </Button>
                     </Link>

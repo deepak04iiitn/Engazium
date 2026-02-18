@@ -6,86 +6,92 @@ import { UserPlus, Users, Share2, TrendingUp } from "lucide-react";
 const steps = [
   {
     icon: UserPlus,
-    step: "01",
+    num: "01",
     title: "Sign Up & Pick Your Niche",
     description:
       "Create your account and select your content niche, format, and language preferences.",
   },
   {
     icon: Users,
-    step: "02",
+    num: "02",
     title: "Join a Squad",
     description:
       "Get matched into a squad of 10–20 creators in your niche with similar follower ranges.",
   },
   {
     icon: Share2,
-    step: "03",
+    num: "03",
     title: "Share & Engage",
     description:
-      "Post your content link, squad members engage with meaningful comments, likes, and saves.",
+      "Post your content link. Squad members engage with meaningful comments, likes, and saves.",
   },
   {
     icon: TrendingUp,
-    step: "04",
+    num: "04",
     title: "Watch Your Reach Grow",
     description:
       "Early engagement signals boost your algorithmic reach organically and safely.",
   },
 ];
 
+const anim = (delay = 0) => ({
+  initial: { opacity: 0, y: 20 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-40px" },
+  transition: { duration: 0.5, delay },
+});
+
 const HowItWorksSection = () => {
   return (
-    <section id="how-it-works" className="relative py-14 sm:py-20 md:py-24 overflow-hidden">
-      <div className="container relative z-10 mx-auto px-4 sm:px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-60px" }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-8 sm:mb-12 md:mb-16"
-        >
+    <section
+      id="how-it-works"
+      className="relative py-20 sm:py-28 md:py-36 overflow-hidden"
+    >
+      <div className="container mx-auto px-5 sm:px-6">
+        {/* Header */}
+        <motion.div {...anim()} className="mb-12 sm:mb-16 md:mb-20 max-w-2xl">
           <span className="text-primary font-heading text-xs sm:text-sm font-semibold uppercase tracking-wider">
             How It Works
           </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-2 sm:mt-3 mb-3 sm:mb-4">
-            Four Steps to{" "}
-            <span className="text-gradient">Better Engagement</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold mt-3 tracking-tight">
+            Four steps to{" "}
+            <span className="text-gradient">better engagement</span>
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base md:text-lg px-2">
-            A simple, structured process that turns engagement from a struggle into a system.
+          <p className="text-muted-foreground mt-4 text-sm sm:text-base md:text-lg max-w-lg">
+            A simple, structured process that turns engagement from a struggle
+            into a system.
           </p>
         </motion.div>
 
-        {/* Mobile: 2-col grid | Tablet: 2-col | Desktop: 4-col */}
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 max-w-6xl mx-auto">
-          {steps.map((item, index) => (
+        {/* Steps grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-5">
+          {steps.map((step, i) => (
             <motion.div
-              key={item.step}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-30px" }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              key={step.num}
+              {...anim(0.08 * i)}
               className="relative group"
             >
-              <div className="glass rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 h-full gradient-border hover:bg-card/60 transition-all duration-300">
-                <span className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-primary/10 group-hover:text-primary/20 transition-colors">
-                  {item.step}
+              <div className="bg-card rounded-3xl p-6 sm:p-7 border border-border/50 shadow-sm dark:shadow-none dark:border-border/30 h-full hover:border-primary/20 dark:hover:border-primary/20 transition-colors duration-300">
+                {/* Large step number */}
+                <span className="block text-6xl sm:text-7xl font-heading font-bold text-primary/[0.07] dark:text-primary/[0.1] group-hover:text-primary/[0.12] dark:group-hover:text-primary/[0.18] transition-colors leading-none mb-2">
+                  {step.num}
                 </span>
-                <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg sm:rounded-xl bg-primary/10 flex items-center justify-center mt-2 sm:mt-3 mb-2 sm:mb-3 md:mb-4 group-hover:bg-primary/20 transition-colors">
-                  <item.icon className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary" />
+
+                <div className="w-10 h-10 rounded-xl bg-primary/8 dark:bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/12 dark:group-hover:bg-primary/15 transition-colors">
+                  <step.icon className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="font-heading font-semibold text-foreground mb-1 sm:mb-2 text-xs sm:text-sm md:text-lg leading-tight">
-                  {item.title}
+
+                <h3 className="font-heading font-semibold text-foreground mb-1.5 text-[15px] sm:text-base leading-snug">
+                  {step.title}
                 </h3>
-                <p className="text-muted-foreground text-[10px] sm:text-xs md:text-sm leading-relaxed">
-                  {item.description}
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  {step.description}
                 </p>
               </div>
 
-              {/* Connector line - desktop only */}
-              {index < steps.length - 1 && (
-                <div className="hidden lg:block absolute top-1/2 -right-3 w-6 h-px bg-gradient-to-r from-primary/40 to-transparent" />
+              {/* Connector — desktop only */}
+              {i < steps.length - 1 && (
+                <div className="hidden lg:block absolute top-1/2 -right-[14px] w-[22px] h-px bg-border" />
               )}
             </motion.div>
           ))}
