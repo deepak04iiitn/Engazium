@@ -291,7 +291,7 @@ const AdminDashboard = () => {
       </main>
 
       {/* Mobile Bottom Tab Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-strong border-t border-border/20 safe-area-bottom bg-[#0f111a]/95 backdrop-blur-xl">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-strong border-t border-border/20 safe-area-bottom bg-background/95 backdrop-blur-xl">
         <div className="flex items-center justify-around h-16">
           {mobileTabItems.map((item) => {
             const isActive = activeSection === item.key;
@@ -301,11 +301,11 @@ const AdminDashboard = () => {
                 onClick={() => setActiveSection(item.key)}
                 className={`flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-lg transition-all duration-200 min-w-0 flex-1 ${
                   isActive 
-                    ? "text-indigo-400" 
+                    ? "text-primary" 
                     : "text-muted-foreground"
                 }`}
               >
-                <div className={`p-1 rounded-lg transition-all duration-200 ${isActive ? "bg-indigo-500/15" : ""}`}>
+                <div className={`p-1 rounded-lg transition-all duration-200 ${isActive ? "bg-primary/15" : ""}`}>
                   <item.icon className={`h-5 w-5 transition-transform duration-200 ${isActive ? "scale-110" : ""}`} />
                 </div>
                 <span className={`text-[10px] font-medium leading-none truncate ${isActive ? "font-bold" : ""}`}>

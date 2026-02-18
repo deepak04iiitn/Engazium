@@ -61,7 +61,7 @@ const SquadFilterBar = ({
   return (
     <div className="w-full space-y-4 mb-8">
       {/* Desktop Filter Bar */}
-      <div className="hidden lg:flex items-center gap-3 glass p-3 rounded-2xl border border-white/10 shadow-xl">
+      <div className="hidden lg:flex items-center gap-3 glass p-3 rounded-2xl border border-border/30 shadow-xl">
         {/* Search */}
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -73,14 +73,14 @@ const SquadFilterBar = ({
           />
         </div>
 
-        <div className="h-8 w-[1px] bg-white/10 mx-1" />
+        <div className="h-8 w-[1px] bg-border/50 mx-1" />
 
         {/* Niche Multi-select Popover */}
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant="ghost"
-              className={`h-11 rounded-xl px-4 flex items-center gap-2 hover:bg-white/5 transition-all ${
+              className={`h-11 rounded-xl px-4 flex items-center gap-2 hover:bg-secondary/50 transition-all ${
                 selectedNiches.length > 0 ? "text-primary bg-primary/5" : "text-muted-foreground"
               }`}
             >
@@ -96,8 +96,8 @@ const SquadFilterBar = ({
               <ChevronDown className="h-3 w-3 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 p-0 glass border-white/10 shadow-2xl" align="start">
-            <div className="p-3 border-b border-white/5 font-semibold text-xs text-muted-foreground uppercase tracking-wider">
+          <PopoverContent className="w-64 p-0 glass border-border/30 shadow-2xl" align="start">
+            <div className="p-3 border-b border-border/20 font-semibold text-xs text-muted-foreground uppercase tracking-wider">
               Select Niches
             </div>
             <ScrollArea className="h-72">
@@ -106,10 +106,10 @@ const SquadFilterBar = ({
                   <button
                     key={niche}
                     onClick={() => toggleNiche(niche)}
-                    className="flex items-center gap-2 w-full px-3 py-2 rounded-lg hover:bg-white/5 transition-colors text-sm text-foreground"
+                    className="flex items-center gap-2 w-full px-3 py-2 rounded-lg hover:bg-secondary/50 transition-colors text-sm text-foreground"
                   >
-                    <div className={`flex items-center justify-center h-4 w-4 rounded border transition-colors ${selectedNiches.includes(niche) ? "bg-primary border-primary" : "border-white/20"}`}>
-                      {selectedNiches.includes(niche) && <CheckCircle2 className="h-3 w-3 text-white" />}
+                    <div className={`flex items-center justify-center h-4 w-4 rounded border transition-colors ${selectedNiches.includes(niche) ? "bg-primary border-primary" : "border-border/50"}`}>
+                      {selectedNiches.includes(niche) && <CheckCircle2 className="h-3 w-3 text-primary-foreground" />}
                     </div>
                     <span className={selectedNiches.includes(niche) ? "text-primary font-medium" : ""}>
                       {niche}
@@ -123,13 +123,13 @@ const SquadFilterBar = ({
 
         {/* Status Dropdown */}
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className={`h-11 w-[140px] border-none bg-transparent hover:bg-white/5 rounded-xl px-4 focus:ring-0 transition-all ${statusFilter !== 'all' ? 'text-primary' : 'text-muted-foreground'}`}>
+          <SelectTrigger className={`h-11 w-[140px] border-none bg-transparent hover:bg-secondary/50 rounded-xl px-4 focus:ring-0 transition-all ${statusFilter !== 'all' ? 'text-primary' : 'text-muted-foreground'}`}>
             <div className="flex items-center gap-2">
               {statusFilter === 'all' ? <Filter className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
               <SelectValue placeholder="Status" />
             </div>
           </SelectTrigger>
-          <SelectContent className="glass border-white/10 shadow-2xl">
+          <SelectContent className="glass border-border/30 shadow-2xl">
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="active">Active</SelectItem>
             <SelectItem value="full">Full</SelectItem>
@@ -141,7 +141,7 @@ const SquadFilterBar = ({
           <PopoverTrigger asChild>
             <Button
               variant="ghost"
-              className={`h-11 rounded-xl px-4 flex items-center gap-2 hover:bg-white/5 transition-all ${
+              className={`h-11 rounded-xl px-4 flex items-center gap-2 hover:bg-secondary/50 transition-all ${
                 selectedPlans.length > 0 ? "text-primary bg-primary/5" : "text-muted-foreground"
               }`}
             >
@@ -157,13 +157,13 @@ const SquadFilterBar = ({
               <ChevronDown className="h-3 w-3 opacity-50" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-56 p-2 glass border-white/10 shadow-2xl" align="start">
+          <PopoverContent className="w-56 p-2 glass border-border/30 shadow-2xl" align="start">
             <div className="space-y-1">
               {plans.map((p) => (
                 <button
                   key={p.value}
                   onClick={() => togglePlan(p.value)}
-                  className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg hover:bg-white/5 transition-colors text-sm"
+                  className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg hover:bg-secondary/50 transition-colors text-sm"
                 >
                   <div className="flex items-center gap-3">
                     <p.icon className={`h-4 w-4 ${selectedPlans.includes(p.value) ? "text-primary" : "text-muted-foreground"}`} />
@@ -176,17 +176,17 @@ const SquadFilterBar = ({
           </PopoverContent>
         </Popover>
 
-        <div className="h-8 w-[1px] bg-white/10 mx-1" />
+        <div className="h-8 w-[1px] bg-border/50 mx-1" />
 
         {/* Members Range */}
         <Select value={memberRangeFilter} onValueChange={setMemberRangeFilter}>
-          <SelectTrigger className={`h-11 w-[150px] border-none bg-transparent hover:bg-white/5 rounded-xl px-4 focus:ring-0 transition-all ${memberRangeFilter !== 'all' ? 'text-primary' : 'text-muted-foreground'}`}>
+          <SelectTrigger className={`h-11 w-[150px] border-none bg-transparent hover:bg-secondary/50 rounded-xl px-4 focus:ring-0 transition-all ${memberRangeFilter !== 'all' ? 'text-primary' : 'text-muted-foreground'}`}>
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               <SelectValue placeholder="Size" />
             </div>
           </SelectTrigger>
-          <SelectContent className="glass border-white/10 shadow-2xl">
+          <SelectContent className="glass border-border/30 shadow-2xl">
             <SelectItem value="all">Any Size</SelectItem>
             <SelectItem value="0-5">0-5 Members</SelectItem>
             <SelectItem value="5-10">5-10 Members</SelectItem>
@@ -208,7 +208,7 @@ const SquadFilterBar = ({
           <SelectTrigger className="h-11 w-[170px] border-none bg-secondary/40 hover:bg-secondary/60 rounded-xl px-4 focus:ring-0 transition-all text-sm font-medium">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
-          <SelectContent className="glass border-white/10 shadow-2xl" align="end">
+          <SelectContent className="glass border-border/30 shadow-2xl" align="end">
             <SelectItem value="members-desc">Most Members</SelectItem>
             <SelectItem value="members-asc">Least Members</SelectItem>
             <SelectItem value="engagement-desc">High Engagement</SelectItem>
@@ -234,7 +234,7 @@ const SquadFilterBar = ({
         
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" className="h-11 w-11 p-0 rounded-xl glass border-white/10 relative">
+            <Button variant="outline" className="h-11 w-11 p-0 rounded-xl glass border-border/30 relative">
               <SlidersHorizontal className="h-5 w-5 text-primary" />
               {activeFilterCount > 0 && (
                 <span className="absolute -top-1 -right-1 h-5 w-5 bg-primary text-primary-foreground text-[10px] flex items-center justify-center rounded-full font-bold border-2 border-background">
@@ -243,9 +243,9 @@ const SquadFilterBar = ({
               )}
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="glass border-l-white/10 w-full sm:max-w-md p-0 overflow-y-auto">
+          <SheetContent side="right" className="glass border-l-border/30 w-full sm:max-w-md p-0 overflow-y-auto">
             <div className="p-6 space-y-8">
-              <SheetHeader className="text-left py-2 border-b border-white/10">
+              <SheetHeader className="text-left py-2 border-b border-border/30">
                 <div className="flex items-center justify-between">
                   <SheetTitle className="text-xl font-bold flex items-center gap-2">
                     <Filter className="h-5 w-5 text-primary" />
@@ -276,7 +276,7 @@ const SquadFilterBar = ({
                         className={`px-4 py-3 rounded-xl border text-sm transition-all ${
                           statusFilter === status.value
                             ? "border-primary bg-primary/10 text-primary"
-                            : "border-white/10 bg-white/5 text-muted-foreground hover:bg-white/10"
+                            : "border-border/30 bg-secondary/30 text-muted-foreground hover:bg-secondary/50"
                         }`}
                       >
                         {status.label}
@@ -296,7 +296,7 @@ const SquadFilterBar = ({
                         className={`flex items-center justify-between px-4 py-3 rounded-xl border text-sm transition-all ${
                           selectedPlans.includes(p.value)
                             ? "border-primary bg-primary/10 text-primary"
-                            : "border-white/10 bg-white/5 text-muted-foreground hover:bg-white/10"
+                            : "border-border/30 bg-secondary/30 text-muted-foreground hover:bg-secondary/50"
                         }`}
                       >
                          <div className="flex items-center gap-3">
@@ -320,7 +320,7 @@ const SquadFilterBar = ({
                         className={`px-3 py-2 rounded-xl border text-xs transition-all text-left truncate ${
                           selectedNiches.includes(niche)
                             ? "border-primary bg-primary/10 text-primary"
-                            : "border-white/10 bg-white/5 text-muted-foreground"
+                            : "border-border/30 bg-secondary/30 text-muted-foreground"
                         }`}
                       >
                         {niche}
@@ -333,13 +333,13 @@ const SquadFilterBar = ({
                       <PopoverTrigger asChild>
                          <Button variant="link" className="p-0 h-auto text-primary text-xs">View all {allNiches.length} niches</Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-64 glass border-white/10 p-0 shadow-2xl">
+                      <PopoverContent className="w-64 glass border-border/30 p-0 shadow-2xl">
                          <ScrollArea className="h-64 p-2">
                             {allNiches.map((niche) => (
                               <button
                                 key={niche}
                                 onClick={() => toggleNiche(niche)}
-                                className="flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-white/5 text-sm"
+                                className="flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-secondary/50 text-sm"
                               >
                                 <span>{niche}</span>
                                 {selectedNiches.includes(niche) && <CheckCircle2 className="h-3 w-3 text-primary" />}
@@ -362,10 +362,10 @@ const SquadFilterBar = ({
                       setSortOrder(newSortOrder);
                     }}
                   >
-                    <SelectTrigger className="h-12 w-full border-white/10 bg-white/5 rounded-xl px-4 focus:ring-0">
+                    <SelectTrigger className="h-12 w-full border-border/30 bg-secondary/30 rounded-xl px-4 focus:ring-0">
                       <SelectValue placeholder="Sort by" />
                     </SelectTrigger>
-                    <SelectContent className="glass border-white/10 shadow-2xl">
+                    <SelectContent className="glass border-border/30 shadow-2xl">
                       <SelectItem value="members-desc">Most Members</SelectItem>
                       <SelectItem value="members-asc">Least Members</SelectItem>
                       <SelectItem value="engagement-desc">High Engagement</SelectItem>
@@ -423,7 +423,7 @@ const SquadFilterBar = ({
                 </button>
               </Badge>
             )}
-            <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-xs text-muted-foreground hover:text-foreground h-7 px-2 border-l border-white/10 ml-2 rounded-none">
+            <Button variant="ghost" size="sm" onClick={clearAllFilters} className="text-xs text-muted-foreground hover:text-foreground h-7 px-2 border-l border-border/30 ml-2 rounded-none">
               Reset all
             </Button>
           </motion.div>

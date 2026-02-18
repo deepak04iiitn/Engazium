@@ -340,7 +340,7 @@ const Squads = () => {
                 onValueChange={setActiveTab}
                 className="w-full max-w-sm sm:max-w-md"
               >
-                <TabsList className="grid w-full grid-cols-2 p-1 sm:p-1.5 bg-secondary/30 backdrop-blur-xl border border-white/10 rounded-xl sm:rounded-2xl h-11 sm:h-14">
+                <TabsList className="grid w-full grid-cols-2 p-1 sm:p-1.5 bg-secondary/30 backdrop-blur-xl border border-border/30 rounded-xl sm:rounded-2xl h-11 sm:h-14">
                   <TabsTrigger
                     value="browse"
                     className="rounded-lg sm:rounded-xl font-heading font-bold tracking-wide text-xs sm:text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg data-[state=active]:shadow-primary/20 transition-all duration-300"

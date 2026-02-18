@@ -6,6 +6,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ReduxProvider from "@/components/ReduxProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
@@ -25,18 +26,25 @@ export default function RootLayout({ children }) {
   const isDashboardRoute = pathname?.startsWith('/dashboard') || pathname?.startsWith('/admin-dashboard');
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ReduxProvider>
-          <div className="min-h-screen bg-background">
-            {!isDashboardRoute && <Navbar />}
-            <main>{children}</main>
-            {!isDashboardRoute && <Footer />}
-          </div>
-          <Toaster richColors position="top-right" />
-        </ReduxProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          <ReduxProvider>
+            <div className="min-h-screen bg-background">
+              {!isDashboardRoute && <Navbar />}
+              <main>{children}</main>
+              {!isDashboardRoute && <Footer />}
+            </div>
+            <Toaster richColors position="top-right" />
+          </ReduxProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

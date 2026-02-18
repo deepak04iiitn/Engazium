@@ -90,12 +90,12 @@ const UserSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) => 
       {/* Sidebar Container */}
       <motion.aside
         className={cn(
-          "fixed md:relative z-50 h-screen flex flex-col border-r border-white/10 bg-black/40 backdrop-blur-xl transition-all duration-300 ease-in-out",
+          "fixed md:relative z-50 h-screen flex flex-col border-r border-border/20 bg-sidebar-background/95 backdrop-blur-xl transition-all duration-300 ease-in-out",
           isOpen ? "w-64" : "w-20 -translate-x-full md:translate-x-0"
         )}
       >
         {/* Header */}
-        <div className="h-20 flex items-center px-4 border-b border-white/5">
+        <div className="h-20 flex items-center px-4 border-b border-border/20">
           <Link href="/" className="flex items-center gap-3 overflow-hidden ml-1">
             <div className="relative h-10 w-10 shrink-0">
               <Image 
@@ -140,7 +140,7 @@ const UserSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) => 
           {/* Main Group */}
           <div>
             <div className={cn(
-              "px-3 mb-2 text-xs font-semibold text-white/40 uppercase tracking-widest transition-opacity duration-300",
+              "px-3 mb-2 text-xs font-semibold text-muted-foreground/60 uppercase tracking-widest transition-opacity duration-300",
               !isOpen && "opacity-0 text-center"
             )}>
               Menu
@@ -154,7 +154,7 @@ const UserSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) => 
                       "w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-300 group relative overflow-hidden",
                       activeSection === item.key
                         ? "bg-primary/10 text-primary shadow-[0_0_20px_-5px_hsl(var(--primary)/0.3)]"
-                        : "text-muted-foreground hover:text-white hover:bg-white/5"
+                        : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
                     )}
                   >
                     {activeSection === item.key && (
@@ -194,7 +194,7 @@ const UserSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) => 
           {/* Settings Group */}
           <div>
              <div className={cn(
-              "px-3 mb-2 text-xs font-semibold text-white/40 uppercase tracking-widest transition-opacity duration-300",
+              "px-3 mb-2 text-xs font-semibold text-muted-foreground/60 uppercase tracking-widest transition-opacity duration-300",
               !isOpen && "opacity-0 text-center"
             )}>
               Support
@@ -205,7 +205,7 @@ const UserSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) => 
                   {item.href ? (
                     <Link
                       href={item.href}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl text-muted-foreground hover:text-white hover:bg-white/5 transition-all duration-300 group relative"
+                      className="w-full flex items-center gap-3 p-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-300 group relative"
                     >
                       <item.icon className="h-5 w-5 shrink-0 group-hover:scale-110 transition-transform" />
                       <AnimatePresence>
@@ -230,7 +230,7 @@ const UserSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) => 
                   ) : (
                     <button
                       onClick={() => setActiveSection(item.key)}
-                      className="w-full flex items-center gap-3 p-3 rounded-xl text-muted-foreground hover:text-white hover:bg-white/5 transition-all duration-300 group relative"
+                      className="w-full flex items-center gap-3 p-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-300 group relative"
                     >
                       <item.icon className="h-5 w-5 shrink-0 group-hover:scale-110 transition-transform" />
                       <AnimatePresence>
@@ -260,10 +260,10 @@ const UserSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) => 
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-white/5 mt-auto">
+        <div className="p-4 border-t border-border/20 mt-auto">
           <div className={cn(
             "flex items-center gap-3 p-2 rounded-xl transition-all duration-300",
-            isOpen ? "bg-white/5 hover:bg-white/10" : "justify-center"
+            isOpen ? "bg-secondary/50 hover:bg-secondary" : "justify-center"
           )}>
             <div className="relative shrink-0">
               <Avatar className="h-9 w-9 border-2 border-primary/20">
@@ -282,7 +282,7 @@ const UserSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) => 
                   exit={{ opacity: 0, width: 0 }}
                   className="flex-1 min-w-0 overflow-hidden"
                 >
-                  <p className="text-sm font-semibold truncate text-white">{currentUser?.username || "User"}</p>
+                  <p className="text-sm font-semibold truncate text-foreground">{currentUser?.username || "User"}</p>
                   <p className="text-xs text-muted-foreground truncate">{currentUser?.email || ""}</p>
                 </motion.div>
               )}

@@ -89,12 +89,12 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
       {/* Sidebar Container */}
       <motion.aside
         className={cn(
-          "fixed md:relative z-50 h-screen flex flex-col border-r border-indigo-500/10 bg-[#0f111a]/95 backdrop-blur-xl transition-all duration-300 ease-in-out",
+          "fixed md:relative z-50 h-screen flex flex-col border-r border-border/20 bg-sidebar-background/95 backdrop-blur-xl transition-all duration-300 ease-in-out",
           isOpen ? "w-64" : "w-20 -translate-x-full md:translate-x-0"
         )}
       >
         {/* Header */}
-        <div className="h-20 flex items-center px-4 border-b border-indigo-500/10">
+        <div className="h-20 flex items-center px-4 border-b border-border/20">
           <Link href="/" className="flex items-center gap-3 overflow-hidden ml-1">
             <div className="relative h-10 w-10 shrink-0">
               <Image 
@@ -112,7 +112,7 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
                   exit={{ opacity: 0, x: -10 }}
                   className="flex flex-col whitespace-nowrap"
                 >
-                  <span className="font-heading text-lg font-bold text-indigo-400">
+                  <span className="font-heading text-lg font-bold text-primary">
                     Admin Panel
                   </span>
                   <span className="text-[10px] text-muted-foreground uppercase tracking-widest">
@@ -128,7 +128,7 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
         {!isMobile && (
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="absolute -right-3 top-24 h-6 w-6 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform z-50 border-2 border-[#0f111a]"
+            className="absolute -right-3 top-24 h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:scale-110 transition-transform z-50 border-2 border-background"
           >
             {isOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
           </button>
@@ -139,7 +139,7 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
           {/* Main Group */}
           <div>
             <div className={cn(
-              "px-3 mb-2 text-xs font-semibold text-indigo-300/40 uppercase tracking-widest transition-opacity duration-300",
+              "px-3 mb-2 text-xs font-semibold text-muted-foreground/60 uppercase tracking-widest transition-opacity duration-300",
               !isOpen && "opacity-0 text-center"
             )}>
               Admin Menu
@@ -152,12 +152,12 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
                     className={cn(
                       "w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-300 group relative overflow-hidden",
                       activeSection === item.key
-                        ? "bg-indigo-500/10 text-indigo-400 shadow-[0_0_20px_-5px_rgba(99,102,241,0.3)] border border-indigo-500/20"
-                        : "text-muted-foreground hover:text-white hover:bg-indigo-500/5"
+                        ? "bg-primary/10 text-primary shadow-[0_0_20px_-5px_hsl(var(--primary)/0.3)] border border-primary/20"
+                        : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
                     )}
                   >
                     {activeSection === item.key && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-indigo-500 rounded-r-full" />
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
                     )}
                     <item.icon
                       className={cn(
@@ -193,7 +193,7 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
           {/* Shortcuts Group */}
           <div>
              <div className={cn(
-              "px-3 mb-2 text-xs font-semibold text-indigo-300/40 uppercase tracking-widest transition-opacity duration-300",
+              "px-3 mb-2 text-xs font-semibold text-muted-foreground/60 uppercase tracking-widest transition-opacity duration-300",
               !isOpen && "opacity-0 text-center"
             )}>
               Shortcuts
@@ -203,7 +203,7 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
                 <li key={item.key}>
                   <Link
                     href={item.href}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl text-muted-foreground hover:text-white hover:bg-indigo-500/5 transition-all duration-300 group relative"
+                    className="w-full flex items-center gap-3 p-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-300 group relative"
                   >
                     <item.icon className="h-5 w-5 shrink-0 group-hover:scale-110 transition-transform" />
                     <AnimatePresence>
@@ -233,18 +233,18 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-indigo-500/10 mt-auto">
+        <div className="p-4 border-t border-border/20 mt-auto">
           <div className={cn(
             "flex items-center gap-3 p-2 rounded-xl transition-all duration-300 border border-transparent",
-            isOpen ? "bg-indigo-950/20 border-indigo-500/10 hover:border-indigo-500/30" : "justify-center"
+            isOpen ? "bg-secondary/50 border-border/20 hover:border-primary/30" : "justify-center"
           )}>
             <div className="relative shrink-0">
-              <Avatar className="h-9 w-9 border-2 border-indigo-500/30">
-                <AvatarFallback className="bg-indigo-500/20 text-indigo-300 font-bold text-xs">
+              <Avatar className="h-9 w-9 border-2 border-primary/30">
+                <AvatarFallback className="bg-primary/20 text-primary font-bold text-xs">
                   {currentUser?.username?.slice(0, 2).toUpperCase() || "AD"}
                 </AvatarFallback>
               </Avatar>
-              <div className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-indigo-500 border-2 border-background animate-pulse" />
+              <div className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-primary border-2 border-background animate-pulse" />
             </div>
             
             <AnimatePresence>
@@ -255,8 +255,8 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
                   exit={{ opacity: 0, width: 0 }}
                   className="flex-1 min-w-0 overflow-hidden"
                 >
-                  <p className="text-sm font-semibold truncate text-white">{currentUser?.username || "Admin"}</p>
-                  <p className="text-xs text-indigo-300/70 truncate">{currentUser?.email || "Admin"}</p>
+                  <p className="text-sm font-semibold truncate text-foreground">{currentUser?.username || "Admin"}</p>
+                  <p className="text-xs text-muted-foreground truncate">{currentUser?.email || "Admin"}</p>
                 </motion.div>
               )}
             </AnimatePresence>
