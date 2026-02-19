@@ -8,6 +8,7 @@ import {
   Shield,
   BarChart3,
   Menu,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AdminSidebar from "@/components/dashboard/AdminSidebar";
@@ -18,6 +19,7 @@ import AdminUsers from "@/components/dashboard/admin/AdminUsers";
 import AdminEarnings from "@/components/dashboard/admin/AdminEarnings";
 import AdminSubscriptions from "@/components/dashboard/admin/AdminSubscriptions";
 import AdminSquads from "@/components/dashboard/admin/AdminSquads";
+import AdminTestimonials from "@/components/dashboard/admin/AdminTestimonials";
 
 const earnings = {
   lifetime: "₹1,24,500", thisMonth: "₹18,750", lastMonth: "₹15,200", growth: "+23.4%",
@@ -53,15 +55,16 @@ const sidebarItems = [
   { key: "earnings", label: "Earnings", icon: DollarSign },
   { key: "subscriptions", label: "Subs", icon: CreditCard },
   { key: "squads", label: "Squads", icon: Shield },
+  { key: "testimonials", label: "Testimonials", icon: MessageSquare },
 ];
 
 // Mobile bottom tabs for admin
 const mobileTabItems = [
   { key: "overview", label: "Overview", icon: BarChart3 },
   { key: "users", label: "Users", icon: Users },
-  { key: "earnings", label: "Earnings", icon: DollarSign },
-  { key: "subscriptions", label: "Subs", icon: CreditCard },
   { key: "squads", label: "Squads", icon: Shield },
+  { key: "testimonials", label: "Reviews", icon: MessageSquare },
+  { key: "earnings", label: "Earnings", icon: DollarSign },
 ];
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -253,6 +256,11 @@ const AdminDashboard = () => {
       {/* Squads Section */}
       {activeSection === "squads" && (
         <AdminSquads adminSquads={adminSquads} />
+      )}
+
+      {/* Testimonials Section */}
+      {activeSection === "testimonials" && (
+        <AdminTestimonials />
       )}
     </div>
   );

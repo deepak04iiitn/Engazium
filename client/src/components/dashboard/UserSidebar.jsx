@@ -13,6 +13,7 @@ import {
   ChevronRight,
   LayoutDashboard,
   Plus,
+  MessageSquare,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -62,6 +63,7 @@ const UserSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) => 
     { key: "profile", label: "Profile", icon: User },
     { key: "squads", label: "My Squads", icon: Users },
     { key: "create-squad", label: "Create Squad", icon: Plus },
+    { key: "testimonial", label: "Testimonial", icon: MessageSquare },
     { key: "analytics", label: "Analytics", icon: BarChart3 },
   ];
 

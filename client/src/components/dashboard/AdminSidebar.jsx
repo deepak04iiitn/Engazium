@@ -13,7 +13,8 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Menu
+  Menu,
+  MessageSquare,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -64,6 +65,7 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
     { key: "earnings", label: "Earnings", icon: DollarSign },
     { key: "subscriptions", label: "Subscriptions", icon: CreditCard },
     { key: "squads", label: "All Squads", icon: Shield },
+    { key: "testimonials", label: "Testimonials", icon: MessageSquare },
   ];
 
   const bottomItems = [

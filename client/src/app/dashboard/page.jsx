@@ -9,6 +9,7 @@ import {
   Home,
   Menu,
   LayoutDashboard,
+  MessageSquare,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
@@ -25,6 +26,7 @@ import UserProfile from "@/components/dashboard/user/UserProfile";
 import UserSquads from "@/components/dashboard/user/UserSquads";
 import UserSubscriptions from "@/components/dashboard/user/UserSubscriptions";
 import UserAnalytics from "@/components/dashboard/user/UserAnalytics";
+import UserTestimonial from "@/components/dashboard/user/UserTestimonial";
 
 const subscriptions = [
   { id: 1, plan: "Growth Squad", squad: "Tech Creators Hub", price: "₹100/mo", nextBilling: "Mar 10, 2026", status: "Active", since: "Jan 2026" },
@@ -36,6 +38,7 @@ const sidebarItems = [
   { key: "overview", label: "Overview", icon: Home },
   { key: "profile", label: "Profile", icon: User },
   { key: "squads", label: "My Squads", icon: Users },
+  { key: "testimonial", label: "Testimonial", icon: MessageSquare },
   { key: "subscriptions", label: "Subscriptions", icon: CreditCard },
   { key: "analytics", label: "Analytics", icon: BarChart3 },
 ];
@@ -77,7 +80,16 @@ const Dashboard = () => {
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const [activeSection, setActiveSection] = useState("overview");
+  const [activeSection, setActiveSection] = useState(() => {
+    if (typeof window !== "undefined") {
+      const tab = sessionStorage.getItem("dashboard_tab");
+      if (tab) {
+        sessionStorage.removeItem("dashboard_tab");
+        return tab;
+      }
+    }
+    return "overview";
+  });
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedSquadAnalytics, setSelectedSquadAnalytics] = useState(null);
 
@@ -413,6 +425,11 @@ const Dashboard = () => {
           handleCreateSquad={handleCreateSquad}
           createSquadLoading={createSquadLoading}
         />
+      )}
+
+      {/* Testimonial Section */}
+      {activeSection === "testimonial" && (
+        <UserTestimonial currentUser={currentUser} />
       )}
 
       {/* Subscriptions Section */}

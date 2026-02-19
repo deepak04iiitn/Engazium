@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Star,
@@ -8,13 +8,15 @@ import {
   ChevronLeft,
   ChevronRight,
   MessageSquare,
+  PenLine,
 } from "lucide-react";
+import Link from "next/link";
+import { useSelector } from "react-redux";
 
-const testimonials = [
+const fallbackTestimonials = [
   {
     name: "Priya Sharma",
     handle: "@priyacreates",
-    initials: "PS",
     niche: "Lifestyle Creator",
     quote:
       "My reels used to get 200 views max. After joining an Engazium squad, my average jumped to 2,000+ within three weeks. The early engagement makes all the difference.",
@@ -24,7 +26,6 @@ const testimonials = [
   {
     name: "Arjun Mehta",
     handle: "@arjuntalks",
-    initials: "AM",
     niche: "Tech Reviewer",
     quote:
       "I was skeptical at first, but the engagement tracking keeps everyone honest. No freeloaders, just real creators supporting each other. My follower growth has been insane.",
@@ -34,7 +35,6 @@ const testimonials = [
   {
     name: "Sneha Reddy",
     handle: "@snehastyle",
-    initials: "SR",
     niche: "Fashion & Beauty",
     quote:
       "Unlike WhatsApp pods where people ghost, Engazium squads are accountable. My engagement rate doubled and I landed my first brand deal through the network.",
@@ -44,7 +44,6 @@ const testimonials = [
   {
     name: "Karthik Nair",
     handle: "@karthikfitness",
-    initials: "KN",
     niche: "Fitness Creator",
     quote:
       "The niche matching is brilliant. I'm in a squad with other fitness creators so the engagement actually looks natural and helps the algorithm push my content.",
@@ -54,7 +53,6 @@ const testimonials = [
   {
     name: "Ananya Das",
     handle: "@ananyaeats",
-    initials: "AD",
     niche: "Food Blogger",
     quote:
       "From 500 followers to 5K in two months. The weekly accountability tracking keeps me consistent and motivated. Best ₹50 I've ever spent.",
@@ -64,7 +62,6 @@ const testimonials = [
   {
     name: "Rohan Gupta",
     handle: "@rohanvisuals",
-    initials: "RG",
     niche: "Photography",
     quote:
       "The time-distributed engagement feature is what sold me. My account feels safe and the growth is 100% organic. Highly recommend to any micro creator.",
@@ -74,7 +71,6 @@ const testimonials = [
   {
     name: "Meera Joshi",
     handle: "@meerawrites",
-    initials: "MJ",
     niche: "Content Writer",
     quote:
       "I was stuck at 800 followers for months. After two weeks in my Engazium squad, I crossed 2K. The structured engagement is a game-changer for micro creators.",
@@ -84,7 +80,6 @@ const testimonials = [
   {
     name: "Vikram Singh",
     handle: "@vikramvlogs",
-    initials: "VS",
     niche: "Travel Vlogger",
     quote:
       "What I love most is the accountability. Everyone in my squad genuinely engages because the tracking system keeps everyone on their toes. It's fair and effective.",
@@ -94,7 +89,6 @@ const testimonials = [
   {
     name: "Divya Patel",
     handle: "@divyadesigns",
-    initials: "DP",
     niche: "Graphic Designer",
     quote:
       "The time-distributed engagement means my account stays safe. No weird spikes, just consistent organic growth. Already recommended it to three other creators.",
@@ -102,6 +96,17 @@ const testimonials = [
     metric: "100% organic",
   },
 ];
+
+// Helper — get initials from a name
+const getInitials = (name) => {
+  if (!name) return "??";
+  return name
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+};
 
 const TestimonialCard = ({ t }) => (
   <div className="bg-card/80 dark:bg-card/50 backdrop-blur-sm rounded-2xl p-5 sm:p-6 border border-border/40 dark:border-border/20 hover:border-primary/15 dark:hover:border-primary/15 transition-all duration-500 group">
@@ -125,7 +130,7 @@ const TestimonialCard = ({ t }) => (
       <div className="flex items-center gap-2.5">
         <div className="w-8 h-8 rounded-full bg-primary/8 dark:bg-primary/10 border border-border/30 dark:border-border/15 flex items-center justify-center shrink-0">
           <span className="text-[9px] font-bold text-primary font-heading">
-            {t.initials}
+            {t.initials || getInitials(t.name)}
           </span>
         </div>
         <div className="min-w-0">
@@ -137,20 +142,46 @@ const TestimonialCard = ({ t }) => (
           </p>
         </div>
       </div>
-      <span className="text-[10px] sm:text-xs font-heading font-semibold text-primary bg-primary/8 dark:bg-primary/10 px-2.5 py-0.5 rounded-full shrink-0">
-        {t.metric}
-      </span>
+      {t.metric && (
+        <span className="text-[10px] sm:text-xs font-heading font-semibold text-primary bg-primary/8 dark:bg-primary/10 px-2.5 py-0.5 rounded-full shrink-0">
+          {t.metric}
+        </span>
+      )}
     </div>
   </div>
 );
 
-/* Split testimonials into 3 columns for vertical scroll */
-const col1 = [testimonials[0], testimonials[3], testimonials[6]];
-const col2 = [testimonials[1], testimonials[4], testimonials[7]];
-const col3 = [testimonials[2], testimonials[5], testimonials[8]];
+const MIN_REAL_TESTIMONIALS = 10;
 
 const TestimonialsSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [testimonials, setTestimonials] = useState(fallbackTestimonials);
+  const { currentUser } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        const res = await fetch("/api/testimonials");
+        const data = await res.json();
+        // Only show real testimonials once we have 10+ approved
+        if (
+          res.ok &&
+          data.testimonials &&
+          data.testimonials.length >= MIN_REAL_TESTIMONIALS
+        ) {
+          setTestimonials(data.testimonials);
+        }
+      } catch {
+        // Silently fall back to hardcoded testimonials
+      }
+    };
+    fetchTestimonials();
+  }, []);
+
+  /* Split testimonials into 3 columns for vertical scroll */
+  const col1 = testimonials.filter((_, i) => i % 3 === 0);
+  const col2 = testimonials.filter((_, i) => i % 3 === 1);
+  const col3 = testimonials.filter((_, i) => i % 3 === 2);
 
   return (
     <section className="relative py-28 sm:py-36 md:py-44 overflow-hidden">
@@ -178,6 +209,29 @@ const TestimonialsSection = () => {
             Don&apos;t take our word for it — hear from creators who&apos;ve
             transformed their growth.
           </p>
+
+          {/* CTA — write a testimonial */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mt-7 sm:mt-8"
+          >
+            <Link
+              href={currentUser ? "/dashboard" : "/sign-in"}
+              onClick={() => {
+                // If user is logged in, set the dashboard to open the testimonial tab
+                if (currentUser && typeof window !== "undefined") {
+                  sessionStorage.setItem("dashboard_tab", "testimonial");
+                }
+              }}
+              className="inline-flex items-center gap-2 rounded-full bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/30 px-5 py-2.5 text-sm font-semibold text-primary transition-all duration-300 hover:shadow-[0_0_20px_-5px_hsl(var(--primary)/0.3)]"
+            >
+              <PenLine className="h-4 w-4" />
+              Share Your Experience
+            </Link>
+          </motion.div>
         </motion.div>
       </div>
 
