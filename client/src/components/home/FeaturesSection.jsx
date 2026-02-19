@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Shield, Users, Award, Clock, BarChart3, Heart } from "lucide-react";
+import { Shield, Users, Percent, Clock, BarChart3, Heart } from "lucide-react";
 
 const features = [
   {
@@ -11,10 +11,10 @@ const features = [
       "Join squads matched by niche, format, and follower range for the most relevant engagement.",
   },
   {
-    icon: Award,
-    title: "Credit-Based Fairness",
+    icon: Percent,
+    title: "Engagement % Tracking",
     description:
-      "Earn credits by engaging. Spend credits to post. No freeloaders — everyone contributes equally.",
+      "Your engagement percentage is tracked in real time — stay consistent to stay visible and accountable.",
   },
   {
     icon: Shield,
@@ -44,25 +44,25 @@ const features = [
 
 const FeaturesSection = () => {
   return (
-    <section id="features" className="relative py-14 sm:py-20 md:py-24 overflow-hidden">
+    <section id="features" className="relative py-24 sm:py-32 md:py-40 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-secondary/10 to-background" />
 
-      {/* Glow - smaller on mobile */}
+      {/* Glow */}
       <div className="absolute top-1/2 left-0 w-[200px] h-[200px] md:w-[400px] md:h-[400px] bg-primary/5 rounded-full blur-[80px] md:blur-[120px]" />
       <div className="absolute bottom-0 right-0 w-[150px] h-[150px] md:w-[300px] md:h-[300px] bg-glow-secondary/5 rounded-full blur-[60px] md:blur-[100px]" />
 
-      <div className="container relative z-10 mx-auto px-4 sm:px-6">
+      <div className="container relative z-10 mx-auto px-5 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-8 sm:mb-12 md:mb-16"
+          className="text-center mb-14 sm:mb-16 md:mb-20"
         >
           <span className="text-primary font-heading text-xs sm:text-sm font-semibold uppercase tracking-wider">
             Features
           </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-2 sm:mt-3 mb-3 sm:mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-heading font-bold mt-3 mb-4">
             Built for{" "}
             <span className="text-gradient">Serious Creators</span>
           </h2>
@@ -71,7 +71,7 @@ const FeaturesSection = () => {
           </p>
         </motion.div>
 
-        {/* Mobile: 2-col compact grid | Tablet: 2-col | Desktop: 3-col */}
+        {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 max-w-5xl mx-auto">
           {features.map((feature, index) => (
             <motion.div

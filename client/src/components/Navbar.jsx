@@ -83,37 +83,45 @@ const Navbar = () => {
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-card/90 dark:bg-card/80 backdrop-blur-xl border-b border-border/40 shadow-sm dark:shadow-none"
+          ? "bg-card/80 dark:bg-card/60 backdrop-blur-xl border-b border-border/30 dark:border-border/15 shadow-sm dark:shadow-none"
           : "bg-transparent"
       }`}
     >
       <div className="container mx-auto flex items-center justify-between px-5 sm:px-6 py-3.5 sm:py-4">
         {/* Logo */}
-        <a href="/" className="flex items-center gap-2">
+        <a href="/" className="flex items-center gap-2.5 group">
           <Image
             src={logo}
             alt="Engazium"
             height={40}
-            className="h-9 sm:h-10 w-auto"
+            className="h-9 sm:h-10 w-auto group-hover:scale-105 transition-transform duration-300"
           />
-          <span className="font-heading text-lg sm:text-xl font-bold text-foreground">
+          <span className="font-heading text-lg sm:text-xl font-bold text-foreground tracking-tight">
             Engazium
           </span>
         </a>
 
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-1">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 rounded-lg"
-            >
-              {link.label}
-            </a>
-          ))}
+        {/* Desktop Nav — pill container */}
+        <div className="hidden md:flex items-center">
+          <div
+            className={`flex items-center gap-0.5 rounded-full px-1.5 py-1 transition-all duration-500 ${
+              scrolled
+                ? "bg-transparent"
+                : "bg-card/50 dark:bg-card/30 backdrop-blur-md border border-border/20 dark:border-border/10"
+            }`}
+          >
+            {navLinks.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                className="px-3.5 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200 rounded-full hover:bg-secondary/50 dark:hover:bg-secondary/30"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
         </div>
 
         {/* Desktop Right */}
@@ -122,7 +130,7 @@ const Navbar = () => {
           {mounted && (
             <button
               onClick={toggleTheme}
-              className="relative h-9 w-9 rounded-xl bg-secondary/60 hover:bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-all duration-200"
+              className="relative h-9 w-9 rounded-full bg-secondary/60 dark:bg-secondary/40 hover:bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-all duration-300"
               aria-label="Toggle theme"
             >
               <Sun
@@ -146,7 +154,7 @@ const Navbar = () => {
             <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setProfileOpen(!profileOpen)}
-                className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-secondary/60 transition-colors"
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-full hover:bg-secondary/60 dark:hover:bg-secondary/30 transition-colors"
               >
                 <div className="h-8 w-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
                   <span className="text-xs font-bold text-primary uppercase">
@@ -166,13 +174,13 @@ const Navbar = () => {
               <AnimatePresence>
                 {profileOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 6, scale: 0.97 }}
+                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 6, scale: 0.97 }}
-                    transition={{ duration: 0.12 }}
-                    className="absolute right-0 mt-2 w-56 bg-card rounded-xl border border-border/50 shadow-lg dark:shadow-none overflow-hidden"
+                    exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-2.5 w-56 bg-card/95 dark:bg-card/90 backdrop-blur-xl rounded-2xl border border-border/40 dark:border-border/20 shadow-xl dark:shadow-none overflow-hidden"
                   >
-                    <div className="px-4 py-3 border-b border-border/30">
+                    <div className="px-4 py-3.5 border-b border-border/30 dark:border-border/15">
                       <p className="text-sm font-semibold text-foreground truncate">
                         {currentUser.username}
                       </p>
@@ -184,7 +192,7 @@ const Navbar = () => {
                       <Link
                         href="/profile"
                         onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-secondary/60 rounded-lg transition-colors"
+                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-foreground hover:bg-secondary/60 dark:hover:bg-secondary/30 rounded-xl transition-colors"
                       >
                         <User className="h-4 w-4 text-muted-foreground" />
                         My Profile
@@ -196,7 +204,7 @@ const Navbar = () => {
                             : "/dashboard"
                         }
                         onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-secondary/60 rounded-lg transition-colors"
+                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-foreground hover:bg-secondary/60 dark:hover:bg-secondary/30 rounded-xl transition-colors"
                       >
                         <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
                         {currentUser.isUserAdmin
@@ -205,7 +213,7 @@ const Navbar = () => {
                       </Link>
                       <button
                         onClick={handleLogout}
-                        className="flex items-center gap-2.5 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors w-full"
+                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-destructive hover:bg-destructive/10 rounded-xl transition-colors w-full"
                       >
                         <LogOut className="h-4 w-4" />
                         Logout
@@ -221,7 +229,7 @@ const Navbar = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-foreground hover:bg-secondary/60 font-medium text-sm px-4"
+                  className="text-foreground hover:bg-secondary/60 dark:hover:bg-secondary/30 font-medium text-sm px-4 rounded-full"
                 >
                   Log In
                 </Button>
@@ -229,7 +237,7 @@ const Navbar = () => {
               <Link href="/sign-up">
                 <Button
                   size="sm"
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box font-heading font-semibold text-sm px-5 rounded-xl"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box font-heading font-semibold text-sm px-6 rounded-full"
                 >
                   Get Started
                 </Button>
@@ -243,7 +251,7 @@ const Navbar = () => {
           {mounted && (
             <button
               onClick={toggleTheme}
-              className="relative h-9 w-9 rounded-xl bg-secondary/60 hover:bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-all duration-200"
+              className="relative h-9 w-9 rounded-full bg-secondary/60 dark:bg-secondary/40 hover:bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-all duration-200"
               aria-label="Toggle theme"
             >
               <Sun
@@ -264,7 +272,7 @@ const Navbar = () => {
           )}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="h-9 w-9 flex items-center justify-center text-foreground rounded-xl hover:bg-secondary/60 transition-colors"
+            className="h-9 w-9 flex items-center justify-center text-foreground rounded-full hover:bg-secondary/60 dark:hover:bg-secondary/30 transition-colors"
           >
             {isOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -279,7 +287,7 @@ const Navbar = () => {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="md:hidden bg-card border-t border-border/40 overflow-hidden"
+            className="md:hidden bg-card/95 dark:bg-card/90 backdrop-blur-xl border-t border-border/30 dark:border-border/15 overflow-hidden"
           >
             <div className="flex flex-col gap-1 px-5 py-5">
               {navLinks.map((link) => (
@@ -287,13 +295,13 @@ const Navbar = () => {
                   key={link.label}
                   href={link.href}
                   onClick={() => setIsOpen(false)}
-                  className="text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors text-sm font-medium px-3 py-2.5 rounded-lg"
+                  className="text-muted-foreground hover:text-foreground hover:bg-secondary/50 dark:hover:bg-secondary/30 transition-colors text-sm font-medium px-3 py-2.5 rounded-xl"
                 >
                   {link.label}
                 </a>
               ))}
 
-              <div className="border-t border-border/30 mt-3 pt-4 flex flex-col gap-2.5">
+              <div className="border-t border-border/30 dark:border-border/15 mt-3 pt-4 flex flex-col gap-2.5">
                 {currentUser ? (
                   <>
                     <div className="flex items-center gap-3 px-3 py-2">
@@ -318,7 +326,7 @@ const Navbar = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-border text-foreground hover:bg-secondary/60 w-full rounded-xl"
+                        className="border-border/60 dark:border-border/30 text-foreground hover:bg-secondary/60 w-full rounded-xl"
                       >
                         <User className="mr-1.5 h-4 w-4" />
                         My Profile
@@ -335,7 +343,7 @@ const Navbar = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-border text-foreground hover:bg-secondary/60 w-full rounded-xl"
+                        className="border-border/60 dark:border-border/30 text-foreground hover:bg-secondary/60 w-full rounded-xl"
                       >
                         <LayoutDashboard className="mr-1.5 h-4 w-4" />
                         {currentUser.isUserAdmin
@@ -362,7 +370,7 @@ const Navbar = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-border text-foreground hover:bg-secondary/60 w-full rounded-xl"
+                        className="border-border/60 dark:border-border/30 text-foreground hover:bg-secondary/60 w-full rounded-xl"
                       >
                         Log In
                       </Button>

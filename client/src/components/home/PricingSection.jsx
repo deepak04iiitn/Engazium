@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, Zap } from "lucide-react";
+import { Check, Zap, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const plans = [
   {
@@ -14,7 +15,7 @@ const plans = [
     features: [
       "Up to 10 members per squad",
       "1 post per day per person",
-      "Credit-based engagement system",
+      "Engagement percentage tracking",
       "Meaningful comment guidelines",
       "Weekly progress tracking",
       "Community support access",
@@ -30,7 +31,7 @@ const plans = [
     features: [
       "Up to 20 members per squad",
       "2 posts per day per person",
-      "Credit-based engagement system",
+      "Engagement percentage tracking",
       "Meaningful comment guidelines",
       "Priority squad matching",
       "Advanced engagement analytics",
@@ -46,7 +47,7 @@ const plans = [
     features: [
       "Up to 30 members per squad",
       "3 posts per day per person",
-      "Credit-based engagement system",
+      "Engagement percentage tracking",
       "Meaningful comment guidelines",
       "Priority squad matching",
       "Advanced engagement analytics",
@@ -57,26 +58,37 @@ const plans = [
 ];
 
 const anim = (delay = 0) => ({
-  initial: { opacity: 0, y: 20 },
+  initial: { opacity: 0, y: 30 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-40px" },
-  transition: { duration: 0.5, delay },
+  viewport: { once: true, margin: "-60px" },
+  transition: { duration: 0.7, delay, ease: [0.215, 0.61, 0.355, 1] },
 });
 
 const PricingSection = () => {
   return (
-    <section id="pricing" className="relative py-20 sm:py-28 md:py-36 overflow-hidden">
-      <div className="container mx-auto px-5 sm:px-6">
+    <section
+      id="pricing"
+      className="relative py-28 sm:py-36 md:py-44 overflow-hidden"
+    >
+      {/* Background mesh */}
+      <div className="absolute inset-0 mesh-gradient opacity-40" />
+
+      <div className="container relative z-10 mx-auto px-5 sm:px-6">
         {/* Header */}
-        <motion.div {...anim()} className="text-center mb-12 sm:mb-16 md:mb-20">
-          <span className="text-primary font-heading text-xs sm:text-sm font-semibold uppercase tracking-wider">
+        <motion.div
+          {...anim()}
+          className="text-center mb-16 sm:mb-20 md:mb-24"
+        >
+          <span className="inline-flex items-center gap-2 rounded-full bg-primary/8 dark:bg-primary/10 border border-primary/12 dark:border-primary/20 px-4 py-1.5 text-xs font-medium text-primary mb-6">
+            <Sparkles className="h-3 w-3" />
             Pricing
           </span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold mt-3 tracking-tight">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold tracking-tighter">
             Simple,{" "}
-            <span className="text-gradient">creator-friendly</span> pricing
+            <span className="text-gradient-animated">creator-friendly</span>
+            <br className="hidden sm:block" /> pricing
           </h2>
-          <p className="text-muted-foreground mt-4 max-w-lg mx-auto text-sm sm:text-base md:text-lg">
+          <p className="text-muted-foreground mt-5 sm:mt-6 text-base sm:text-lg md:text-xl max-w-lg mx-auto">
             Pay per squad. No hidden fees. Cancel anytime.
           </p>
         </motion.div>
@@ -88,15 +100,15 @@ const PricingSection = () => {
               <motion.div
                 key={plan.name}
                 {...anim(0.08 * i)}
-                className={`relative rounded-2xl p-5 min-w-[280px] snap-center shrink-0 border ${
+                className={`relative rounded-2xl p-5 min-w-[280px] snap-center shrink-0 border backdrop-blur-sm ${
                   plan.popular
-                    ? "bg-card border-primary/30 shadow-md dark:shadow-none"
-                    : "bg-card border-border/50 shadow-sm dark:shadow-none dark:border-border/30"
+                    ? "bg-card/90 dark:bg-card/70 border-primary/30 shadow-lg dark:shadow-none"
+                    : "bg-card/70 dark:bg-card/50 border-border/40 dark:border-border/20 shadow-sm dark:shadow-none"
                 }`}
               >
                 {plan.popular && (
                   <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
-                    <span className="inline-flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-heading font-semibold px-3 py-0.5 rounded-full">
+                    <span className="inline-flex items-center gap-1 bg-primary text-primary-foreground text-[10px] font-heading font-semibold px-3 py-0.5 rounded-full glow-box">
                       <Zap className="h-2.5 w-2.5" />
                       Popular
                     </span>
@@ -104,7 +116,7 @@ const PricingSection = () => {
                 )}
 
                 <div className="mb-4">
-                  <h3 className="font-heading font-semibold text-foreground text-base">
+                  <h3 className="font-heading font-bold text-foreground text-base">
                     {plan.name}
                   </h3>
                   <p className="text-muted-foreground text-xs mt-0.5">
@@ -134,15 +146,17 @@ const PricingSection = () => {
                   ))}
                 </ul>
 
-                <Button
-                  className={`w-full rounded-xl py-4 text-sm font-heading font-semibold ${
-                    plan.popular
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90 glow-box"
-                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                  }`}
-                >
-                  Join {plan.name}
-                </Button>
+                <Link href="/sign-up">
+                  <Button
+                    className={`w-full rounded-xl py-4 text-sm font-heading font-semibold ${
+                      plan.popular
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90 glow-box"
+                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                    }`}
+                  >
+                    Join {plan.name}
+                  </Button>
+                </Link>
               </motion.div>
             ))}
           </div>
@@ -154,61 +168,88 @@ const PricingSection = () => {
             <motion.div
               key={plan.name}
               {...anim(0.1 * i)}
-              className={`relative rounded-3xl p-7 lg:p-8 border transition-shadow duration-300 ${
+              className={`group relative rounded-[1.75rem] p-7 lg:p-8 border transition-all duration-500 backdrop-blur-sm overflow-hidden ${
                 plan.popular
-                  ? "bg-card border-primary/30 shadow-lg dark:shadow-none dark:border-primary/25 -mt-2 mb-[-8px]"
-                  : "bg-card border-border/50 shadow-sm dark:shadow-none dark:border-border/30 hover:shadow-md dark:hover:shadow-none"
+                  ? "bg-card/90 dark:bg-card/70 border-primary/30 dark:border-primary/25 shadow-xl dark:shadow-none -mt-4 mb-[-16px] scale-[1.02]"
+                  : "bg-card/70 dark:bg-card/50 border-border/40 dark:border-border/20 shadow-sm dark:shadow-none hover:shadow-lg dark:hover:shadow-none hover:border-primary/15 dark:hover:border-primary/15"
               }`}
             >
+              {/* Animated gradient border for popular */}
               {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <span className="inline-flex items-center gap-1 bg-primary text-primary-foreground text-xs font-heading font-semibold px-4 py-1 rounded-full shadow-sm">
+                <>
+                  <div className="absolute inset-0 rounded-[1.75rem] gradient-border-animated" />
+                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+                </>
+              )}
+
+              {/* Subtle hover glow */}
+              <div className="absolute -inset-px rounded-[1.75rem] bg-gradient-to-b from-primary/0 via-primary/0 to-primary/0 group-hover:from-primary/[0.02] group-hover:via-transparent group-hover:to-primary/[0.01] transition-all duration-500 pointer-events-none" />
+
+              {plan.popular && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
+                  <span className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground text-xs font-heading font-semibold px-5 py-1.5 rounded-full glow-box-intense">
                     <Zap className="h-3 w-3" />
                     Most Popular
                   </span>
                 </div>
               )}
 
-              <div className="mb-6">
-                <h3 className="font-heading font-semibold text-foreground text-xl">
-                  {plan.name}
-                </h3>
-                <p className="text-muted-foreground text-sm mt-1">
-                  {plan.size} · {plan.description}
-                </p>
+              <div className="relative z-10">
+                <div className="mb-6 sm:mb-8">
+                  <h3 className="font-heading font-bold text-foreground text-xl sm:text-2xl tracking-tight">
+                    {plan.name}
+                  </h3>
+                  <p className="text-muted-foreground text-sm mt-1.5">
+                    {plan.size} · {plan.description}
+                  </p>
+                </div>
+
+                <div className="flex items-baseline gap-1.5 mb-8 sm:mb-10">
+                  <span className="text-5xl font-heading font-bold text-foreground tracking-tighter">
+                    {plan.price}
+                  </span>
+                  <span className="text-muted-foreground text-sm">
+                    {plan.period}
+                  </span>
+                </div>
+
+                <ul className="space-y-3.5 mb-8 sm:mb-10">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-3">
+                      <div
+                        className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
+                          plan.popular
+                            ? "bg-primary/15 dark:bg-primary/20"
+                            : "bg-primary/10 dark:bg-primary/10"
+                        }`}
+                      >
+                        <Check className="h-3 w-3 text-primary" />
+                      </div>
+                      <span className="text-sm text-secondary-foreground">
+                        {feature}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <Link href="/sign-up">
+                  <Button
+                    className={`w-full rounded-xl py-5 sm:py-6 font-heading font-semibold text-sm sm:text-base group ${
+                      plan.popular
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90 glow-box-intense"
+                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                    }`}
+                  >
+                    Join {plan.name}
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  </Button>
+                </Link>
               </div>
 
-              <div className="flex items-baseline gap-1 mb-8">
-                <span className="text-4xl font-heading font-bold text-foreground">
-                  {plan.price}
-                </span>
-                <span className="text-muted-foreground text-sm">
-                  {plan.period}
-                </span>
-              </div>
-
-              <ul className="space-y-3 mb-8">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <Check className="h-3 w-3 text-primary" />
-                    </div>
-                    <span className="text-sm text-secondary-foreground">
-                      {feature}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-
-              <Button
-                className={`w-full rounded-xl py-5 font-heading font-semibold ${
-                  plan.popular
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90 glow-box"
-                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                }`}
-              >
-                Join {plan.name}
-              </Button>
+              {/* Decorative large plan initial */}
+              <span className="absolute -bottom-6 -right-3 text-[10rem] font-heading font-bold text-foreground/[0.015] dark:text-foreground/[0.025] leading-none select-none pointer-events-none">
+                {plan.name.charAt(0)}
+              </span>
             </motion.div>
           ))}
         </div>
