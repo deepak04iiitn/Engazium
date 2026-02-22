@@ -14,6 +14,7 @@ import {
   Crown,
   TrendingUp,
   LogOut,
+  ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ import PostList from "@/components/squads/details/PostList";
 import EngagementToast from "@/components/squads/details/EngagementToast";
 import MemberList from "@/components/squads/details/MemberList";
 import SquadStats from "@/components/squads/details/SquadStats";
+import SquadRulesDialog from "@/components/squads/details/SquadRulesDialog";
 
 const mobileTabItems = [
   { key: "feed", label: "Feed", icon: MessageCircle },
@@ -67,12 +69,17 @@ const SquadDetailPage = () => {
   // Leave squad
   const [leaveLoading, setLeaveLoading] = useState(false);
 
+  // Rules dialog
+  const [showRulesDialog, setShowRulesDialog] = useState(false);
+  const [acceptRulesLoading, setAcceptRulesLoading] = useState(false);
+
   // Check if current user is a member
   const currentMembership = members.find(
     (m) => m.user?._id === currentUser?._id
   );
   const isAdmin = currentMembership?.role === "admin";
   const isMember = !!currentMembership;
+  const hasAcceptedRules = currentMembership?.rulesAccepted === true;
 
   const id = squad?._id;
 
@@ -164,9 +171,37 @@ const SquadDetailPage = () => {
     return () => clearInterval(interval);
   }, [engagingPostId, activeEngagementId]);
 
+  // Accept squad rules handler
+  const handleAcceptRules = async () => {
+    setAcceptRulesLoading(true);
+    try {
+      const res = await fetch(`/api/squads/${id}/accept-rules`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to accept rules");
+      toast.success("Rules accepted! You can now share posts.");
+      setShowRulesDialog(false);
+      // Refresh squad data to update membership rulesAccepted field
+      fetchSquad();
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setAcceptRulesLoading(false);
+    }
+  };
+
   // Create post handler
   const handleCreatePost = async (e) => {
     e.preventDefault();
+
+    // Show rules dialog if user hasn't accepted rules yet
+    if (!hasAcceptedRules) {
+      setShowRulesDialog(true);
+      return;
+    }
+
     if (!newPostLink.trim()) {
       toast.error("Please enter a link");
       return;
@@ -377,15 +412,40 @@ const SquadDetailPage = () => {
 
       {/* Share Post Tab */}
       {isMember && activeTab === "share" && (
-        <CreatePostForm
-          onSubmit={handleCreatePost}
-          newPostLink={newPostLink}
-          setNewPostLink={setNewPostLink}
-          newPostCaption={newPostCaption}
-          setNewPostCaption={setNewPostCaption}
-          loading={createPostLoading}
-          postCount={postCount}
-        />
+        <>
+          {!hasAcceptedRules && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-primary/5 border border-primary/20 rounded-xl md:rounded-2xl p-4 md:p-6 mb-4 text-center"
+            >
+              <ShieldCheck className="h-8 w-8 text-primary mx-auto mb-2" />
+              <h4 className="font-heading font-semibold text-foreground text-sm md:text-base mb-1">
+                Accept Squad Rules First
+              </h4>
+              <p className="text-muted-foreground text-xs md:text-sm mb-3 max-w-md mx-auto">
+                Before sharing your first post, you need to read and accept the squad
+                rules and guidelines.
+              </p>
+              <Button
+                onClick={() => setShowRulesDialog(true)}
+                className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl text-sm font-semibold px-6"
+              >
+                <ShieldCheck className="h-4 w-4 mr-2" />
+                View & Accept Rules
+              </Button>
+            </motion.div>
+          )}
+          <CreatePostForm
+            onSubmit={handleCreatePost}
+            newPostLink={newPostLink}
+            setNewPostLink={setNewPostLink}
+            newPostCaption={newPostCaption}
+            setNewPostCaption={setNewPostCaption}
+            loading={createPostLoading}
+            postCount={postCount}
+          />
+        </>
       )}
 
       {/* Feed Tab */}
@@ -581,6 +641,14 @@ const SquadDetailPage = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* Squad Rules Dialog */}
+      <SquadRulesDialog
+        open={showRulesDialog}
+        onOpenChange={setShowRulesDialog}
+        onAccept={handleAcceptRules}
+        loading={acceptRulesLoading}
+      />
     </>
   );
 };

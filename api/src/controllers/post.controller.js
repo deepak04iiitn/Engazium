@@ -42,6 +42,16 @@ export const createPost = async (req, res, next) => {
       return next(errorHandler(403, "You are not a member of this squad"));
     }
 
+    // Check if user has accepted squad rules
+    if (!membership.rulesAccepted) {
+      return next(
+        errorHandler(
+          403,
+          "You must accept the squad rules before creating your first post"
+        )
+      );
+    }
+
     // Server-side daily post limit validation
     const dailyLimit = PLAN_LIMITS[squad.plan] || 1;
 

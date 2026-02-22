@@ -39,6 +39,17 @@ const squadMemberSchema = new mongoose.Schema(
       default: false,
     },
 
+    // Whether user has accepted the squad rules before first post
+    rulesAccepted: {
+      type: Boolean,
+      default: false,
+    },
+
+    rulesAcceptedAt: {
+      type: Date,
+      default: null,
+    },
+
     joinedAt: {
       type: Date,
       default: Date.now,

@@ -50,12 +50,14 @@ export const createSquad = async (req, res, next) => {
 
     await squad.save();
 
-    // Add creator as admin member
+    // Add creator as admin member (auto-accept rules for creator)
     await SquadMember.create({
       squad: squad._id,
       user: req.user.id,
       role: "admin",
       engagementPercentage: 100,
+      rulesAccepted: true,
+      rulesAcceptedAt: new Date(),
     });
 
     res.status(201).json({
@@ -430,6 +432,44 @@ export const getMySquads = async (req, res, next) => {
     res.status(200).json({
       success: true,
       memberships: result.filter(Boolean),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// POST /api/squads/:id/accept-rules — accept squad rules before first post
+export const acceptSquadRules = async (req, res, next) => {
+  try {
+    const squad = await Squad.findById(req.params.id);
+
+    if (!squad) {
+      return next(errorHandler(404, "Squad not found"));
+    }
+
+    const membership = await SquadMember.findOne({
+      squad: squad._id,
+      user: req.user.id,
+    });
+
+    if (!membership) {
+      return next(errorHandler(403, "You are not a member of this squad"));
+    }
+
+    if (membership.rulesAccepted) {
+      return res.status(200).json({
+        success: true,
+        message: "Rules already accepted",
+      });
+    }
+
+    membership.rulesAccepted = true;
+    membership.rulesAcceptedAt = new Date();
+    await membership.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Squad rules accepted successfully",
     });
   } catch (error) {
     next(error);

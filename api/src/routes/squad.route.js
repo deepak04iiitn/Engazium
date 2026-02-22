@@ -9,6 +9,7 @@ import {
   getMySquads,
   deleteSquad,
   getSquadBySlug,
+  acceptSquadRules,
 } from "../controllers/squad.controller.js";
 
 const router = express.Router();
@@ -31,6 +32,9 @@ router.delete("/:id", deleteSquad);
 // Join / Leave
 router.post("/:id/join", joinSquad);
 router.post("/:id/leave", leaveSquad);
+
+// Accept squad rules
+router.post("/:id/accept-rules", acceptSquadRules);
 
 export default router;
 
