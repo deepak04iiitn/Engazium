@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import OAuth from "@/components/OAuth";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -160,6 +161,19 @@ const SignIn = () => {
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border/50" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-card px-3 text-muted-foreground">
+                Or continue with
+              </span>
+            </div>
+          </div>
+
+          <OAuth />
 
           <div className="mt-6 text-center">
             <p className="text-muted-foreground text-sm">

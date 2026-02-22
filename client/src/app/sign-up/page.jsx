@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import OAuth from "@/components/OAuth";
 
 const SignUp = () => {
   const [username, setUsername] = useState("");
@@ -190,6 +191,19 @@ const SignUp = () => {
               {isLoading ? "Creating account..." : "Create Account"}
             </Button>
           </form>
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border/50" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-card px-3 text-muted-foreground">
+                Or continue with
+              </span>
+            </div>
+          </div>
+
+          <OAuth />
 
           <p className="mt-4 text-xs text-muted-foreground text-center leading-relaxed">
             By signing up, you agree to our{" "}
