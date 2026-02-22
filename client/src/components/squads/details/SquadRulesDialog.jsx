@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   ShieldCheck,
   AlertTriangle,
@@ -9,195 +9,241 @@ import {
   Ban,
   Heart,
   CalendarClock,
+  Check,
 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 
 const SQUAD_RULES = [
   {
     icon: Handshake,
     color: "text-emerald-400",
-    bg: "bg-emerald-500/10",
+    bg: "from-emerald-500/15 to-emerald-500/5",
+    border: "border-emerald-500/10",
     title: "Engage Authentically",
-    description:
-      "Meaningful likes, comments, and shares only. No bots or fake engagement.",
+    description: "Meaningful likes, comments & shares only. No bots.",
   },
   {
     icon: ChartNoAxesCombined,
-    color: "text-blue-400",
-    bg: "bg-blue-500/10",
-    title: "Maintain 30%+ Engagement",
-    description:
-      "Keep your engagement above 30%. Dropping below for 7 days may lead to removal.",
+    color: "text-sky-400",
+    bg: "from-sky-500/15 to-sky-500/5",
+    border: "border-sky-500/10",
+    title: "Keep 30%+ Engagement",
+    description: "Stay above 30% or face removal after 7 days.",
   },
   {
     icon: Ban,
-    color: "text-orange-400",
-    bg: "bg-orange-500/10",
+    color: "text-amber-400",
+    bg: "from-amber-500/15 to-amber-500/5",
+    border: "border-amber-500/10",
     title: "No Spam",
-    description:
-      "Share quality content and engage with others' posts in return.",
+    description: "Quality content only. Engage with others in return.",
   },
   {
     icon: Heart,
     color: "text-pink-400",
-    bg: "bg-pink-500/10",
+    bg: "from-pink-500/15 to-pink-500/5",
+    border: "border-pink-500/10",
     title: "Respect Everyone",
-    description:
-      "No hate speech, harassment, or toxic behaviour of any kind.",
+    description: "Zero tolerance for hate speech or harassment.",
   },
   {
     icon: CalendarClock,
     color: "text-violet-400",
-    bg: "bg-violet-500/10",
+    bg: "from-violet-500/15 to-violet-500/5",
+    border: "border-violet-500/10",
     title: "Stay Consistent",
-    description:
-      "Regular participation keeps the squad healthy for everyone.",
+    description: "Regular activity keeps the squad thriving.",
   },
 ];
+
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05, delayChildren: 0.1 },
+  },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 10, scale: 0.97 },
+  show: { opacity: 1, y: 0, scale: 1 },
+};
 
 const SquadRulesDialog = ({ open, onOpenChange, onAccept, loading }) => {
   const [agreed, setAgreed] = useState(false);
 
-  const handleAccept = () => {
-    if (agreed) {
-      onAccept();
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[680px] p-0 gap-0 overflow-hidden border-border/30 bg-background/95 backdrop-blur-xl">
-        {/* Top gradient accent bar */}
-        <div className="h-1 w-full bg-gradient-to-r from-primary via-emerald-500 to-blue-500" />
+      <DialogContent className="sm:max-w-[680px] p-0 gap-0 overflow-hidden border-0 bg-transparent shadow-none [&>button]:hidden">
+        <div className="relative glass rounded-2xl gradient-border overflow-hidden">
+          {/* Background mesh */}
+          <div className="absolute inset-0 mesh-gradient opacity-60 pointer-events-none" />
+          <div className="absolute inset-0 noise-overlay pointer-events-none rounded-2xl" />
 
-        <div className="px-6 md:px-8 pt-6 pb-2">
-          <DialogHeader className="text-center">
+          {/* Accent glow blobs */}
+          <div className="absolute -top-16 -right-16 w-40 h-40 bg-primary/10 rounded-full blur-[70px] pointer-events-none" />
+          <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-glow-secondary/8 rounded-full blur-[50px] pointer-events-none" />
+
+          {/* Top gradient bar */}
+          <div className="h-[2px] w-full bg-gradient-to-r from-primary/80 via-glow-secondary/60 to-primary/80" />
+
+          <div className="relative z-10">
+            {/* Header */}
+            <div className="px-6 pt-5 pb-0 text-center">
+              <motion.div
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                className="mx-auto w-11 h-11 rounded-xl bg-gradient-to-br from-primary/25 to-primary/5 border border-primary/15 flex items-center justify-center mb-3 glow-box"
+              >
+                <ShieldCheck className="h-5 w-5 text-primary" />
+              </motion.div>
+
+              <DialogTitle className="font-heading text-lg md:text-xl font-bold tracking-tight">
+                <span className="text-gradient">Squad Rules</span>
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground text-xs mt-1 max-w-xs mx-auto">
+                Accept these guidelines before sharing your first post.
+              </DialogDescription>
+            </div>
+
+            {/* Rules Grid */}
             <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 200, damping: 15 }}
-              className="mx-auto w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center mb-4"
+              variants={container}
+              initial="hidden"
+              animate="show"
+              className="px-5 md:px-6 pt-4 pb-3"
             >
-              <ShieldCheck className="h-6 w-6 text-primary" />
-            </motion.div>
-            <DialogTitle className="font-heading text-xl md:text-2xl font-bold text-foreground tracking-tight">
-              Squad Rules & Guidelines
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground text-sm mt-1.5 max-w-md mx-auto">
-              Accept these rules before sharing your first post.
-            </DialogDescription>
-          </DialogHeader>
-        </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {SQUAD_RULES.map((rule, index) => {
+                  const Icon = rule.icon;
+                  const isLast =
+                    index === SQUAD_RULES.length - 1 &&
+                    SQUAD_RULES.length % 2 !== 0;
 
-        {/* Rules Grid */}
-        <div className="px-6 md:px-8 py-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            {SQUAD_RULES.map((rule, index) => {
-              const Icon = rule.icon;
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.06, duration: 0.3 }}
-                  className={`flex items-start gap-3 p-3 rounded-xl border border-border/10 bg-secondary/20 hover:bg-secondary/35 transition-colors ${
-                    index === SQUAD_RULES.length - 1 && SQUAD_RULES.length % 2 !== 0
-                      ? "sm:col-span-2 sm:max-w-[50%] sm:mx-auto sm:w-full"
-                      : ""
+                  return (
+                    <motion.div
+                      key={index}
+                      variants={item}
+                      className={`group flex items-center gap-3 px-3 py-2.5 rounded-lg border ${rule.border} bg-gradient-to-br ${rule.bg} hover:scale-[1.02] transition-transform duration-200 ${
+                        isLast ? "sm:col-span-2 sm:max-w-[calc(50%-4px)] sm:mx-auto" : ""
+                      }`}
+                    >
+                      <div className="w-7 h-7 rounded-lg bg-background/50 border border-border/20 flex items-center justify-center flex-shrink-0">
+                        <Icon className={`h-3.5 w-3.5 ${rule.color}`} />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="font-heading font-semibold text-[13px] text-foreground leading-tight">
+                          {rule.title}
+                        </h4>
+                        <p className="text-muted-foreground text-[11px] leading-snug mt-0.5">
+                          {rule.description}
+                        </p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </motion.div>
+
+            {/* Footer section */}
+            <div className="px-5 md:px-6 pb-5 space-y-2.5">
+              {/* Warning */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="relative flex items-center gap-3 px-3.5 py-2.5 rounded-lg bg-destructive/[0.06] border border-destructive/10 overflow-hidden"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-destructive/[0.03] to-transparent pointer-events-none" />
+                <div className="relative w-6 h-6 rounded-md bg-destructive/10 flex items-center justify-center flex-shrink-0">
+                  <AlertTriangle className="h-3 w-3 text-destructive" />
+                </div>
+                <p className="relative text-[11px] text-muted-foreground leading-snug">
+                  <span className="font-semibold text-destructive">Warning:</span>{" "}
+                  Below 30% engagement for 7 days → automatic removal.
+                </p>
+              </motion.div>
+
+              {/* Agreement toggle */}
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                type="button"
+                onClick={() => setAgreed(!agreed)}
+                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg border transition-all duration-200 cursor-pointer select-none ${
+                  agreed
+                    ? "border-primary/30 bg-primary/[0.06]"
+                    : "border-border/20 bg-secondary/15 hover:border-border/40 hover:bg-secondary/25"
+                }`}
+              >
+                <div
+                  className={`w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
+                    agreed
+                      ? "bg-primary border-primary"
+                      : "border-muted-foreground/30"
                   }`}
                 >
-                  <div
-                    className={`w-8 h-8 rounded-lg ${rule.bg} flex items-center justify-center flex-shrink-0`}
-                  >
-                    <Icon className={`h-4 w-4 ${rule.color}`} />
-                  </div>
-                  <div className="min-w-0">
-                    <h4 className="font-heading font-semibold text-[13px] text-foreground leading-tight">
-                      {rule.title}
-                    </h4>
-                    <p className="text-muted-foreground text-[11px] leading-relaxed mt-0.5">
-                      {rule.description}
-                    </p>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
+                  {agreed && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    >
+                      <Check className="h-2.5 w-2.5 text-primary-foreground" strokeWidth={3} />
+                    </motion.div>
+                  )}
+                </div>
+                <span className="text-[12px] text-foreground/80 leading-snug text-left">
+                  I agree to follow all squad rules and understand the termination policy.
+                </span>
+              </motion.button>
 
-        {/* Bottom section with warning + agreement + buttons */}
-        <div className="px-6 md:px-8 pb-6 space-y-4">
-          {/* Warning */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.35 }}
-            className="flex items-center gap-3 px-4 py-3 rounded-xl bg-destructive/8 border border-destructive/15"
-          >
-            <div className="w-8 h-8 rounded-lg bg-destructive/15 flex items-center justify-center flex-shrink-0">
-              <AlertTriangle className="h-4 w-4 text-destructive" />
+              {/* Buttons */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.55 }}
+                className="flex gap-2.5 pt-0.5"
+              >
+                <Button
+                  variant="ghost"
+                  className="flex-1 rounded-xl h-10 text-[13px] font-medium border border-border/15 hover:bg-secondary/30 transition-all"
+                  onClick={() => onOpenChange(false)}
+                  disabled={loading}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className={`flex-1 rounded-xl h-10 text-[13px] font-semibold transition-all duration-300 ${
+                    agreed && !loading
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90 glow-box"
+                      : "bg-muted text-muted-foreground cursor-not-allowed"
+                  }`}
+                  onClick={() => agreed && onAccept()}
+                  disabled={!agreed || loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                      Accepting...
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="h-3.5 w-3.5 mr-1.5" />
+                      Accept & Continue
+                    </>
+                  )}
+                </Button>
+              </motion.div>
             </div>
-            <p className="text-[12px] text-destructive/90 leading-snug">
-              <span className="font-semibold">Termination Warning:</span>{" "}
-              Engagement below 30% for 7 continuous days will result in automatic
-              removal from the squad.
-            </p>
-          </motion.div>
-
-          {/* Agreement */}
-          <div
-            className="flex items-center gap-3 cursor-pointer select-none"
-            onClick={() => setAgreed(!agreed)}
-          >
-            <Checkbox
-              id="accept-rules"
-              checked={agreed}
-              onCheckedChange={(checked) => setAgreed(!!checked)}
-            />
-            <label
-              htmlFor="accept-rules"
-              className="text-[13px] text-muted-foreground leading-snug cursor-pointer"
-            >
-              I agree to follow all squad rules and understand the termination
-              policy.
-            </label>
-          </div>
-
-          {/* Buttons */}
-          <div className="flex gap-3 pt-1">
-            <Button
-              variant="ghost"
-              className="flex-1 rounded-xl h-11 text-sm border border-border/20 hover:bg-secondary/40"
-              onClick={() => onOpenChange(false)}
-              disabled={loading}
-            >
-              Cancel
-            </Button>
-            <Button
-              className="flex-1 rounded-xl h-11 text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all disabled:opacity-40"
-              onClick={handleAccept}
-              disabled={!agreed || loading}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Accepting...
-                </>
-              ) : (
-                <>
-                  <ShieldCheck className="h-4 w-4 mr-2" />
-                  Accept & Continue
-                </>
-              )}
-            </Button>
           </div>
         </div>
       </DialogContent>
