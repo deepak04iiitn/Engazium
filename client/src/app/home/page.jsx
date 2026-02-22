@@ -3,6 +3,7 @@ import MarqueeSection from '@/components/home/MarqueeSection'
 import BentoFeaturesSection from '@/components/home/BentoFeaturesSection'
 import HowItWorksSection from '@/components/home/HowItWorksSection'
 import CTASection from '@/components/home/CTASection'
+import LiveActivitySection from '@/components/home/LiveActivitySection'
 import TestimonialsSection from '@/components/home/TestimonialsSection'
 import AchievementsSection from '@/components/home/AchievementsSection'
 import PricingSection from '@/components/home/PricingSection'
@@ -30,6 +31,12 @@ export default function Home() {
       
       {/* <PricingSection /> */}
       <AchievementsSection />
+      
+      <div className="mx-auto max-w-6xl px-5 sm:px-6">
+        <div className="h-px bg-gradient-to-r from-transparent via-border/50 dark:via-border/30 to-transparent" />
+      </div>
+      
+      <LiveActivitySection />
       
       <div className="mx-auto max-w-6xl px-5 sm:px-6">
         <div className="h-px bg-gradient-to-r from-transparent via-border/50 dark:via-border/30 to-transparent" />

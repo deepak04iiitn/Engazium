@@ -5,12 +5,14 @@ import {
   getCheckInStatus,
   getGrowthHistory,
   getGrowthAchievements,
+  getLiveActivity,
 } from "../controllers/growth.controller.js";
 
 const router = express.Router();
 
-// Public — landing page achievements
+// Public — landing page
 router.get("/achievements", getGrowthAchievements);
+router.get("/live-activity", getLiveActivity);
 
 // Protected routes
 router.use(verifyToken);

@@ -95,7 +95,7 @@ const FAQCard = ({ faq, index, isOpen, onToggle }) => {
   return (
     <motion.div
       layout
-      className={`group relative bg-card/80 dark:bg-card/50 backdrop-blur-sm rounded-2xl border transition-all duration-400 overflow-hidden cursor-pointer ${
+      className={`group relative h-full bg-card/80 dark:bg-card/50 backdrop-blur-sm rounded-2xl border transition-all duration-400 overflow-hidden cursor-pointer ${
         isOpen
           ? "border-primary/25 dark:border-primary/20 shadow-lg dark:shadow-none"
           : "border-border/40 dark:border-border/20 shadow-sm dark:shadow-none hover:border-primary/15 dark:hover:border-primary/15 hover:shadow-md dark:hover:shadow-none"
@@ -272,9 +272,9 @@ const FAQSection = () => {
                     delay: i * 0.03,
                     layout: { duration: 0.3 },
                   }}
-                  className={
+                  className={`${
                     openId === faq.id ? "md:col-span-2" : "md:col-span-1"
-                  }
+                  } self-stretch`}
                 >
                   <FAQCard
                     faq={faq}
