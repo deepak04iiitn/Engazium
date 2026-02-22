@@ -4,6 +4,7 @@ import BentoFeaturesSection from '@/components/home/BentoFeaturesSection'
 import HowItWorksSection from '@/components/home/HowItWorksSection'
 import CTASection from '@/components/home/CTASection'
 import TestimonialsSection from '@/components/home/TestimonialsSection'
+import AchievementsSection from '@/components/home/AchievementsSection'
 import PricingSection from '@/components/home/PricingSection'
 import FAQSection from '@/components/home/FAQSection'
 import React from 'react'
@@ -28,6 +29,12 @@ export default function Home() {
       </div>
       
       {/* <PricingSection /> */}
+      <AchievementsSection />
+      
+      <div className="mx-auto max-w-6xl px-5 sm:px-6">
+        <div className="h-px bg-gradient-to-r from-transparent via-border/50 dark:via-border/30 to-transparent" />
+      </div>
+      
       <TestimonialsSection />
       <FAQSection />
     </main>

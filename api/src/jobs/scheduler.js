@@ -3,6 +3,8 @@ import Squad from "../models/squad.model.js";
 import SquadMember from "../models/squadMember.model.js";
 import Post from "../models/post.model.js";
 import Engagement from "../models/engagement.model.js";
+import User from "../models/user.model.js";
+import GrowthSnapshot from "../models/growthSnapshot.model.js";
 
 const LOW_ENGAGEMENT_THRESHOLD = 30; // percent
 const WARNING_DAYS = 7; // days before removal
@@ -132,6 +134,62 @@ async function cleanupOldPosts() {
 }
 
 /**
+ * Create baseline growth snapshots for users who have platform stats
+ * but no baseline snapshot yet. This runs once daily to catch new users.
+ */
+async function createBaselineSnapshots() {
+  try {
+    // Find users with platform stats
+    const users = await User.find({
+      "platformStats.0": { $exists: true },
+    }).lean();
+
+    const now = new Date();
+    const day = now.getUTCDay();
+    const diff = day === 0 ? 6 : day - 1;
+    const weekStart = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - diff)
+    );
+    weekStart.setUTCHours(0, 0, 0, 0);
+
+    let created = 0;
+
+    for (const user of users) {
+      for (const ps of user.platformStats) {
+        // Check if baseline already exists
+        const exists = await GrowthSnapshot.exists({
+          user: user._id,
+          platform: ps.platform,
+          isBaseline: true,
+        });
+
+        if (!exists) {
+          await GrowthSnapshot.create({
+            user: user._id,
+            platform: ps.platform,
+            weekStart,
+            followers: ps.numberOfFollowers || 0,
+            avgLikes: ps.avgLikes || 0,
+            avgComments: ps.avgComments || 0,
+            avgReach: 0,
+            isBaseline: true,
+          });
+          created++;
+        }
+      }
+    }
+
+    if (created > 0) {
+      console.log(
+        `[Scheduler] Created ${created} baseline growth snapshots for new users`
+      );
+    }
+  } catch (error) {
+    console.error("[Scheduler] Error creating baseline snapshots:", error);
+  }
+}
+
+/**
  * Initialize all cron jobs
  */
 export function initScheduler() {
@@ -147,11 +205,18 @@ export function initScheduler() {
     cleanupOldPosts();
   });
 
+  // Create baseline snapshots daily at 1 AM UTC
+  cron.schedule("0 1 * * *", () => {
+    console.log("[Scheduler] Running daily baseline snapshot check...");
+    createBaselineSnapshots();
+  });
+
   console.log("[Scheduler] Cron jobs initialized");
 
   // Run initial recalculation on startup (delayed by 10s to let DB connect)
   setTimeout(() => {
     recalculateEngagement();
+    createBaselineSnapshots();
   }, 10000);
 }
 

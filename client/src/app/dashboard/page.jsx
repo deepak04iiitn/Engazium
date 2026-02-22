@@ -27,6 +27,7 @@ import UserSquads from "@/components/dashboard/user/UserSquads";
 import UserSubscriptions from "@/components/dashboard/user/UserSubscriptions";
 import UserAnalytics from "@/components/dashboard/user/UserAnalytics";
 import UserTestimonial from "@/components/dashboard/user/UserTestimonial";
+import WeeklyCheckInDialog from "@/components/dashboard/user/WeeklyCheckInDialog";
 
 const subscriptions = [
   { id: 1, plan: "Growth Squad", squad: "Tech Creators Hub", price: "₹100/mo", nextBilling: "Mar 10, 2026", status: "Active", since: "Jan 2026" },
@@ -106,6 +107,11 @@ const Dashboard = () => {
   });
   const [createSquadLoading, setCreateSquadLoading] = useState(false);
 
+  // Weekly Check-In State
+  const [checkInOpen, setCheckInOpen] = useState(false);
+  const [checkInPlatforms, setCheckInPlatforms] = useState([]);
+  const [checkInDismissed, setCheckInDismissed] = useState(false);
+
   // Redirect if not logged in
   useEffect(() => {
     if (!currentUser) {
@@ -162,6 +168,25 @@ const Dashboard = () => {
   useEffect(() => {
     if (currentUser) fetchMySquads();
   }, [currentUser, fetchMySquads]);
+
+  // Check if user needs to do a weekly check-in
+  const checkWeeklyCheckIn = useCallback(async () => {
+    try {
+      const res = await fetch("/api/growth/check-in-status", { credentials: "include" });
+      const data = await res.json();
+      if (res.ok && data.success && data.needsCheckIn && !checkInDismissed) {
+        setCheckInPlatforms(data.platforms || []);
+        // Small delay so dashboard loads first
+        setTimeout(() => setCheckInOpen(true), 1500);
+      }
+    } catch {
+      // Silently fail
+    }
+  }, [checkInDismissed]);
+
+  useEffect(() => {
+    if (currentUser) checkWeeklyCheckIn();
+  }, [currentUser, checkWeeklyCheckIn]);
 
   // Computed analytics from real squad data
   const computedAnalytics = {
@@ -496,6 +521,23 @@ const Dashboard = () => {
           {renderContent()}
         </div>
       </main>
+
+      {/* Weekly Check-In Dialog */}
+      {checkInPlatforms.length > 0 && (
+        <WeeklyCheckInDialog
+          open={checkInOpen}
+          onOpenChange={(open) => {
+            setCheckInOpen(open);
+            if (!open) setCheckInDismissed(true);
+          }}
+          platforms={checkInPlatforms}
+          onSuccess={() => {
+            setCheckInDismissed(true);
+            // Switch to analytics tab to see growth
+            setActiveSection("analytics");
+          }}
+        />
+      )}
 
       {/* Mobile Bottom Tab Navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-strong border-t border-border/20 safe-area-bottom">
