@@ -238,8 +238,8 @@ h1, h2, h3, h4, h5, h6 {
 /* ===== Glass — solid + shadow in light, blur in dark ===== */
 .glass {
   background: hsl(var(--card));
-  border: 1px solid hsl(var(--border) / 0.7);
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+  border: 1px solid hsl(var(--border) / 0.9);
+  box-shadow: 0 1px 4px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.06);
 }
 
 .dark .glass {
@@ -252,8 +252,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .glass-strong {
   background: hsl(var(--card));
-  border: 1px solid hsl(var(--border) / 0.8);
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
 }
 
 .dark .glass-strong {

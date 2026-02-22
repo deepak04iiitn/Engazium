@@ -17,20 +17,20 @@ const SquadTabsNavbar = ({
   leaveLoading,
 }) => {
   return (
-    <div className="px-5 sm:px-8 lg:px-10 border-b border-border/20">
+    <div className="w-full">
       <div className="flex items-center justify-between">
         {/* Tab buttons */}
-        <div className="flex gap-1">
+        <div className="flex gap-0.5">
           {tabs.map(({ key, label, icon: Icon }) => (
             <button
               key={key}
               onClick={() => setActiveTab(key)}
               className={`
-                relative px-4 sm:px-6 py-4 text-sm font-heading font-medium transition-all duration-200
-                flex items-center gap-2
+                relative px-4 lg:px-5 py-3 text-[13px] font-heading font-medium transition-all duration-200
+                flex items-center gap-2 rounded-lg
                 ${activeTab === key
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "text-primary bg-primary/12 dark:bg-primary/8"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/50 dark:hover:bg-secondary/30"
                 }
               `}
             >
@@ -38,28 +38,28 @@ const SquadTabsNavbar = ({
               <span className="hidden sm:inline">{label}</span>
               {/* Active indicator */}
               {activeTab === key && (
-                <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full" />
+                <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-primary rounded-full" />
               )}
             </button>
           ))}
         </div>
 
-        {/* Leave / Actions */}
+        {/* Leave */}
         {isMember && (
           <Button
             variant="ghost"
             size="sm"
             onClick={onLeave}
             disabled={leaveLoading}
-            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 text-xs rounded-xl px-4 py-2 h-auto"
+            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 text-xs rounded-lg px-3 py-2 h-auto"
           >
             {leaveLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
             ) : (
               <>
-                <LogOut className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Leave Squad</span>
-                <span className="sm:hidden">Leave</span>
+                <LogOut className="h-3.5 w-3.5 mr-1.5" />
+                <span className="hidden lg:inline">Leave Squad</span>
+                <span className="lg:hidden">Leave</span>
               </>
             )}
           </Button>

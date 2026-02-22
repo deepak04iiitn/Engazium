@@ -27,8 +27,8 @@ const PostCard = ({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.04 }}
-      className="bg-secondary/20 rounded-xl md:rounded-2xl p-4 md:p-6 border border-border/15 hover:border-border/30 transition-all duration-200"
+      transition={{ delay: Math.min(index * 0.04, 0.4) }}
+      className="bg-card rounded-xl md:rounded-2xl p-4 md:p-6 border border-border/60 hover:border-border shadow-sm hover:shadow-md transition-all duration-200 dark:bg-secondary/20 dark:border-border/15 dark:hover:border-border/30 dark:shadow-none"
     >
       {/* Header: Avatar + Name + Time */}
       <div className="flex items-center gap-3 mb-3">

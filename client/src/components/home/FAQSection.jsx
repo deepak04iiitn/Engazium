@@ -61,7 +61,7 @@ const faqs = [
     category: "billing",
     question: "How much does it cost?",
     answer:
-      "We offer three plans: Core at ₹50/month (10-member squad, 1 post/day), Growth at ₹100/month (20-member squad, 2 posts/day), and Momentum at ₹150/month (30-member squad, 3 posts/day). All plans come with a free trial so you can experience the growth before committing.",
+      "We offer three plans: Core at ₹50/month (10-member squad, 1 post/day), Growth at ₹100/month (20-member squad, 2 posts/day), and Momentum at ₹150/month (50-member squad, 3 posts/day). All plans come with a free trial so you can experience the growth before committing.",
   },
   {
     id: 7,

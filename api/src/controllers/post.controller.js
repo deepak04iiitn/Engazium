@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { errorHandler } from "../middlewares/errorHandler.js";
 import Squad from "../models/squad.model.js";
 import SquadMember from "../models/squadMember.model.js";
@@ -103,8 +104,14 @@ export const getSquadPosts = async (req, res, next) => {
   try {
     const { squadId } = req.params;
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
+
+    // Search, filter, sort params
+    const search = (req.query.search || "").trim();
+    const sortBy = req.query.sortBy || "pending_first";
+    const filter = req.query.filter || ""; // mine, engaged, not_engaged
+    const timeRange = req.query.timeRange || ""; // today, week, month
 
     // Check membership
     const membership = await SquadMember.findOne({
@@ -116,17 +123,175 @@ export const getSquadPosts = async (req, res, next) => {
       return next(errorHandler(403, "You are not a member of this squad"));
     }
 
-    const total = await Post.countDocuments({ squad: squadId });
-    const posts = await Post.find({ squad: squadId })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .populate("author", "username email")
-      .lean();
-
-    // For each post, check if current user has already engaged
-    const postIds = posts.map((p) => p._id);
     const { default: Engagement } = await import("../models/engagement.model.js");
+
+    // ObjectId references for aggregation compatibility
+    const squadObjId = new mongoose.Types.ObjectId(squadId);
+    const userObjId = new mongoose.Types.ObjectId(req.user.id);
+
+    // Always fetch engaged post IDs for this user in this squad
+    // (needed for pending count, pending_first sort, and engagement filters)
+    const engagedDocs = await Engagement.find(
+      { user: req.user.id, squad: squadId, isValid: true },
+      "post"
+    ).lean();
+    const engagedPostIds = engagedDocs.map((e) => e.post);
+
+    // Build query filter (using ObjectId for aggregation compatibility)
+    const query = { squad: squadObjId };
+
+    // Author filter
+    if (filter === "mine") {
+      query.author = userObjId;
+    }
+
+    // Time range filter
+    if (timeRange) {
+      const now = new Date();
+      let startDate;
+      if (timeRange === "today") {
+        startDate = new Date(now);
+        startDate.setUTCHours(0, 0, 0, 0);
+      } else if (timeRange === "week") {
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 7);
+      } else if (timeRange === "month") {
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 30);
+      }
+      if (startDate) {
+        query.createdAt = { $gte: startDate };
+      }
+    }
+
+    // Search — match caption or author username
+    let authorIdsFromSearch = null;
+    if (search) {
+      const { default: User } = await import("../models/user.model.js");
+      const matchingUsers = await User.find(
+        { username: { $regex: search, $options: "i" } },
+        "_id"
+      ).lean();
+      authorIdsFromSearch = matchingUsers.map((u) => u._id);
+    }
+
+    if (search) {
+      const searchConditions = [
+        { caption: { $regex: search, $options: "i" } },
+      ];
+      if (authorIdsFromSearch && authorIdsFromSearch.length > 0) {
+        searchConditions.push({ author: { $in: authorIdsFromSearch } });
+      }
+      // If there's already an author filter (mine), combine with $and
+      if (query.author) {
+        query.$and = [
+          { author: query.author },
+          { $or: searchConditions },
+        ];
+        delete query.author;
+      } else {
+        query.$or = searchConditions;
+      }
+    }
+
+    // Engagement filter
+    if (filter === "engaged") {
+      query._id = { $in: engagedPostIds };
+    } else if (filter === "not_engaged") {
+      query._id = { $nin: engagedPostIds };
+      // Also exclude own posts for "not engaged" since you can't engage your own
+      if (!query.author) {
+        query.author = { $ne: userObjId };
+      }
+    }
+
+    // Pending engagement count — always calculated independently of current filters
+    // (posts NOT by user AND NOT engaged by user)
+    const pendingEngagementCount = await Post.countDocuments({
+      squad: squadObjId,
+      author: { $ne: userObjId },
+      _id: { $nin: engagedPostIds },
+    });
+
+    const total = await Post.countDocuments(query);
+
+    let posts;
+
+    if (sortBy === "pending_first") {
+      // Use aggregation pipeline for custom priority sort
+      // Priority 0 = not engaged & not own post (show first)
+      // Priority 1 = already engaged or own post (show after)
+      const pipeline = [
+        { $match: query },
+        {
+          $addFields: {
+            _sortPriority: {
+              $cond: {
+                if: {
+                  $and: [
+                    { $not: [{ $in: ["$_id", engagedPostIds] }] },
+                    { $ne: ["$author", userObjId] },
+                  ],
+                },
+                then: 0,
+                else: 1,
+              },
+            },
+          },
+        },
+        { $sort: { _sortPriority: 1, createdAt: -1 } },
+        { $skip: skip },
+        { $limit: limit },
+        {
+          $lookup: {
+            from: "users",
+            localField: "author",
+            foreignField: "_id",
+            as: "_authorInfo",
+            pipeline: [{ $project: { username: 1, email: 1 } }],
+          },
+        },
+        { $unwind: "$_authorInfo" },
+        {
+          $addFields: {
+            author: {
+              _id: "$_authorInfo._id",
+              username: "$_authorInfo.username",
+              email: "$_authorInfo.email",
+            },
+          },
+        },
+        { $project: { _authorInfo: 0, _sortPriority: 0 } },
+      ];
+
+      posts = await Post.aggregate(pipeline);
+    } else {
+      // Use regular find for standard sorts
+      let sortObj;
+      switch (sortBy) {
+        case "oldest":
+          sortObj = { createdAt: 1 };
+          break;
+        case "most_engaged":
+          sortObj = { engagementCount: -1, createdAt: -1 };
+          break;
+        case "least_engaged":
+          sortObj = { engagementCount: 1, createdAt: -1 };
+          break;
+        default:
+          sortObj = { createdAt: -1 };
+      }
+
+      posts = await Post.find(query)
+        .sort(sortObj)
+        .skip(skip)
+        .limit(limit)
+        .populate("author", "username email")
+        .lean();
+    }
+
+    // Enrich posts with user engagement data
+    const postIds = posts.map((p) => p._id);
     const userEngagements = await Engagement.find({
       user: req.user.id,
       post: { $in: postIds },
@@ -155,6 +320,7 @@ export const getSquadPosts = async (req, res, next) => {
         totalPages: Math.ceil(total / limit),
         total,
       },
+      pendingEngagementCount,
     });
   } catch (error) {
     next(error);

@@ -51,7 +51,7 @@ const ALL_NICHES = [
 const PLANS = [
   { value: "Growth", label: "Growth", desc: "1 post/day · 10 members", icon: Shield },
   { value: "Pro", label: "Pro", desc: "2 posts/day · 20 members", icon: Zap },
-  { value: "Momentum", label: "Momentum", desc: "3 posts/day · 30 members", icon: Star },
+  { value: "Momentum", label: "Momentum", desc: "3 posts/day · 50 members", icon: Star },
 ];
 
 const Squads = () => {

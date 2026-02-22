@@ -1,5 +1,5 @@
 import React from "react";
-import { Users, Crown, TrendingUp, Calendar } from "lucide-react";
+import { Users, Crown, TrendingUp, Calendar, Globe } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const getWeeksActive = (dateStr) => {
@@ -17,71 +17,74 @@ const getPlanPostLimit = (plan) => {
 
 const SquadInfoCard = ({ squad, engagementStats, isMember, currentMembership }) => {
   return (
-    <div className="px-5 sm:px-8 lg:px-10 py-6 sm:py-8 border-b border-border/20">
-      {/* Top row: Squad identity */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-primary/15 flex items-center justify-center flex-shrink-0">
-            <Users className="h-7 w-7 sm:h-8 sm:w-8 text-primary" />
+    <div className="w-full">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+        {/* Left — squad identity */}
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="w-12 h-12 lg:w-14 lg:h-14 rounded-2xl bg-gradient-to-br from-primary/25 to-primary/5 border border-primary/15 flex items-center justify-center flex-shrink-0">
+            <Users className="h-6 w-6 lg:h-7 lg:w-7 text-primary" />
           </div>
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-3 flex-wrap">
-              <h2 className="font-heading font-bold text-foreground text-xl sm:text-2xl">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="font-heading font-bold text-foreground text-xl lg:text-2xl truncate">
                 {squad.name}
-              </h2>
-              <Badge className="bg-primary/15 text-primary border-primary/25 text-xs px-2.5 py-1">
-                <Crown className="h-3 w-3 mr-1.5" />
+              </h1>
+              <Badge className="bg-primary/15 text-primary border-primary/20 text-[11px] px-2 py-0.5 rounded-lg">
+                <Crown className="h-3 w-3 mr-1" />
                 {squad.plan}
               </Badge>
             </div>
-            <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-muted-foreground text-sm">
+            <div className="flex items-center flex-wrap gap-x-2 gap-y-0.5 text-muted-foreground text-[13px] mt-1">
               <span>{squad.niche}</span>
-              <span className="text-border">·</span>
+              <span className="text-border/60">·</span>
               <span className="flex items-center gap-1">
-                <Users className="h-3.5 w-3.5" />
-                {squad.memberCount} Members
+                <Users className="h-3 w-3" />
+                {squad.memberCount}/{squad.maxMembers}
               </span>
               {squad.platform && (
                 <>
-                  <span className="text-border">·</span>
-                  <span>{squad.platform}</span>
+                  <span className="text-border/60">·</span>
+                  <span className="flex items-center gap-1">
+                    <Globe className="h-3 w-3" />
+                    {squad.platform}
+                  </span>
                 </>
               )}
-              <span className="text-border">·</span>
+              <span className="text-border/60">·</span>
               <span>{getPlanPostLimit(squad.plan)} post/day</span>
             </div>
           </div>
         </div>
 
-        {/* Stats pills */}
-        <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
+        {/* Right — quick stat chips */}
+        <div className="flex items-center gap-2 lg:gap-3 flex-shrink-0">
           {isMember && engagementStats && (
-            <div className="bg-secondary/40 rounded-xl px-5 py-3 text-center min-w-[90px]">
-              <div className="text-primary font-heading font-bold text-xl sm:text-2xl">
+            <div className="glass rounded-xl px-4 py-2.5 text-center min-w-[80px] shadow-sm dark:shadow-none">
+              <div className="text-primary font-heading font-bold text-lg leading-tight">
                 {engagementStats.engagementPercentage}%
               </div>
-              <div className="text-muted-foreground text-[11px] uppercase tracking-wider mt-0.5">
-                Your Engagement
+              <div className="text-muted-foreground text-[10px] uppercase tracking-wider">
+                You
               </div>
             </div>
           )}
-          <div className="bg-secondary/40 rounded-xl px-5 py-3 text-center min-w-[90px]">
-            <div className="text-primary font-heading font-bold text-xl sm:text-2xl flex items-center justify-center gap-1.5">
-              <TrendingUp className="h-4 w-4" />
+          <div className="glass rounded-xl px-4 py-2.5 text-center min-w-[80px] shadow-sm dark:shadow-none">
+            <div className="text-foreground font-heading font-bold text-lg leading-tight flex items-center justify-center gap-1">
+              <TrendingUp className="h-3.5 w-3.5 text-primary" />
               {squad.avgEngagement || 0}%
             </div>
-            <div className="text-muted-foreground text-[11px] uppercase tracking-wider mt-0.5">
-              Avg Engagement
+            <div className="text-muted-foreground text-[10px] uppercase tracking-wider">
+              Squad
             </div>
           </div>
           {isMember && currentMembership && (
-            <div className="bg-secondary/40 rounded-xl px-5 py-3 text-center min-w-[90px]">
-              <div className="text-foreground font-heading font-bold text-xl sm:text-2xl flex items-center justify-center gap-1.5">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                {getWeeksActive(currentMembership.joinedAt)}
+            <div className="hidden sm:block glass rounded-xl px-4 py-2.5 text-center min-w-[80px] shadow-sm dark:shadow-none">
+              <div className="text-foreground font-heading font-bold text-lg leading-tight flex items-center justify-center gap-1">
+                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                {getWeeksActive(currentMembership.joinedAt)}w
               </div>
-              <div className="text-muted-foreground text-[11px] uppercase tracking-wider mt-0.5">
-                Week Active
+              <div className="text-muted-foreground text-[10px] uppercase tracking-wider">
+                Active
               </div>
             </div>
           )}

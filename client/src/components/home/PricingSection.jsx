@@ -40,12 +40,12 @@ const plans = [
   },
   {
     name: "Momentum",
-    size: "30 Members",
+    size: "50 Members",
     price: "₹150",
     period: "/month",
     description: "Maximum reach for power creators and brands.",
     features: [
-      "Up to 30 members per squad",
+      "Up to 50 members per squad",
       "3 posts per day per person",
       "Engagement percentage tracking",
       "Meaningful comment guidelines",

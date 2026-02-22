@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
@@ -15,10 +15,16 @@ import {
   TrendingUp,
   LogOut,
   ShieldCheck,
+  Heart,
+  Activity,
+  Trophy,
+  Shield,
+  AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 
 // Components
@@ -31,6 +37,7 @@ import EngagementToast from "@/components/squads/details/EngagementToast";
 import MemberList from "@/components/squads/details/MemberList";
 import SquadStats from "@/components/squads/details/SquadStats";
 import SquadRulesDialog from "@/components/squads/details/SquadRulesDialog";
+import FeedToolbar from "@/components/squads/details/FeedToolbar";
 
 const mobileTabItems = [
   { key: "feed", label: "Feed", icon: MessageCircle },
@@ -38,6 +45,18 @@ const mobileTabItems = [
   { key: "members", label: "Members", icon: Users },
   { key: "stats", label: "Stats", icon: BarChart3 },
 ];
+
+const getEngagementColor = (pct) => {
+  if (pct >= 70) return "text-primary";
+  if (pct >= 30) return "text-amber-400";
+  return "text-destructive";
+};
+
+const getEngagementBg = (pct) => {
+  if (pct >= 70) return "bg-primary/15 text-primary border-primary/25";
+  if (pct >= 30) return "bg-amber-400/15 text-amber-400 border-amber-400/25";
+  return "bg-destructive/15 text-destructive border-destructive/25";
+};
 
 const SquadDetailPage = () => {
   const { niche, name } = useParams();
@@ -50,6 +69,19 @@ const SquadDetailPage = () => {
   const [posts, setPosts] = useState([]);
   const [engagementStats, setEngagementStats] = useState(null);
   const [postCount, setPostCount] = useState(null);
+
+  // Pagination
+  const [postsPage, setPostsPage] = useState(1);
+  const [totalPostPages, setTotalPostPages] = useState(1);
+  const [totalPostCount, setTotalPostCount] = useState(0);
+  const [loadingMorePosts, setLoadingMorePosts] = useState(false);
+
+  // Feed search, filter, sort
+  const [feedSearch, setFeedSearch] = useState("");
+  const [feedSort, setFeedSort] = useState("pending_first");
+  const [feedFilter, setFeedFilter] = useState("");
+  const [feedTimeRange, setFeedTimeRange] = useState("");
+  const [pendingEngagementCount, setPendingEngagementCount] = useState(0);
 
   // UI state
   const [activeTab, setActiveTab] = useState("feed");
@@ -98,23 +130,45 @@ const SquadDetailPage = () => {
     }
   }, [niche, name]);
 
-  // Fetch posts
-  const fetchPosts = useCallback(async () => {
+  // Fetch posts (page 1 = fresh load, page > 1 = append)
+  const fetchPosts = useCallback(async (page = 1) => {
     if (!isMember || !id) return;
-    setPostsLoading(true);
+    if (page === 1) {
+      setPostsLoading(true);
+    } else {
+      setLoadingMorePosts(true);
+    }
     try {
-      const res = await fetch(`/api/posts/squad/${id}`, {
+      const params = new URLSearchParams({
+        page: String(page),
+        limit: "10",
+        sortBy: feedSort,
+      });
+      if (feedSearch) params.set("search", feedSearch);
+      if (feedFilter) params.set("filter", feedFilter);
+      if (feedTimeRange) params.set("timeRange", feedTimeRange);
+
+      const res = await fetch(`/api/posts/squad/${id}?${params.toString()}`, {
         credentials: "include",
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to fetch posts");
-      setPosts(data.posts || []);
+      if (page === 1) {
+        setPosts(data.posts || []);
+      } else {
+        setPosts((prev) => [...prev, ...(data.posts || [])]);
+      }
+      setPostsPage(data.pagination?.currentPage || page);
+      setTotalPostPages(data.pagination?.totalPages || 1);
+      setTotalPostCount(data.pagination?.total ?? 0);
+      setPendingEngagementCount(data.pendingEngagementCount ?? 0);
     } catch (err) {
-      setPosts([]);
+      if (page === 1) setPosts([]);
     } finally {
       setPostsLoading(false);
+      setLoadingMorePosts(false);
     }
-  }, [id, isMember]);
+  }, [id, isMember, feedSearch, feedSort, feedFilter, feedTimeRange]);
 
   // Fetch engagement stats
   const fetchEngagementStats = useCallback(async () => {
@@ -152,13 +206,20 @@ const SquadDetailPage = () => {
     fetchSquad();
   }, [currentUser, fetchSquad, router]);
 
+  // Fetch engagement stats & post count (only when squad/membership changes)
   useEffect(() => {
     if (isMember && id) {
-      fetchPosts();
       fetchEngagementStats();
       fetchPostCount();
     }
-  }, [isMember, id, fetchPosts, fetchEngagementStats, fetchPostCount]);
+  }, [isMember, id, fetchEngagementStats, fetchPostCount]);
+
+  // Fetch posts (re-triggers on search/filter/sort changes via fetchPosts deps)
+  useEffect(() => {
+    if (isMember && id) {
+      fetchPosts();
+    }
+  }, [isMember, id, fetchPosts]);
 
   // Timer effect for engagement tracking
   useEffect(() => {
@@ -183,7 +244,6 @@ const SquadDetailPage = () => {
       if (!res.ok) throw new Error(data.message || "Failed to accept rules");
       toast.success("Rules accepted! You can now share posts.");
       setShowRulesDialog(false);
-      // Refresh squad data to update membership rulesAccepted field
       fetchSquad();
     } catch (err) {
       toast.error(err.message);
@@ -196,7 +256,6 @@ const SquadDetailPage = () => {
   const handleCreatePost = async (e) => {
     e.preventDefault();
 
-    // Show rules dialog if user hasn't accepted rules yet
     if (!hasAcceptedRules) {
       setShowRulesDialog(true);
       return;
@@ -225,6 +284,7 @@ const SquadDetailPage = () => {
       setNewPostCaption("");
       fetchPosts();
       fetchPostCount();
+      setActiveTab("feed");
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -289,6 +349,33 @@ const SquadDetailPage = () => {
     setTimerSeconds(0);
   };
 
+  // Load more posts
+  const handleLoadMorePosts = () => {
+    if (postsPage < totalPostPages && !loadingMorePosts) {
+      fetchPosts(postsPage + 1);
+    }
+  };
+
+  const hasMorePosts = postsPage < totalPostPages;
+
+  // Feed toolbar handlers (reset to page 1 on every change)
+  const handleFeedSearchChange = (value) => {
+    setFeedSearch(value);
+    setPostsPage(1);
+  };
+  const handleFeedSortChange = (value) => {
+    setFeedSort(value);
+    setPostsPage(1);
+  };
+  const handleFeedFilterChange = (value) => {
+    setFeedFilter(value);
+    setPostsPage(1);
+  };
+  const handleFeedTimeRangeChange = (value) => {
+    setFeedTimeRange(value);
+    setPostsPage(1);
+  };
+
   // Leave squad
   const handleLeaveSquad = async () => {
     setLeaveLoading(true);
@@ -349,16 +436,138 @@ const SquadDetailPage = () => {
     return `${days}d ago`;
   };
 
+  // Sorted members for leaderboard
+  const topMembers = [...members]
+    .sort((a, b) => b.engagementPercentage - a.engagementPercentage)
+    .slice(0, 5);
+
+  // ── Desktop Right Sidebar (memoized to prevent re-render on unrelated state changes like typing) ──
+  const desktopSidebar = useMemo(() => (
+    <div className="space-y-4">
+      {/* Quick Stats */}
+      {isMember && engagementStats && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="glass rounded-2xl p-5 gradient-border"
+        >
+          <h3 className="font-heading font-semibold text-foreground text-sm mb-4 flex items-center gap-2">
+            <Activity className="h-4 w-4 text-primary" />
+            Your Activity
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-secondary/50 dark:bg-secondary/25 rounded-xl p-3.5 text-center border border-border/30 dark:border-transparent">
+              <div className={`font-heading font-bold text-2xl leading-tight ${getEngagementColor(engagementStats.engagementPercentage)}`}>
+                {engagementStats.engagementPercentage}%
+              </div>
+              <div className="text-muted-foreground text-[10px] uppercase tracking-wider mt-1">Engagement</div>
+            </div>
+            <div className="bg-secondary/50 dark:bg-secondary/25 rounded-xl p-3.5 text-center border border-border/30 dark:border-transparent">
+              <div className="font-heading font-bold text-2xl text-foreground leading-tight">
+                {engagementStats.validEngagements || 0}
+              </div>
+              <div className="text-muted-foreground text-[10px] uppercase tracking-wider mt-1">Engaged</div>
+            </div>
+            <div className="bg-secondary/50 dark:bg-secondary/25 rounded-xl p-3.5 text-center border border-border/30 dark:border-transparent">
+              <div className="font-heading font-bold text-2xl text-foreground leading-tight">
+                {engagementStats.totalOpportunities || 0}
+              </div>
+              <div className="text-muted-foreground text-[10px] uppercase tracking-wider mt-1">Opportunities</div>
+            </div>
+            <div className="bg-secondary/50 dark:bg-secondary/25 rounded-xl p-3.5 text-center border border-border/30 dark:border-transparent">
+              <div className="font-heading font-bold text-2xl text-foreground leading-tight">
+                {squad?.avgEngagement || 0}%
+              </div>
+              <div className="text-muted-foreground text-[10px] uppercase tracking-wider mt-1">Squad Avg</div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Top Engagers Mini */}
+      {isMember && members.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="glass rounded-2xl p-5 gradient-border"
+        >
+          <h3 className="font-heading font-semibold text-foreground text-sm mb-3 flex items-center gap-2">
+            <Trophy className="h-4 w-4 text-primary" />
+            Top Engagers
+          </h3>
+          <div className="space-y-1.5">
+            {topMembers.map((member, index) => (
+              <div
+                key={member._id}
+                className="flex items-center gap-2.5 py-2 px-2 rounded-lg hover:bg-secondary/40 dark:hover:bg-secondary/25 transition-colors"
+              >
+                <span className="w-5 text-[11px] font-heading font-bold text-muted-foreground text-center flex-shrink-0">
+                  {index + 1}
+                </span>
+                <Avatar className="h-7 w-7 flex-shrink-0">
+                  <AvatarFallback className="bg-primary/10 text-primary text-[9px] font-heading font-bold">
+                    {getInitials(member.user?.username)}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="font-heading font-medium text-foreground text-[13px] flex-1 truncate">
+                  {member.user?.username || "Unknown"}
+                </span>
+                <Badge
+                  className={`${getEngagementBg(member.engagementPercentage)} text-[10px] font-heading font-bold px-2 py-0 rounded-md`}
+                >
+                  {Math.round(member.engagementPercentage)}%
+                </Badge>
+              </div>
+            ))}
+          </div>
+          {members.length > 5 && (
+            <button
+              onClick={() => setActiveTab("members")}
+              className="w-full mt-3 text-primary text-xs font-heading font-medium hover:underline"
+            >
+              View all {members.length} members →
+            </button>
+          )}
+        </motion.div>
+      )}
+
+      {/* Squad Description */}
+      {squad?.description && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="glass rounded-2xl p-5 gradient-border"
+        >
+          <h3 className="font-heading font-semibold text-foreground text-sm mb-2">
+            About
+          </h3>
+          <p className="text-muted-foreground text-[13px] leading-relaxed">
+            {squad.description}
+          </p>
+        </motion.div>
+      )}
+    </div>
+  ), [isMember, engagementStats, squad, members, topMembers]);
+
   // Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 text-primary animate-spin" />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center gap-4"
+        >
+          <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <Loader2 className="h-7 w-7 text-primary animate-spin" />
+          </div>
           <p className="text-muted-foreground text-sm font-heading">
             Loading squad...
           </p>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -367,8 +576,14 @@ const SquadDetailPage = () => {
   if (!squad) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
-        <div className="text-center">
-          <Users className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center"
+        >
+          <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
+            <Users className="h-8 w-8 text-muted-foreground/50" />
+          </div>
           <h2 className="font-heading font-bold text-xl text-foreground mb-2">
             Squad not found
           </h2>
@@ -381,33 +596,37 @@ const SquadDetailPage = () => {
               Browse Squads
             </Button>
           </Link>
-        </div>
+        </motion.div>
       </div>
     );
   }
 
-  // Tab content — shared between mobile & desktop
-  const renderTabContent = () => (
+  // ── Tab content for main area ──
+  const renderMainContent = () => (
     <>
-      {/* Not a member message */}
+      {/* Not a member */}
       {!isMember && !loading && (
-        <div className="flex flex-col items-center justify-center py-16 md:py-28 gap-5 text-center px-4">
-          <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-muted/50 flex items-center justify-center">
-            <Users className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground/50" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col items-center justify-center py-20 lg:py-32 gap-5 text-center"
+        >
+          <div className="w-20 h-20 rounded-3xl bg-muted/30 flex items-center justify-center">
+            <Users className="h-10 w-10 text-muted-foreground/40" />
           </div>
-          <h3 className="font-heading font-bold text-lg md:text-xl text-foreground">
-            You&apos;re not a member
+          <h3 className="font-heading font-bold text-xl text-foreground">
+            You&apos;re not a member yet
           </h3>
           <p className="text-muted-foreground text-sm max-w-md leading-relaxed">
             Join this squad to view the feed, engage with posts, and
             connect with other creators.
           </p>
           <Link href="/squads#browse-squads">
-            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-8 py-3 text-sm font-semibold mt-2">
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-8 py-3 text-sm font-semibold mt-2 glow-box">
               Browse & Join Squads
             </Button>
           </Link>
-        </div>
+        </motion.div>
       )}
 
       {/* Share Post Tab */}
@@ -417,14 +636,14 @@ const SquadDetailPage = () => {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-primary/5 border border-primary/20 rounded-xl md:rounded-2xl p-4 md:p-6 mb-4 text-center"
+              className="bg-primary/5 border border-primary/15 rounded-2xl p-6 mb-5 text-center"
             >
               <ShieldCheck className="h-8 w-8 text-primary mx-auto mb-2" />
-              <h4 className="font-heading font-semibold text-foreground text-sm md:text-base mb-1">
+              <h4 className="font-heading font-semibold text-foreground text-base mb-1">
                 Accept Squad Rules First
               </h4>
-              <p className="text-muted-foreground text-xs md:text-sm mb-3 max-w-md mx-auto">
-                Before sharing your first post, you need to read and accept the squad
+              <p className="text-muted-foreground text-sm mb-4 max-w-md mx-auto">
+                Before sharing your first post, read and accept the squad
                 rules and guidelines.
               </p>
               <Button
@@ -450,13 +669,56 @@ const SquadDetailPage = () => {
 
       {/* Feed Tab */}
       {isMember && activeTab === "feed" && (
-        <div className="space-y-4 md:space-y-6">
+        <div className="space-y-5">
           <EngagementTimer
             engagingPostId={engagingPostId}
             activeEngagementId={activeEngagementId}
             timerSeconds={timerSeconds}
             onValidate={handleValidateEngagement}
             onCancel={handleCancelEngagement}
+          />
+
+          {/* Pending Engagement Banner */}
+          {pendingEngagementCount > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/30 dark:border-primary/15 shadow-sm dark:shadow-none"
+            >
+              <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0">
+                <Heart className="h-5 w-5 text-primary animate-pulse" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-heading font-semibold text-foreground">
+                  {pendingEngagementCount} post
+                  {pendingEngagementCount !== 1 ? "s" : ""} waiting for your
+                  engagement
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Engage with squad members' posts to boost your activity
+                </p>
+              </div>
+              <Badge
+                className={`text-xs px-2.5 py-1 rounded-lg font-heading font-bold ${getEngagementBg(
+                  engagementStats?.percentage ?? 0
+                )}`}
+              >
+                {Math.round(engagementStats?.percentage ?? 0)}%
+              </Badge>
+            </motion.div>
+          )}
+
+          <FeedToolbar
+            search={feedSearch}
+            onSearchChange={handleFeedSearchChange}
+            sortBy={feedSort}
+            onSortChange={handleFeedSortChange}
+            filter={feedFilter}
+            onFilterChange={handleFeedFilterChange}
+            timeRange={feedTimeRange}
+            onTimeRangeChange={handleFeedTimeRangeChange}
+            totalResults={totalPostCount}
+            pendingCount={pendingEngagementCount}
           />
           <PostList
             loading={postsLoading}
@@ -468,6 +730,10 @@ const SquadDetailPage = () => {
             isAdmin={isAdmin}
             engagingPostId={engagingPostId}
             timerSeconds={timerSeconds}
+            hasMore={hasMorePosts}
+            loadingMore={loadingMorePosts}
+            onLoadMore={handleLoadMorePosts}
+            hasActiveFilters={!!(feedSearch || feedFilter || feedTimeRange || feedSort !== "pending_first")}
           />
           <EngagementToast engagementStats={engagementStats} />
         </div>
@@ -496,10 +762,9 @@ const SquadDetailPage = () => {
       {/* MOBILE APP-LIKE VIEW (< md) */}
       {/* ═══════════════════════════════════════════════════════════ */}
       <div className="md:hidden min-h-screen bg-background">
-        {/* Spacer for main app Navbar */}
         <div className="h-20" />
 
-        {/* Sticky Squad Info Bar — sits below the main Navbar */}
+        {/* Sticky Squad Info Bar */}
         <div className="sticky top-[72px] z-40 bg-background/95 backdrop-blur-xl border-b border-border/20">
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -532,12 +797,12 @@ const SquadDetailPage = () => {
           </div>
         </div>
 
-        {/* Scrollable Content — padding at bottom for the fixed bottom nav */}
+        {/* Content */}
         <div className="px-4 py-4 pb-20 space-y-4">
-          {renderTabContent()}
+          {renderMainContent()}
         </div>
 
-        {/* Fixed Bottom Tab Bar — iOS/Android style */}
+        {/* Fixed Bottom Tab Bar */}
         {isMember && (
           <nav className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border/20">
             <div className="flex items-center justify-around h-16 px-2">
@@ -553,20 +818,27 @@ const SquadDetailPage = () => {
                         : "text-muted-foreground active:text-foreground"
                     }`}
                   >
-                    <div className={`relative p-1.5 rounded-xl transition-all duration-200 ${
-                      isActive ? "bg-primary/15" : ""
-                    }`}>
-                      <Icon className={`h-5 w-5 transition-all ${isActive ? "scale-110" : ""}`} />
+                    <div
+                      className={`relative p-1.5 rounded-xl transition-all duration-200 ${
+                        isActive ? "bg-primary/15" : ""
+                      }`}
+                    >
+                      <Icon
+                        className={`h-5 w-5 transition-all ${
+                          isActive ? "scale-110" : ""
+                        }`}
+                      />
                     </div>
-                    <span className={`text-[10px] font-heading font-medium transition-all ${
-                      isActive ? "font-semibold" : ""
-                    }`}>
+                    <span
+                      className={`text-[10px] font-heading font-medium transition-all ${
+                        isActive ? "font-semibold" : ""
+                      }`}
+                    >
                       {label}
                     </span>
                   </button>
                 );
               })}
-              {/* Leave button in bottom nav */}
               <button
                 onClick={handleLeaveSquad}
                 disabled={leaveLoading}
@@ -579,7 +851,9 @@ const SquadDetailPage = () => {
                     <LogOut className="h-5 w-5" />
                   )}
                 </div>
-                <span className="text-[10px] font-heading font-medium">Leave</span>
+                <span className="text-[10px] font-heading font-medium">
+                  Leave
+                </span>
               </button>
             </div>
           </nav>
@@ -587,31 +861,33 @@ const SquadDetailPage = () => {
       </div>
 
       {/* ═══════════════════════════════════════════════════════════ */}
-      {/* DESKTOP VIEW (>= md) */}
+      {/* DESKTOP VIEW (>= md) — Full-page immersive layout */}
       {/* ═══════════════════════════════════════════════════════════ */}
       <div className="hidden md:block min-h-screen bg-background">
-        {/* Background effects */}
-        <div className="fixed inset-0 pointer-events-none">
-          <div className="absolute top-1/3 left-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[150px]" />
-          <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-glow-secondary/5 rounded-full blur-[120px]" />
+        {/* Spacer for fixed main navbar */}
+        <div className="h-[72px]" />
+
+        {/* Ambient background glows */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-primary/[0.04] rounded-full blur-[150px]" />
+          <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-glow-secondary/[0.03] rounded-full blur-[120px]" />
         </div>
 
-        <div className="relative z-10 w-full mx-auto px-6 lg:px-10 xl:px-16 py-8 lg:py-10 pt-32 lg:pt-36 max-w-7xl">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <div className="glass rounded-2xl lg:rounded-3xl gradient-border overflow-hidden">
-              {/* Squad Info Card */}
-              <SquadInfoCard
-                squad={squad}
-                engagementStats={engagementStats}
-                isMember={isMember}
-                currentMembership={currentMembership}
-              />
+        {/* ── Sticky Header: Squad Info + Tabs ── */}
+        <div className="sticky top-[72px] z-30 bg-background backdrop-blur-2xl border-t border-b border-border/60 dark:border-border/30 shadow-sm dark:shadow-none">
+          {/* Squad Info Row */}
+          <div className="max-w-[1400px] mx-auto px-6 lg:px-10 xl:px-14 pt-5 pb-3">
+            <SquadInfoCard
+              squad={squad}
+              engagementStats={engagementStats}
+              isMember={isMember}
+              currentMembership={currentMembership}
+            />
+          </div>
 
-              {/* Tab Navigation */}
+          {/* Tabs Row */}
+          {isMember && (
+            <div className="max-w-[1400px] mx-auto px-6 lg:px-10 xl:px-14">
               <SquadTabsNavbar
                 activeTab={activeTab}
                 setActiveTab={setActiveTab}
@@ -619,27 +895,46 @@ const SquadDetailPage = () => {
                 onLeave={handleLeaveSquad}
                 leaveLoading={leaveLoading}
               />
-
-              {/* Tab Content */}
-              <div className="p-8 lg:p-10 min-h-[500px]">
-                {renderTabContent()}
-              </div>
             </div>
-
-            {/* Annotation */}
-            {!isMember && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8 }}
-                className="text-center text-muted-foreground/60 text-xs mt-6 italic"
-              >
-                Join this squad to access the full feed, members list, and
-                engagement tracking.
-              </motion.p>
-            )}
-          </motion.div>
+          )}
         </div>
+
+        {/* ── Main Content Area: 2-column layout ── */}
+        <div className="relative z-10 max-w-[1400px] mx-auto px-6 lg:px-10 xl:px-14 py-6 lg:py-8">
+          <div className="flex gap-6 lg:gap-8">
+            {/* Main Column */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className={`flex-1 min-w-0 ${isMember ? "" : "w-full"}`}
+            >
+              {renderMainContent()}
+            </motion.div>
+
+            {/* Right Sidebar — sticky, only for members */}
+            {isMember && (
+              <div className="hidden lg:block w-[340px] xl:w-[380px] flex-shrink-0">
+                <div className="sticky top-[200px]">
+                  {desktopSidebar}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Non-member annotation */}
+        {!isMember && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="text-center text-muted-foreground/60 text-xs pb-10 italic"
+          >
+            Join this squad to access the full feed, members list, and
+            engagement tracking.
+          </motion.p>
+        )}
       </div>
 
       {/* Squad Rules Dialog */}
