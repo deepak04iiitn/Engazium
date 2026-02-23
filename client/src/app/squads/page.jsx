@@ -54,6 +54,10 @@ const PLANS = [
   { value: "Momentum", label: "Momentum", desc: "3 posts/day · 50 members", icon: Star },
 ];
 
+const PLATFORMS = [
+  "Instagram", "YouTube", "TikTok", "Facebook", "X", "LinkedIn", "Twitch", "Snapchat", "Other"
+];
+
 const Squads = () => {
   const [activeTab, setActiveTab] = useState("browse");
   const [searchQuery, setSearchQuery] = useState("");
@@ -83,6 +87,7 @@ const Squads = () => {
   const [createSquadForm, setCreateSquadForm] = useState({
     name: "",
     niche: "",
+    platform: "",
     plan: "Growth",
     description: "",
   });
@@ -253,7 +258,7 @@ const Squads = () => {
 
   const handleCreateSquad = async (e) => {
     e.preventDefault();
-    if (!createSquadForm.name || !createSquadForm.niche) {
+    if (!createSquadForm.name || !createSquadForm.niche || !createSquadForm.platform) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -272,6 +277,7 @@ const Squads = () => {
       setCreateSquadForm({
         name: "",
         niche: "",
+        platform: "",
         plan: "Growth",
         description: "",
       });
@@ -485,6 +491,7 @@ const Squads = () => {
         loading={createSquadLoading}
         allNiches={ALL_NICHES}
         plans={PLANS}
+        platforms={PLATFORMS}
       />
     </div>
   );

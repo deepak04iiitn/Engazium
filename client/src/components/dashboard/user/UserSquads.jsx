@@ -31,6 +31,10 @@ const NICHE_OPTIONS = [
   "Vlogs", "Automotive", "Real Estate", "Politics", "Non Profit & Social Impact", "Other"
 ];
 
+const PLATFORM_OPTIONS = [
+  "Instagram", "YouTube", "TikTok", "Facebook", "X", "LinkedIn", "Twitch", "Snapchat", "Other"
+];
+
 const UserSquads = ({
   activeSection,
   squadsLoading,
@@ -181,6 +185,24 @@ const UserSquads = ({
                     <SelectContent>
                       {NICHE_OPTIONS.map((n) => (
                         <SelectItem key={n} value={n}>{n}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Platform */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-foreground">Platform</label>
+                  <Select
+                    value={createSquadForm.platform}
+                    onValueChange={(value) => setCreateSquadForm({ ...createSquadForm, platform: value })}
+                  >
+                    <SelectTrigger className="bg-secondary/50 border-border/50 rounded-xl focus:border-primary/50">
+                      <SelectValue placeholder="Select platform" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PLATFORM_OPTIONS.map((p) => (
+                        <SelectItem key={p} value={p}>{p}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

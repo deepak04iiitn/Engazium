@@ -102,6 +102,7 @@ const Dashboard = () => {
   const [createSquadForm, setCreateSquadForm] = useState({
     name: "",
     niche: "",
+    platform: "",
     plan: "Growth",
     description: "",
   });
@@ -296,7 +297,7 @@ const Dashboard = () => {
   // Handle Create Squad
   const handleCreateSquad = async (e) => {
     e.preventDefault();
-    if (!createSquadForm.name || !createSquadForm.niche) {
+    if (!createSquadForm.name || !createSquadForm.niche || !createSquadForm.platform) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -311,7 +312,7 @@ const Dashboard = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to create squad");
       toast.success("Squad created successfully!");
-      setCreateSquadForm({ name: "", niche: "", plan: "Growth", description: "" });
+      setCreateSquadForm({ name: "", niche: "", platform: "", plan: "Growth", description: "" });
       const s = data.squad;
       router.push(`/squads/${slugify(s.niche)}/${s.slug || slugify(s.name)}`);
     } catch (err) {

@@ -22,8 +22,8 @@ export const createSquad = async (req, res, next) => {
   try {
     const { name, plan, niche, platform, maxMembers, description } = req.body;
 
-    if (!name || !plan || !niche) {
-      return next(errorHandler(400, "Name, plan, and niche are required"));
+    if (!name || !plan || !niche || !platform) {
+      return next(errorHandler(400, "Name, plan, niche, and platform are required"));
     }
 
     const validPlans = ["Growth", "Pro", "Momentum"];
@@ -40,7 +40,7 @@ export const createSquad = async (req, res, next) => {
       plan,
       niche,
       nicheSlug: slugify(niche),
-      ...(platform && { platform }),
+      platform,
       maxMembers: maxMembers || maxMembersLimit,
       description: description || "",
       createdBy: req.user.id,

@@ -22,6 +22,7 @@ import {
   Eye,
   Loader2,
   Plus,
+  Globe,
 } from "lucide-react";
 
 const CreateSquadDialog = ({
@@ -33,6 +34,7 @@ const CreateSquadDialog = ({
   loading,
   allNiches,
   plans,
+  platforms,
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -88,6 +90,29 @@ const CreateSquadDialog = ({
                 {allNiches.map((n) => (
                   <SelectItem key={n} value={n}>
                     {n}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Platform */}
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+              <Globe className="h-3 w-3" />
+              Platform <span className="text-destructive">*</span>
+            </label>
+            <Select
+              value={form.platform}
+              onValueChange={(value) => setForm({ ...form, platform: value })}
+            >
+              <SelectTrigger className="bg-secondary/30 border-border/40 rounded-xl focus:border-primary/50 h-11">
+                <SelectValue placeholder="Select your platform" />
+              </SelectTrigger>
+              <SelectContent>
+                {platforms.map((p) => (
+                  <SelectItem key={p} value={p}>
+                    {p}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -173,7 +198,7 @@ const CreateSquadDialog = ({
             </Button>
             <Button
               type="submit"
-              disabled={loading || !form.name || !form.niche}
+              disabled={loading || !form.name || !form.niche || !form.platform}
               className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 glow-box rounded-xl h-11 font-semibold"
             >
               {loading ? (
