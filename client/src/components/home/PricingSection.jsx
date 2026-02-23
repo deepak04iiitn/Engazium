@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Check, Zap, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useSelector } from "react-redux";
 
 const plans = [
   {
@@ -65,6 +66,8 @@ const anim = (delay = 0) => ({
 });
 
 const PricingSection = () => {
+  const { currentUser } = useSelector((state) => state.user);
+
   return (
     <section
       id="pricing"
@@ -146,7 +149,7 @@ const PricingSection = () => {
                   ))}
                 </ul>
 
-                <Link href="/sign-up">
+                <Link href={currentUser ? "/dashboard" : "/sign-up"}>
                   <Button
                     className={`w-full rounded-xl py-4 text-sm font-heading font-semibold ${
                       plan.popular
@@ -154,7 +157,7 @@ const PricingSection = () => {
                         : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                     }`}
                   >
-                    Join {plan.name}
+                    {currentUser ? "Go to Dashboard" : `Join ${plan.name}`}
                   </Button>
                 </Link>
               </motion.div>
@@ -232,7 +235,7 @@ const PricingSection = () => {
                   ))}
                 </ul>
 
-                <Link href="/sign-up">
+                <Link href={currentUser ? "/dashboard" : "/sign-up"}>
                   <Button
                     className={`w-full rounded-xl py-5 sm:py-6 font-heading font-semibold text-sm sm:text-base group ${
                       plan.popular
@@ -240,7 +243,7 @@ const PricingSection = () => {
                         : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                     }`}
                   >
-                    Join {plan.name}
+                    {currentUser ? "Go to Dashboard" : `Join ${plan.name}`}
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
                   </Button>
                 </Link>

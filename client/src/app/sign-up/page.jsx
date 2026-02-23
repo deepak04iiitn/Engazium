@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { signUpStart, signUpSuccess, signUpFailure, signInSuccess } from "@/redux/user/userSlice";
@@ -23,7 +23,16 @@ const SignUp = () => {
 
   const dispatch = useDispatch();
   const router = useRouter();
-  const { loading: isLoading } = useSelector((state) => state.user);
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/";
+  const { loading: isLoading, currentUser } = useSelector((state) => state.user);
+
+  // Redirect if already signed in
+  useEffect(() => {
+    if (currentUser) {
+      router.replace("/dashboard");
+    }
+  }, [currentUser, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -67,10 +76,10 @@ const SignUp = () => {
       if (signInRes.ok) {
         dispatch(signInSuccess(signInData));
         toast.success("Account created successfully! Welcome aboard!");
-        router.push("/");
+        router.push(redirectTo);
       } else {
         toast.success("Account created! Please sign in.");
-        router.push("/sign-in");
+        router.push(redirectTo !== "/" ? `/sign-in?redirect=${encodeURIComponent(redirectTo)}` : "/sign-in");
       }
     } catch (error) {
       dispatch(signUpFailure(error.message));
@@ -220,7 +229,7 @@ const SignUp = () => {
             <p className="text-muted-foreground text-sm">
               Already have an account?{" "}
               <Link
-                href="/sign-in"
+                href={redirectTo !== "/" ? `/sign-in?redirect=${encodeURIComponent(redirectTo)}` : "/sign-in"}
                 className="text-primary hover:text-primary/80 transition-colors font-medium"
               >
                 Sign in

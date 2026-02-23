@@ -4,8 +4,10 @@ import { motion } from "framer-motion";
 import { ArrowRight, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useSelector } from "react-redux";
 
 const CTASection = () => {
+  const { currentUser } = useSelector((state) => state.user);
   return (
     <section className="relative py-20 sm:py-28 md:py-32 overflow-hidden">
       {/* Background glow */}
@@ -34,22 +36,24 @@ const CTASection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4">
-            <Link href="/sign-up" className="w-full sm:w-auto">
+            <Link href={currentUser ? "/dashboard" : "/sign-up"} className="w-full sm:w-auto">
               <Button
                 size="lg"
                 className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box-intense px-8 py-6 rounded-2xl font-heading font-semibold group w-full sm:w-auto text-[15px]"
               >
-                Start Your Free Trial
+                {currentUser ? "Go to Dashboard" : "Start Your Free Trial"}
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1.5 transition-transform duration-300" />
               </Button>
             </Link>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-border/60 dark:border-border/40 text-foreground hover:bg-card/80 dark:hover:bg-card/50 backdrop-blur-sm px-8 py-6 rounded-2xl font-heading w-full sm:w-auto text-[15px]"
-            >
-              Talk to Our Team
-            </Button>
+            <Link href="/about-us" className="w-full sm:w-auto">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-border/60 dark:border-border/40 text-foreground hover:bg-card/80 dark:hover:bg-card/50 backdrop-blur-sm px-8 py-6 rounded-2xl font-heading w-full sm:w-auto text-[15px]"
+              >
+                Talk to Our Team
+              </Button>
+            </Link>
           </div>
         </motion.div>
       </div>

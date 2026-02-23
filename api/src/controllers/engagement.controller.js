@@ -80,7 +80,7 @@ export const startEngagement = async (req, res, next) => {
 // POST /api/engagement/validate — validate engagement after time threshold
 export const validateEngagement = async (req, res, next) => {
   try {
-    const { engagementId, timeSpent } = req.body;
+    const { engagementId, timeSpent, awayTime } = req.body;
 
     if (!engagementId) {
       return next(errorHandler(400, "Engagement ID is required"));
@@ -113,10 +113,29 @@ export const validateEngagement = async (req, res, next) => {
       });
     }
 
+    // Away time validation — time user actually spent viewing the content
+    // (tab was not focused on Engazium)
+    const reportedAwayTime = Number(awayTime) || 0;
+
+    if (reportedAwayTime < MIN_ENGAGEMENT_SECONDS) {
+      const remaining = Math.ceil(MIN_ENGAGEMENT_SECONDS - reportedAwayTime);
+      return res.status(400).json({
+        success: false,
+        message: `Not enough time spent viewing the content. Please spend at least ${remaining} more seconds on the content tab.`,
+        remainingSeconds: remaining,
+      });
+    }
+
+    // Sanity check: away time can't exceed total elapsed time (5s buffer for latency)
+    if (reportedAwayTime > elapsed + 5) {
+      return next(errorHandler(400, "Invalid engagement data"));
+    }
+
     // Validate the engagement
     engagement.isValid = true;
     engagement.validatedAt = now;
     engagement.timeSpent = Math.round(timeSpent || elapsed);
+    engagement.awayTime = Math.round(reportedAwayTime);
     await engagement.save();
 
     // Increment engagement count on the post

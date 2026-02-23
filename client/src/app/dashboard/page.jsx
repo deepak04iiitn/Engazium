@@ -116,7 +116,7 @@ const Dashboard = () => {
   // Redirect if not logged in
   useEffect(() => {
     if (!currentUser) {
-      router.push("/sign-in");
+      router.push(`/sign-in?redirect=${encodeURIComponent("/dashboard")}`);
     }
   }, [currentUser, router]);
 

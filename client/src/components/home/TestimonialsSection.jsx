@@ -219,10 +219,10 @@ const TestimonialsSection = () => {
             className="mt-7 sm:mt-8"
           >
             <Link
-              href={currentUser ? "/dashboard" : "/sign-in"}
+              href={currentUser ? "/dashboard" : `/sign-in?redirect=${encodeURIComponent("/dashboard")}`}
               onClick={() => {
-                // If user is logged in, set the dashboard to open the testimonial tab
-                if (currentUser && typeof window !== "undefined") {
+                // Set the dashboard to open the testimonial tab
+                if (typeof window !== "undefined") {
                   sessionStorage.setItem("dashboard_tab", "testimonial");
                 }
               }}

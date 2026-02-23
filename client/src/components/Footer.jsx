@@ -1,12 +1,15 @@
+"use client";
+
 import Image from "next/image";
 import { Instagram, Twitter, Youtube, ArrowUpRight } from "lucide-react";
+import { useSelector } from "react-redux";
 import logo from "@/assets/Engazium_Logo.png";
 
 const footerLinks = {
   Product: [
     { label: "How It Works", href: "/how-it-works" },
-    { label: "Features", href: "#features" },
-    { label: "Pricing", href: "#pricing" },
+    { label: "Features", href: "/features" },
+    { label: "Pricing", href: "/pricing" },
     { label: "Squads", href: "/squads" },
   ],
   Company: [
@@ -24,6 +27,8 @@ const footerLinks = {
 };
 
 const Footer = () => {
+  const { currentUser } = useSelector((state) => state.user);
+
   return (
     <footer className="relative border-t border-border/30 dark:border-border/15 overflow-hidden">
       {/* Subtle mesh gradient */}
@@ -43,10 +48,10 @@ const Footer = () => {
               </p>
             </div>
             <a
-              href="/sign-up"
+              href={currentUser ? "/dashboard" : "/sign-up"}
               className="group flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-full font-heading font-semibold text-sm sm:text-base glow-box hover:bg-primary/90 transition-all duration-300 shrink-0"
             >
-              Start Growing Free
+              {currentUser ? "Go to Dashboard" : "Start Growing Free"}
               <ArrowUpRight className="h-4 w-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
             </a>
           </div>

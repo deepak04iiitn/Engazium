@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Shield, Zap, Star, Plus } from "lucide-react";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
 
 // Components
@@ -68,16 +68,21 @@ const Squads = () => {
   const [sortBy, setSortBy] = useState("members");
   const [sortOrder, setSortOrder] = useState("desc");
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(12);
+  const [pageSize, setPageSize] = useState(5);
 
   const [showFilters, setShowFilters] = useState(true);
   const [squads, setSquads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mySquads, setMySquads] = useState([]);
   const [mySquadsLoading, setMySquadsLoading] = useState(false);
+  const [mySquadsPage, setMySquadsPage] = useState(1);
+  const [mySquadsPageSize, setMySquadsPageSize] = useState(5);
+  const [mySquadsTotalPages, setMySquadsTotalPages] = useState(0);
+  const [joinedSquadIds, setJoinedSquadIds] = useState([]);
   const [joiningId, setJoiningId] = useState(null);
   const { currentUser } = useSelector((state) => state.user);
   const router = useRouter();
+  const pathname = usePathname();
 
   const [totalResults, setTotalResults] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -149,7 +154,11 @@ const Squads = () => {
     if (!currentUser) return;
     try {
       setMySquadsLoading(true);
-      const res = await fetch("/api/squads/my/memberships", {
+      const params = new URLSearchParams();
+      params.set("page", mySquadsPage.toString());
+      params.set("limit", mySquadsPageSize.toString());
+
+      const res = await fetch(`/api/squads/my/memberships?${params.toString()}`, {
         credentials: "include",
       });
       const data = await res.json();
@@ -159,13 +168,16 @@ const Squads = () => {
           .map((m) => m.squad)
           .filter(Boolean);
         setMySquads(squadsData);
+        setMySquadsTotalPages(data.pagination.totalPages);
+        // Full list of joined IDs (for browse tab highlighting)
+        setJoinedSquadIds(data.allJoinedSquadIds || []);
       }
     } catch (err) {
       console.error("Failed to fetch my squads:", err);
     } finally {
       setMySquadsLoading(false);
     }
-  }, [currentUser]);
+  }, [currentUser, mySquadsPage, mySquadsPageSize]);
 
   useEffect(() => {
     if (activeTab === "browse") {
@@ -182,7 +194,7 @@ const Squads = () => {
     }
   }, [fetchMySquads, currentUser, activeTab]);
 
-  // Reset to page 1 when filters change (but not when page changes)
+  // Reset browse page to 1 when filters change (but not when page changes)
   useEffect(() => {
     setCurrentPage(1);
   }, [
@@ -195,6 +207,11 @@ const Squads = () => {
     sortOrder,
     pageSize,
   ]);
+
+  // Reset My Squads page to 1 when page size changes
+  useEffect(() => {
+    setMySquadsPage(1);
+  }, [mySquadsPageSize]);
 
   // Helper functions
   const toggleNiche = (niche) => {
@@ -226,7 +243,7 @@ const Squads = () => {
 
   const handleJoinSquad = async (squadId) => {
     if (!currentUser) {
-      router.push("/sign-in");
+      router.push(`/sign-in?redirect=${encodeURIComponent(pathname)}`);
       return;
     }
     setJoiningId(squadId);
@@ -294,7 +311,7 @@ const Squads = () => {
 
   const openCreateDialog = () => {
     if (!currentUser) {
-      router.push("/sign-in");
+      router.push(`/sign-in?redirect=${encodeURIComponent(pathname)}`);
       return;
     }
     setIsCreateDialogOpen(true);
@@ -308,8 +325,6 @@ const Squads = () => {
         ?.scrollIntoView({ behavior: "smooth" });
     }, 100);
   };
-
-  const joinedSquadIds = mySquads.map((s) => s._id);
 
   return (
     <div className="min-h-screen bg-background">
@@ -415,6 +430,11 @@ const Squads = () => {
                       loading={mySquadsLoading}
                       squads={mySquads}
                       isMySquadsView={true}
+                      totalPages={mySquadsTotalPages}
+                      currentPage={mySquadsPage}
+                      setCurrentPage={setMySquadsPage}
+                      pageSize={mySquadsPageSize}
+                      setPageSize={setMySquadsPageSize}
                     />
                   ) : (
                     <motion.div
@@ -435,7 +455,7 @@ const Squads = () => {
                       <Button
                         size="lg"
                         className="rounded-xl sm:rounded-2xl px-8 sm:px-10 h-11 sm:h-12 md:h-14 font-heading font-bold tracking-wide hover:scale-105 transition-all shadow-xl shadow-primary/20 text-sm sm:text-base"
-                        onClick={() => router.push("/sign-in")}
+                        onClick={() => router.push(`/sign-in?redirect=${encodeURIComponent(pathname)}`)}
                       >
                         SIGN IN TO VIEW
                       </Button>

@@ -74,7 +74,7 @@ export const createSquad = async (req, res, next) => {
 export const getSquads = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
+    const limit = parseInt(req.query.limit) || 5;
     const skip = (page - 1) * limit;
     const search = req.query.search || "";
     
@@ -389,10 +389,30 @@ export const leaveSquad = async (req, res, next) => {
   }
 };
 
-// GET /api/squads/my/memberships — get squads the current user is in
+// GET /api/squads/my/memberships — get squads the current user is in (with server-side pagination)
 export const getMySquads = async (req, res, next) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
+
+    // Get total count of memberships for pagination
+    const total = await SquadMember.countDocuments({ user: req.user.id });
+
+    // Get all joined squad IDs (lightweight — needed for browse tab highlighting)
+    const allMemberships = await SquadMember.find(
+      { user: req.user.id },
+      { squad: 1 }
+    ).lean();
+    const allJoinedSquadIds = allMemberships
+      .map((m) => m.squad?.toString())
+      .filter(Boolean);
+
+    // Get paginated memberships with full data
     const memberships = await SquadMember.find({ user: req.user.id })
+      .sort({ joinedAt: -1 })
+      .skip(skip)
+      .limit(limit)
       .populate({
         path: "squad",
         populate: { path: "createdBy", select: "username" },
@@ -432,6 +452,13 @@ export const getMySquads = async (req, res, next) => {
     res.status(200).json({
       success: true,
       memberships: result.filter(Boolean),
+      allJoinedSquadIds,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        total,
+        limit,
+      },
     });
   } catch (error) {
     next(error);

@@ -3,7 +3,7 @@
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 import { useDispatch } from "react-redux";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signInStart, signInSuccess, signInFailure } from "@/redux/user/userSlice";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -11,6 +11,8 @@ import { toast } from "sonner";
 const OAuth = () => {
   const dispatch = useDispatch();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/";
 
   const handleGoogleClick = async () => {
     try {
@@ -37,7 +39,7 @@ const OAuth = () => {
 
       dispatch(signInSuccess(data));
       toast.success("Signed in successfully!");
-      router.push("/");
+      router.push(redirectTo);
     } catch (error) {
       dispatch(signInFailure(error.message));
       toast.error("Google sign-in failed. Please try again.");
@@ -49,7 +51,7 @@ const OAuth = () => {
       type="button"
       variant="outline"
       onClick={handleGoogleClick}
-      className="w-full h-11 rounded-xl font-heading font-semibold text-sm border-border/50 bg-secondary/40 hover:bg-secondary/60 text-foreground gap-2"
+      className="w-full h-11 rounded-xl font-heading font-semibold text-sm border-border/50 bg-secondary/40 hover:bg-secondary/60 text-foreground hover:text-foreground gap-2"
     >
       <svg className="h-5 w-5" viewBox="0 0 24 24">
         <path

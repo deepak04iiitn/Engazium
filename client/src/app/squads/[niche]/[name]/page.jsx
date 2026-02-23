@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { useParams, useRouter, usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import {
@@ -61,6 +61,7 @@ const getEngagementBg = (pct) => {
 const SquadDetailPage = () => {
   const { niche, name } = useParams();
   const router = useRouter();
+  const pathname = usePathname();
   const { currentUser } = useSelector((state) => state.user);
 
   // Core data
@@ -97,6 +98,8 @@ const SquadDetailPage = () => {
   const [engagingPostId, setEngagingPostId] = useState(null);
   const [activeEngagementId, setActiveEngagementId] = useState(null);
   const [timerSeconds, setTimerSeconds] = useState(0);
+  const [isTabVisible, setIsTabVisible] = useState(true);
+  const engagementIntervalRef = useRef(null);
 
   // Leave squad
   const [leaveLoading, setLeaveLoading] = useState(false);
@@ -200,11 +203,11 @@ const SquadDetailPage = () => {
 
   useEffect(() => {
     if (!currentUser) {
-      router.push("/sign-in");
+      router.push(`/sign-in?redirect=${encodeURIComponent(pathname)}`);
       return;
     }
     fetchSquad();
-  }, [currentUser, fetchSquad, router]);
+  }, [currentUser, fetchSquad, router, pathname]);
 
   // Fetch engagement stats & post count (only when squad/membership changes)
   useEffect(() => {
@@ -221,15 +224,54 @@ const SquadDetailPage = () => {
     }
   }, [isMember, id, fetchPosts]);
 
-  // Timer effect for engagement tracking
+  // Timer effect: only count time when tab is hidden (user is viewing content)
   useEffect(() => {
-    let interval;
-    if (engagingPostId && activeEngagementId) {
-      interval = setInterval(() => {
-        setTimerSeconds((prev) => prev + 1);
-      }, 1000);
+    if (!engagingPostId || !activeEngagementId) {
+      if (engagementIntervalRef.current) {
+        clearInterval(engagementIntervalRef.current);
+        engagementIntervalRef.current = null;
+      }
+      return;
     }
-    return () => clearInterval(interval);
+
+    const startCounting = () => {
+      if (!engagementIntervalRef.current) {
+        engagementIntervalRef.current = setInterval(() => {
+          setTimerSeconds((prev) => prev + 1);
+        }, 1000);
+      }
+    };
+
+    const stopCounting = () => {
+      if (engagementIntervalRef.current) {
+        clearInterval(engagementIntervalRef.current);
+        engagementIntervalRef.current = null;
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      const hidden = document.visibilityState === "hidden";
+      setIsTabVisible(!hidden);
+      if (hidden) {
+        startCounting();
+      } else {
+        stopCounting();
+      }
+    };
+
+    // Set initial state (tab may already be hidden after window.open)
+    const initiallyHidden = document.visibilityState === "hidden";
+    setIsTabVisible(!initiallyHidden);
+    if (initiallyHidden) {
+      startCounting();
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      stopCounting();
+    };
   }, [engagingPostId, activeEngagementId]);
 
   // Accept squad rules handler
@@ -307,9 +349,10 @@ const SquadDetailPage = () => {
       setEngagingPostId(postId);
       setActiveEngagementId(data.engagement.id);
       setTimerSeconds(0);
+      setIsTabVisible(true);
       window.open(link, "_blank");
       toast.info(
-        "Engagement started! Spend at least 25 seconds on the content, then come back to validate."
+        "Engagement started! The timer only runs while you're viewing the content."
       );
     } catch (err) {
       toast.error(err.message);
@@ -327,6 +370,7 @@ const SquadDetailPage = () => {
         body: JSON.stringify({
           engagementId: activeEngagementId,
           timeSpent: timerSeconds,
+          awayTime: timerSeconds,
         }),
       });
       const data = await res.json();
@@ -336,6 +380,7 @@ const SquadDetailPage = () => {
       setEngagingPostId(null);
       setActiveEngagementId(null);
       setTimerSeconds(0);
+      setIsTabVisible(true);
       fetchPosts();
       fetchEngagementStats();
     } catch (err) {
@@ -347,6 +392,7 @@ const SquadDetailPage = () => {
     setEngagingPostId(null);
     setActiveEngagementId(null);
     setTimerSeconds(0);
+    setIsTabVisible(true);
   };
 
   // Load more posts
@@ -674,6 +720,7 @@ const SquadDetailPage = () => {
             engagingPostId={engagingPostId}
             activeEngagementId={activeEngagementId}
             timerSeconds={timerSeconds}
+            isTabVisible={isTabVisible}
             onValidate={handleValidateEngagement}
             onCancel={handleCancelEngagement}
           />

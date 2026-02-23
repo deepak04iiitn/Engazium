@@ -37,6 +37,12 @@ const engagementSchema = new mongoose.Schema(
       default: 0,
     },
 
+    // Time spent away from Engazium tab (viewing content) in seconds
+    awayTime: {
+      type: Number,
+      default: 0,
+    },
+
     isValid: {
       type: Boolean,
       default: false,

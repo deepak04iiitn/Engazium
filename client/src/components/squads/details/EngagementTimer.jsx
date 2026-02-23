@@ -1,16 +1,18 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Clock, CheckCircle2, X } from "lucide-react";
+import { Clock, CheckCircle2, X, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const EngagementTimer = ({
   engagingPostId,
   activeEngagementId,
   timerSeconds,
+  isTabVisible,
   onValidate,
   onCancel,
 }) => {
   const isReady = timerSeconds >= 25;
+  const isPaused = isTabVisible && !isReady;
 
   return (
     <AnimatePresence>
@@ -22,23 +24,41 @@ const EngagementTimer = ({
           className={`rounded-xl md:rounded-2xl px-4 md:px-6 py-4 md:py-5 border transition-colors ${
             isReady
               ? "bg-primary/10 border-primary/30"
+              : isPaused
+              ? "bg-secondary/50 border-border/40"
               : "bg-amber-500/10 border-amber-500/30"
           }`}
         >
           <div className="flex items-center gap-3 mb-3 md:mb-0 md:flex-1">
             <div className={`w-9 h-9 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0 ${
-              isReady ? "bg-primary/20" : "bg-amber-500/20"
+              isReady
+                ? "bg-primary/20"
+                : isPaused
+                ? "bg-muted-foreground/10"
+                : "bg-amber-500/20"
             }`}>
-              <Clock className={`h-4 w-4 md:h-5 md:w-5 ${isReady ? "text-primary" : "text-amber-500"} animate-pulse`} />
+              {isPaused ? (
+                <Pause className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
+              ) : (
+                <Clock className={`h-4 w-4 md:h-5 md:w-5 ${isReady ? "text-primary" : "text-amber-500"} animate-pulse`} />
+              )}
             </div>
             <div className="flex-1">
               <p className="text-sm font-heading font-semibold text-foreground">
-                Engaging... {timerSeconds}s
+                {isReady
+                  ? `Content viewed — ${timerSeconds}s`
+                  : isPaused
+                  ? `Timer paused — ${timerSeconds}s`
+                  : `Viewing content... ${timerSeconds}s`}
               </p>
               <p className="text-[11px] md:text-xs text-muted-foreground mt-0.5">
-                {!isReady
-                  ? `${25 - timerSeconds}s more needed`
-                  : "Ready to validate!"}
+                {isReady
+                  ? "Ready to validate!"
+                  : isPaused && timerSeconds === 0
+                  ? "Switch to the content tab to start the timer"
+                  : isPaused
+                  ? `Go back to the content! ${25 - timerSeconds}s more needed`
+                  : `${25 - timerSeconds}s more needed`}
               </p>
             </div>
           </div>

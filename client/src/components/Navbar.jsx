@@ -3,13 +3,12 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Menu,
   X,
   LogOut,
-  User,
   ChevronDown,
   LayoutDashboard,
   Sun,
@@ -38,7 +37,12 @@ const Navbar = () => {
   const { currentUser } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const router = useRouter();
+  const pathname = usePathname();
   const { theme, setTheme } = useTheme();
+
+  // Build sign-in URL with redirect back to current page
+  const signInHref = pathname && pathname !== "/" ? `/sign-in?redirect=${encodeURIComponent(pathname)}` : "/sign-in";
+  const signUpHref = pathname && pathname !== "/" ? `/sign-up?redirect=${encodeURIComponent(pathname)}` : "/sign-up";
 
   useEffect(() => {
     setMounted(true);
@@ -190,14 +194,6 @@ const Navbar = () => {
                     </div>
                     <div className="p-1.5">
                       <Link
-                        href="/profile"
-                        onClick={() => setProfileOpen(false)}
-                        className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-foreground hover:bg-secondary/60 dark:hover:bg-secondary/30 rounded-xl transition-colors"
-                      >
-                        <User className="h-4 w-4 text-muted-foreground" />
-                        My Profile
-                      </Link>
-                      <Link
                         href={
                           currentUser.isUserAdmin
                             ? "/admin-dashboard"
@@ -225,7 +221,7 @@ const Navbar = () => {
             </div>
           ) : (
             <>
-              <Link href="/sign-in">
+              <Link href={signInHref}>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -234,7 +230,7 @@ const Navbar = () => {
                   Log In
                 </Button>
               </Link>
-              <Link href="/sign-up">
+              <Link href={signUpHref}>
                 <Button
                   size="sm"
                   className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box font-heading font-semibold text-sm px-6 rounded-full"
@@ -320,19 +316,6 @@ const Navbar = () => {
                       </div>
                     </div>
                     <Link
-                      href="/profile"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-border/60 dark:border-border/30 text-foreground hover:bg-secondary/60 w-full rounded-xl"
-                      >
-                        <User className="mr-1.5 h-4 w-4" />
-                        My Profile
-                      </Button>
-                    </Link>
-                    <Link
                       href={
                         currentUser.isUserAdmin
                           ? "/admin-dashboard"
@@ -366,7 +349,7 @@ const Navbar = () => {
                   </>
                 ) : (
                   <>
-                    <Link href="/sign-in" onClick={() => setIsOpen(false)}>
+                    <Link href={signInHref} onClick={() => setIsOpen(false)}>
                       <Button
                         variant="outline"
                         size="sm"
@@ -375,7 +358,7 @@ const Navbar = () => {
                         Log In
                       </Button>
                     </Link>
-                    <Link href="/sign-up" onClick={() => setIsOpen(false)}>
+                    <Link href={signUpHref} onClick={() => setIsOpen(false)}>
                       <Button
                         size="sm"
                         className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-xl font-heading font-semibold"

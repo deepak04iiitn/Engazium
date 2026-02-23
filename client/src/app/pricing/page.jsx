@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useSelector } from "react-redux";
 
 const anim = (delay = 0) => ({
   initial: { opacity: 0, y: 24 },
@@ -102,6 +103,8 @@ const comparisons = [
 ];
 
 const Pricing = () => {
+  const { currentUser } = useSelector((state) => state.user);
+
   return (
     <div className="min-h-screen">
       <main>
@@ -138,13 +141,13 @@ const Pricing = () => {
               </motion.p>
 
               <motion.div {...anim(0.3)}>
-                <Link href="/sign-up">
+                <Link href={currentUser ? "/dashboard" : "/sign-up"}>
                   <Button
                     size="lg"
                     className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box rounded-xl sm:rounded-2xl px-8 sm:px-10 py-6 font-heading font-semibold text-[15px] sm:text-base"
                   >
                     <MousePointerClick className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                    Get Started — It&apos;s Free
+                    {currentUser ? "Go to Dashboard" : "Get Started — It's Free"}
                   </Button>
                 </Link>
               </motion.div>
@@ -200,18 +203,20 @@ const Pricing = () => {
 
                   {/* CTA */}
                   <div className="text-center">
-                    <Link href="/sign-up">
+                    <Link href={currentUser ? "/dashboard" : "/sign-up"}>
                       <Button
                         size="lg"
                         className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box rounded-xl sm:rounded-2xl px-10 sm:px-14 py-6 font-heading font-semibold text-[15px] sm:text-base"
                       >
-                        Claim Your Free Spot
+                        {currentUser ? "Go to Dashboard" : "Claim Your Free Spot"}
                         <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                       </Button>
                     </Link>
-                    <p className="text-muted-foreground/60 text-xs mt-4">
-                      No credit card required · Limited to first 1,000 users
-                    </p>
+                    {!currentUser && (
+                      <p className="text-muted-foreground/60 text-xs mt-4">
+                        No credit card required · Limited to first 1,000 users
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -431,13 +436,13 @@ const Pricing = () => {
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Link href="/sign-up">
+                    <Link href={currentUser ? "/dashboard" : "/sign-up"}>
                       <Button
                         size="lg"
                         className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box rounded-xl sm:rounded-2xl px-8 sm:px-10 py-6 font-heading font-semibold w-full sm:w-auto text-[15px] sm:text-base"
                       >
                         <MousePointerClick className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                        Get Started — It&apos;s Free
+                        {currentUser ? "Go to Dashboard" : "Get Started — It's Free"}
                       </Button>
                     </Link>
                     <Link href="/features">

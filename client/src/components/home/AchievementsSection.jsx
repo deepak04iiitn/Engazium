@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useSelector } from "react-redux";
 
 const platformIcons = {
   Instagram: "📸",
@@ -210,6 +211,7 @@ const AchievementCard = ({ achievement, index }) => {
 const AchievementsSection = () => {
   const [achievements, setAchievements] = useState(fallbackAchievements);
   const [usingReal, setUsingReal] = useState(false);
+  const { currentUser } = useSelector((state) => state.user);
 
   useEffect(() => {
     const fetchAchievements = async () => {
@@ -276,13 +278,13 @@ const AchievementsSection = () => {
           className="text-center"
         >
           <div className="inline-flex flex-col sm:flex-row items-center gap-4">
-            <Link href="/sign-up">
+            <Link href={currentUser ? "/dashboard" : "/sign-up"}>
               <Button
                 size="lg"
                 className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box-intense px-8 py-6 rounded-2xl font-heading font-semibold group text-[15px]"
               >
                 <Rocket className="h-4 w-4 mr-2" />
-                Start Your Growth Journey
+                {currentUser ? "Go to Dashboard" : "Start Your Growth Journey"}
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1.5 transition-transform duration-300" />
               </Button>
             </Link>

@@ -13,10 +13,12 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useSelector } from "react-redux";
 
 const HeroSection = () => {
   const containerRef = useRef(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const { currentUser } = useSelector((state) => state.user);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -107,12 +109,12 @@ const HeroSection = () => {
               {...fadeUp(0.5)}
               className="flex flex-col sm:flex-row items-center gap-3.5 sm:gap-4 lg:justify-start justify-center mb-10 lg:mb-0"
             >
-              <Link href="/sign-up" className="w-full sm:w-auto">
+              <Link href={currentUser ? "/dashboard" : "/sign-up"} className="w-full sm:w-auto">
                 <Button
                   size="lg"
                   className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box-intense px-8 py-6 rounded-2xl font-heading font-semibold group w-full sm:w-auto text-[15px]"
                 >
-                  Start Growing Free
+                  {currentUser ? "Go to Dashboard" : "Start Growing Free"}
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1.5 transition-transform duration-300" />
                 </Button>
               </Link>

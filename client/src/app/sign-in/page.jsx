@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { signInStart, signInSuccess, signInFailure } from "@/redux/user/userSlice";
@@ -22,7 +22,16 @@ const SignIn = () => {
 
   const dispatch = useDispatch();
   const router = useRouter();
-  const { loading: isLoading } = useSelector((state) => state.user);
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/";
+  const { loading: isLoading, currentUser } = useSelector((state) => state.user);
+
+  // Redirect if already signed in
+  useEffect(() => {
+    if (currentUser) {
+      router.replace("/dashboard");
+    }
+  }, [currentUser, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,7 +59,7 @@ const SignIn = () => {
 
       dispatch(signInSuccess(data));
       toast.success("Signed in successfully!");
-      router.push("/");
+      router.push(redirectTo);
     } catch (error) {
       dispatch(signInFailure(error.message));
       toast.error("Something went wrong. Please try again.");
@@ -179,7 +188,7 @@ const SignIn = () => {
             <p className="text-muted-foreground text-sm">
               Don&apos;t have an account?{" "}
               <Link
-                href="/sign-up"
+                href={redirectTo !== "/" ? `/sign-up?redirect=${encodeURIComponent(redirectTo)}` : "/sign-up"}
                 className="text-primary hover:text-primary/80 transition-colors font-medium"
               >
                 Sign up

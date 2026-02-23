@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useSelector } from "react-redux";
 import DemoSquadSection from "@/components/squads/DemoSquadSection";
 
 const formationSteps = [
@@ -113,6 +114,8 @@ const anim = (delay = 0) => ({
 });
 
 const HowItWorks = () => {
+  const { currentUser } = useSelector((state) => state.user);
+
   return (
     <div className="min-h-screen">
       <main>
@@ -399,13 +402,13 @@ const HowItWorks = () => {
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Link href="/sign-up">
+                    <Link href={currentUser ? "/dashboard" : "/sign-up"}>
                       <Button
                         size="lg"
                         className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box rounded-xl sm:rounded-2xl px-8 sm:px-10 py-6 font-heading font-semibold w-full sm:w-auto text-[15px] sm:text-base"
                       >
                         <MousePointerClick className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                        Get Started — It&apos;s Free
+                        {currentUser ? "Go to Dashboard" : "Get Started — It's Free"}
                       </Button>
                     </Link>
                     <Link href="/squads">
