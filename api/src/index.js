@@ -32,6 +32,10 @@ app.get('/health' , (req , res) => {
     res.json({ satus : "OK" });
 });
 
+app.get('/api/ping', (req, res) => {
+    res.status(200).send('pong');
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);
