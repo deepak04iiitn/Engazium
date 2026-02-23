@@ -20,7 +20,7 @@ connectDB();
 
 const app = express();
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.CLIENT_URL || 'http://localhost:3000',
     credentials: true,
 }));
 app.use(express.json());
@@ -47,7 +47,7 @@ app.use(globalErrorHandler);
 // Initialize scheduled jobs
 initScheduler();
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT , () => {
     console.log(`Server is running on port ${PORT}`);
 })
