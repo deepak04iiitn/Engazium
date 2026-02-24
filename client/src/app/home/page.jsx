@@ -1,5 +1,6 @@
 import HeroSection from '@/components/home/HeroSection'
 import MarqueeSection from '@/components/home/MarqueeSection'
+import CommunityJoinSection from '@/components/home/CommunityJoinSection'
 import BentoFeaturesSection from '@/components/home/BentoFeaturesSection'
 import HowItWorksSection from '@/components/home/HowItWorksSection'
 import CTASection from '@/components/home/CTASection'
@@ -16,6 +17,7 @@ export default function Home() {
     <main className="relative overflow-hidden">
       <HeroSection />
       <MarqueeSection />
+      <CommunityJoinSection />
       <BentoFeaturesSection />
       
       {/* Subtle gradient divider */}

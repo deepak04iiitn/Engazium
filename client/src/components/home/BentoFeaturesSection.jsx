@@ -11,7 +11,7 @@ import {
   TrendingDown,
   Target,
   Activity,
-  Zap,
+  LayoutGrid,
 } from "lucide-react";
 
 const anim = (delay = 0) => ({
@@ -82,7 +82,7 @@ const BentoFeaturesSection = () => {
             {...anim(0.05)}
             className="inline-flex items-center gap-2 rounded-full bg-primary/8 dark:bg-primary/10 border border-primary/12 dark:border-primary/20 px-4 py-1.5 text-xs font-medium text-primary mb-6"
           >
-            <Zap className="h-3 w-3" />
+            <LayoutGrid className="h-3 w-3" />
             Features
           </motion.span>
           <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-heading font-bold tracking-tighter">
