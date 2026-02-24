@@ -40,8 +40,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
 const statusStyles = {
   pending: {
     label: "Pending",
@@ -88,10 +86,9 @@ const AdminTestimonials = () => {
         });
         if (status !== "all") params.set("status", status);
 
-        const res = await fetch(
-          `${API_BASE}/api/testimonials/admin/all?${params}`,
-          { credentials: "include" }
-        );
+        const res = await fetch(`/api/testimonials/admin/all?${params}`, {
+          credentials: "include",
+        });
         const data = await res.json();
         if (!res.ok)
           throw new Error(data.message || "Failed to fetch testimonials");
@@ -130,15 +127,12 @@ const AdminTestimonials = () => {
   const handleStatusChange = async (id, newStatus) => {
     setActionLoading(id);
     try {
-      const res = await fetch(
-        `${API_BASE}/api/testimonials/admin/${id}/status`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ status: newStatus }),
-        }
-      );
+      const res = await fetch(`/api/testimonials/admin/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ status: newStatus }),
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to update status");
       toast.success(data.message);
@@ -156,7 +150,7 @@ const AdminTestimonials = () => {
     setDeleteLoading(true);
     try {
       const res = await fetch(
-        `${API_BASE}/api/testimonials/admin/${testimonialToDelete._id}`,
+        `/api/testimonials/admin/${testimonialToDelete._id}`,
         {
           method: "DELETE",
           credentials: "include",

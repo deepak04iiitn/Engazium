@@ -60,8 +60,6 @@ const mobileTabItems = [
   { key: "earnings", label: "Earnings", icon: DollarSign },
 ];
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
 const AdminDashboard = () => {
   const { currentUser } = useSelector((state) => state.user);
   const router = useRouter();
@@ -114,7 +112,7 @@ const AdminDashboard = () => {
     setUsersError(null);
     try {
       const params = new URLSearchParams({ search, page: page.toString(), limit: "10" });
-      const res = await fetch(`${API_BASE}/api/admin/users?${params}`, { credentials: "include" });
+      const res = await fetch(`/api/admin/users?${params}`, { credentials: "include" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to fetch users");
       setUsers(data.users);
@@ -132,7 +130,7 @@ const AdminDashboard = () => {
     setSquadsError(null);
     try {
       const params = new URLSearchParams({ search, page: page.toString(), limit: "12" });
-      const res = await fetch(`${API_BASE}/api/admin/squads?${params}`, { credentials: "include" });
+      const res = await fetch(`/api/admin/squads?${params}`, { credentials: "include" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to fetch squads");
       setSquads(data.squads || []);
@@ -185,7 +183,7 @@ const AdminDashboard = () => {
     if (!userToDelete) return;
     setDeleteLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/admin/users/${userToDelete._id}`, {
+      const res = await fetch(`/api/admin/users/${userToDelete._id}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -205,7 +203,7 @@ const AdminDashboard = () => {
   const handleToggleAdmin = async (user) => {
     setToggleAdminLoading(user._id);
     try {
-      const res = await fetch(`${API_BASE}/api/admin/users/${user._id}/toggle-admin`, {
+      const res = await fetch(`/api/admin/users/${user._id}/toggle-admin`, {
         method: "PATCH",
         credentials: "include",
       });

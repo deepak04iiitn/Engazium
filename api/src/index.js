@@ -19,8 +19,24 @@ dotenv.config();
 connectDB();
 
 const app = express();
+
+const normalizeOrigin = (origin = '') => origin.trim().replace(/\/+$/, '');
+const configuredOrigins = [process.env.CLIENT_URL, process.env.CLIENT_URLS]
+    .filter(Boolean)
+    .flatMap((value) => value.split(','))
+    .map(normalizeOrigin)
+    .filter(Boolean);
+const allowedOrigins = configuredOrigins.length > 0
+    ? configuredOrigins
+    : ['http://localhost:3000'];
+
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: (origin, callback) => {
+        // Allow non-browser requests (no Origin header).
+        if (!origin) return callback(null, true);
+        const normalizedOrigin = normalizeOrigin(origin);
+        return callback(null, allowedOrigins.includes(normalizedOrigin));
+    },
     credentials: true,
 }));
 app.use(express.json());
