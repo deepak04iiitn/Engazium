@@ -451,7 +451,7 @@ const Pricing = () => {
                         variant="outline"
                         className="border-border text-foreground hover:bg-secondary/80 rounded-xl sm:rounded-2xl px-8 sm:px-10 py-6 font-heading w-full sm:w-auto text-[15px] sm:text-base"
                       >
-                        Explore Features
+                        Contact Us
                         <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
                       </Button>
                     </Link>

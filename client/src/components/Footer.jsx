@@ -8,7 +8,7 @@ import logo from "@/assets/Engazium_Logo.png";
 const footerLinks = {
   Product: [
     { label: "How It Works", href: "/how-it-works" },
-    { label: "Features", href: "/features" },
+    { label: "Contact Us", href: "/features" },
     { label: "Pricing", href: "/pricing" },
     { label: "Squads", href: "/squads" },
   ],
@@ -16,7 +16,7 @@ const footerLinks = {
     { label: "About", href: "/about-us" },
     { label: "Blog", href: "#" },
     { label: "Careers", href: "#" },
-    { label: "Contact", href: "#" },
+    { label: "Contact", href: "/features" },
   ],
   Support: [
     { label: "Help Center", href: "#" },

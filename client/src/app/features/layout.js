@@ -1,7 +1,7 @@
 export const metadata = {
-  title: "Features | Engazium",
+  title: "Contact Us | Engazium",
   description:
-    "Discover all the powerful features that make Engazium the smartest way for creators to grow through squad-based engagement.",
+    "Get in touch with the Engazium team for support, partnerships, onboarding, and creator success.",
 };
 
 export default function FeaturesLayout({ children }) {
