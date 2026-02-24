@@ -8,6 +8,7 @@ import TestimonialsSection from '@/components/home/TestimonialsSection'
 import AchievementsSection from '@/components/home/AchievementsSection'
 import PricingSection from '@/components/home/PricingSection'
 import FAQSection from '@/components/home/FAQSection'
+import FloatingFeedbackButton from '@/components/home/FloatingFeedbackButton'
 import React from 'react'
 
 export default function Home() {
@@ -44,6 +45,7 @@ export default function Home() {
       
       <TestimonialsSection />
       <FAQSection />
+      <FloatingFeedbackButton />
     </main>
   )
 }

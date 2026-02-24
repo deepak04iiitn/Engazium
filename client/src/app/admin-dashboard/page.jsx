@@ -9,6 +9,7 @@ import {
   BarChart3,
   Menu,
   MessageSquare,
+  MessageCircleWarning,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
@@ -22,6 +23,7 @@ import AdminEarnings from "@/components/dashboard/admin/AdminEarnings";
 import AdminSubscriptions from "@/components/dashboard/admin/AdminSubscriptions";
 import AdminSquads from "@/components/dashboard/admin/AdminSquads";
 import AdminTestimonials from "@/components/dashboard/admin/AdminTestimonials";
+import AdminFeedback from "@/components/dashboard/admin/AdminFeedback";
 
 const earnings = {
   lifetime: "₹1,24,500", thisMonth: "₹18,750", lastMonth: "₹15,200", growth: "+23.4%",
@@ -45,6 +47,7 @@ const adminSubscriptions = [
 const sidebarItems = [
   { key: "overview", label: "Overview", icon: BarChart3 },
   { key: "users", label: "All Users", icon: Users },
+  { key: "feedback", label: "Feedback Hub", icon: MessageCircleWarning },
   { key: "earnings", label: "Earnings", icon: DollarSign },
   { key: "subscriptions", label: "Subs", icon: CreditCard },
   { key: "squads", label: "Squads", icon: Shield },
@@ -55,9 +58,9 @@ const sidebarItems = [
 const mobileTabItems = [
   { key: "overview", label: "Overview", icon: BarChart3 },
   { key: "users", label: "Users", icon: Users },
+  { key: "feedback", label: "Feedback", icon: MessageCircleWarning },
   { key: "squads", label: "Squads", icon: Shield },
   { key: "testimonials", label: "Reviews", icon: MessageSquare },
-  { key: "earnings", label: "Earnings", icon: DollarSign },
 ];
 
 const AdminDashboard = () => {
@@ -83,6 +86,27 @@ const AdminDashboard = () => {
   const [squadsError, setSquadsError] = useState(null);
   const [squadsPagination, setSquadsPagination] = useState({ totalSquads: 0 });
   const [squadsStats, setSquadsStats] = useState({ activeSquads: 0, fullSquads: 0 });
+  const [feedbackItems, setFeedbackItems] = useState([]);
+  const [feedbackLoading, setFeedbackLoading] = useState(false);
+  const [feedbackError, setFeedbackError] = useState(null);
+  const [feedbackSearch, setFeedbackSearch] = useState("");
+  const [feedbackDebouncedSearch, setFeedbackDebouncedSearch] = useState("");
+  const [feedbackStatusFilter, setFeedbackStatusFilter] = useState("pending");
+  const [feedbackTypeFilter, setFeedbackTypeFilter] = useState("all");
+  const [feedbackPage, setFeedbackPage] = useState(1);
+  const [feedbackActionLoadingId, setFeedbackActionLoadingId] = useState(null);
+  const [feedbackPagination, setFeedbackPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    hasNextPage: false,
+    hasPrevPage: false,
+  });
+  const [feedbackStats, setFeedbackStats] = useState({
+    pendingCount: 0,
+    bugCount: 0,
+    featureCount: 0,
+  });
 
   // Delete dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -144,6 +168,37 @@ const AdminDashboard = () => {
     }
   }, []);
 
+  const fetchFeedback = useCallback(async ({ search = "", status = "pending", type = "all", page = 1 } = {}) => {
+    setFeedbackLoading(true);
+    setFeedbackError(null);
+    try {
+      const params = new URLSearchParams({
+        search,
+        status,
+        type,
+        page: page.toString(),
+        limit: "10",
+      });
+      const res = await fetch(`/api/admin/feedback?${params}`, { credentials: "include" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to fetch feedback");
+      setFeedbackItems(data.feedback || []);
+      setFeedbackPagination(data.pagination || {
+        currentPage: 1,
+        totalPages: 1,
+        totalItems: 0,
+        hasNextPage: false,
+        hasPrevPage: false,
+      });
+      setFeedbackStats(data.stats || { pendingCount: 0, bugCount: 0, featureCount: 0 });
+    } catch (err) {
+      setFeedbackError(err.message);
+      setFeedbackItems([]);
+    } finally {
+      setFeedbackLoading(false);
+    }
+  }, []);
+
   // Initial fetch for overview stats
   useEffect(() => {
     fetchUsers("", 1);
@@ -177,6 +232,24 @@ const AdminDashboard = () => {
 
     return () => clearTimeout(timer);
   }, [activeSection, fetchSquads, squadSearch]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFeedbackDebouncedSearch(feedbackSearch);
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [feedbackSearch]);
+
+  useEffect(() => {
+    if (activeSection !== "feedback") return;
+    fetchFeedback({
+      search: feedbackDebouncedSearch,
+      status: feedbackStatusFilter,
+      type: feedbackTypeFilter,
+      page: feedbackPage,
+    });
+  }, [activeSection, feedbackPage, feedbackStatusFilter, feedbackTypeFilter, fetchFeedback, feedbackDebouncedSearch]);
 
   // Delete user handler
   const handleDeleteUser = async () => {
@@ -214,6 +287,30 @@ const AdminDashboard = () => {
       setUsersError(err.message);
     } finally {
       setToggleAdminLoading(null);
+    }
+  };
+
+  const handleUpdateFeedbackStatus = async (id, status) => {
+    setFeedbackActionLoadingId(id);
+    try {
+      const res = await fetch(`/api/admin/feedback/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ status }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update feedback status");
+      fetchFeedback({
+        search: feedbackSearch,
+        status: feedbackStatusFilter,
+        type: feedbackTypeFilter,
+        page: feedbackPage,
+      });
+    } catch (err) {
+      setFeedbackError(err.message);
+    } finally {
+      setFeedbackActionLoadingId(null);
     }
   };
 
@@ -277,6 +374,33 @@ const AdminDashboard = () => {
           setViewDialogOpen={setViewDialogOpen}
           viewUser={viewUser}
           setViewUser={setViewUser}
+        />
+      )}
+
+      {/* Feedback Section */}
+      {activeSection === "feedback" && (
+        <AdminFeedback
+          feedbackItems={feedbackItems}
+          loading={feedbackLoading}
+          error={feedbackError}
+          setError={setFeedbackError}
+          stats={feedbackStats}
+          search={feedbackSearch}
+          setSearch={setFeedbackSearch}
+          statusFilter={feedbackStatusFilter}
+          setStatusFilter={setFeedbackStatusFilter}
+          typeFilter={feedbackTypeFilter}
+          setTypeFilter={setFeedbackTypeFilter}
+          pagination={feedbackPagination}
+          setCurrentPage={setFeedbackPage}
+          onRefresh={() => fetchFeedback({
+            search: feedbackDebouncedSearch,
+            status: feedbackStatusFilter,
+            type: feedbackTypeFilter,
+            page: feedbackPage,
+          })}
+          onUpdateStatus={handleUpdateFeedbackStatus}
+          actionLoadingId={feedbackActionLoadingId}
         />
       )}
 

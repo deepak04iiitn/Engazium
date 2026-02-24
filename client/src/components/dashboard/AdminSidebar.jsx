@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Menu,
   MessageSquare,
+  MessageCircleWarning,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -62,6 +63,7 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
   const navItems = [
     { key: "overview", label: "Overview", icon: BarChart3 },
     { key: "users", label: "All Users", icon: Users },
+    { key: "feedback", label: "Feedback Hub", icon: MessageCircleWarning },
     { key: "earnings", label: "Earnings", icon: DollarSign },
     { key: "subscriptions", label: "Subscriptions", icon: CreditCard },
     { key: "squads", label: "All Squads", icon: Shield },
