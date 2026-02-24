@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import OAuth from "@/components/OAuth";
+import { getPostAuthRedirect, isAdminUser } from "@/lib/auth";
 
 const SignUp = () => {
   const [username, setUsername] = useState("");
@@ -30,7 +31,7 @@ const SignUp = () => {
   // Redirect if already signed in
   useEffect(() => {
     if (currentUser) {
-      router.replace("/dashboard");
+      router.replace(isAdminUser(currentUser) ? "/admin-dashboard" : "/dashboard");
     }
   }, [currentUser, router]);
 
@@ -76,7 +77,7 @@ const SignUp = () => {
       if (signInRes.ok) {
         dispatch(signInSuccess(signInData));
         toast.success("Account created successfully! Welcome aboard!");
-        router.push(redirectTo);
+        router.push(getPostAuthRedirect(redirectTo, signInData));
       } else {
         toast.success("Account created! Please sign in.");
         router.push(redirectTo !== "/" ? `/sign-in?redirect=${encodeURIComponent(redirectTo)}` : "/sign-in");

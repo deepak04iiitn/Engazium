@@ -4,7 +4,6 @@ import {
   Clock,
   CheckCircle2,
   Activity,
-  Link2,
   ExternalLink,
   Trash2,
 } from "lucide-react";
@@ -85,16 +84,6 @@ const PostCard = ({
             <span className="hidden sm:inline">{post.engagementCount || 0} engagements</span>
             <span className="sm:hidden">{post.engagementCount || 0}</span>
           </span>
-          <a
-            href={post.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 text-primary/70 hover:text-primary transition-colors"
-          >
-            <Link2 className="h-3 w-3 md:h-3.5 md:w-3.5" />
-            <span className="hidden sm:inline">View link</span>
-            <span className="sm:hidden">Link</span>
-          </a>
         </div>
 
         {/* Engage / Status */}

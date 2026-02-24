@@ -14,11 +14,23 @@ const CreatePostForm = ({
   setNewPostCaption,
   loading,
   postCount,
+  hasAcceptedRules,
+  onRulesRequired,
 }) => {
   const limitReached = postCount && postCount.remaining <= 0;
+  const rulesBlocked = !hasAcceptedRules;
+
+  const handleRulesBlocked = () => {
+    toast.error("Please accept squad rules before sharing a post.");
+    onRulesRequired?.();
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (rulesBlocked) {
+      handleRulesBlocked();
+      return;
+    }
     if (limitReached) {
       toast.error(
         `Daily post limit reached. Your plan allows ${postCount.dailyLimit} post${postCount.dailyLimit !== 1 ? "s" : ""} per day.`
@@ -81,14 +93,19 @@ const CreatePostForm = ({
             maxLength={280}
           />
           <Button
-            type="submit"
+            type={rulesBlocked ? "button" : "submit"}
             disabled={loading || !newPostLink.trim() || limitReached}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl h-11 w-full text-sm font-semibold transition-all duration-200 disabled:opacity-40"
+            onClick={rulesBlocked ? handleRulesBlocked : undefined}
+            className={`bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl h-11 w-full text-sm font-semibold transition-all duration-200 disabled:opacity-40 ${
+              rulesBlocked ? "opacity-50 cursor-not-allowed hover:bg-primary" : ""
+            }`}
           >
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : limitReached ? (
               "Daily Limit Reached"
+            ) : rulesBlocked ? (
+              "Accept Rules to Share"
             ) : (
               <>
                 <Send className="h-4 w-4 mr-2" />

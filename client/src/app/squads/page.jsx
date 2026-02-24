@@ -64,7 +64,6 @@ const Squads = () => {
   const [selectedNiches, setSelectedNiches] = useState([]);
   const [selectedPlans, setSelectedPlans] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
-  const [memberRangeFilter, setMemberRangeFilter] = useState("all");
   const [sortBy, setSortBy] = useState("members");
   const [sortOrder, setSortOrder] = useState("desc");
   const [currentPage, setCurrentPage] = useState(1);
@@ -119,8 +118,6 @@ const Squads = () => {
       // Single-select filters
       if (statusFilter && statusFilter !== "all")
         params.set("status", statusFilter);
-      if (memberRangeFilter && memberRangeFilter !== "all")
-        params.set("memberRange", memberRangeFilter);
 
       // Sorting
       params.set("sortBy", sortBy);
@@ -145,7 +142,6 @@ const Squads = () => {
     selectedNiches,
     selectedPlans,
     statusFilter,
-    memberRangeFilter,
     sortBy,
     sortOrder,
   ]);
@@ -202,7 +198,6 @@ const Squads = () => {
     selectedNiches,
     selectedPlans,
     statusFilter,
-    memberRangeFilter,
     sortBy,
     sortOrder,
     pageSize,
@@ -230,7 +225,6 @@ const Squads = () => {
     setSelectedNiches([]);
     setSelectedPlans([]);
     setStatusFilter("all");
-    setMemberRangeFilter("all");
     setSearchQuery("");
   };
 
@@ -238,7 +232,6 @@ const Squads = () => {
     selectedNiches.length +
     selectedPlans.length +
     (statusFilter !== "all" ? 1 : 0) +
-    (memberRangeFilter !== "all" ? 1 : 0) +
     (searchQuery ? 1 : 0);
 
   const handleJoinSquad = async (squadId) => {
@@ -394,8 +387,6 @@ const Squads = () => {
                     setStatusFilter={setStatusFilter}
                     selectedPlans={selectedPlans}
                     togglePlan={togglePlan}
-                    memberRangeFilter={memberRangeFilter}
-                    setMemberRangeFilter={setMemberRangeFilter}
                     activeFilterCount={activeFilterCount}
                     clearAllFilters={clearAllFilters}
                     allNiches={ALL_NICHES}

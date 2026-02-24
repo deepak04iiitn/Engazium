@@ -43,6 +43,9 @@ const Navbar = () => {
   // Build sign-in URL with redirect back to current page
   const signInHref = pathname && pathname !== "/" ? `/sign-in?redirect=${encodeURIComponent(pathname)}` : "/sign-in";
   const signUpHref = pathname && pathname !== "/" ? `/sign-up?redirect=${encodeURIComponent(pathname)}` : "/sign-up";
+  const isAdminUser = Boolean(
+    currentUser?.isUserAdmin || currentUser?.isAdmin || currentUser?.role === "admin"
+  );
 
   useEffect(() => {
     setMounted(true);
@@ -195,7 +198,7 @@ const Navbar = () => {
                     <div className="p-1.5">
                       <Link
                         href={
-                          currentUser.isUserAdmin
+                          isAdminUser
                             ? "/admin-dashboard"
                             : "/dashboard"
                         }
@@ -203,7 +206,7 @@ const Navbar = () => {
                         className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-foreground hover:bg-secondary/60 dark:hover:bg-secondary/30 rounded-xl transition-colors"
                       >
                         <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
-                        {currentUser.isUserAdmin
+                        {isAdminUser
                           ? "Admin Dashboard"
                           : "Dashboard"}
                       </Link>
@@ -317,7 +320,7 @@ const Navbar = () => {
                     </div>
                     <Link
                       href={
-                        currentUser.isUserAdmin
+                        isAdminUser
                           ? "/admin-dashboard"
                           : "/dashboard"
                       }
@@ -329,7 +332,7 @@ const Navbar = () => {
                         className="border-border/60 dark:border-border/30 text-foreground hover:bg-secondary/60 w-full rounded-xl"
                       >
                         <LayoutDashboard className="mr-1.5 h-4 w-4" />
-                        {currentUser.isUserAdmin
+                        {isAdminUser
                           ? "Admin Dashboard"
                           : "Dashboard"}
                       </Button>

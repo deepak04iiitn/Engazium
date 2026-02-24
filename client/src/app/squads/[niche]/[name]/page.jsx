@@ -58,6 +58,20 @@ const getEngagementBg = (pct) => {
   return "bg-destructive/15 text-destructive border-destructive/25";
 };
 
+const getProfileCompletion = (user) => {
+  if (!user) return 0;
+  let filled = 0;
+  const total = 5;
+
+  if (user.username) filled++;
+  if (user.email) filled++;
+  if (user.bio) filled++;
+  if (user.niche && user.niche !== "Other") filled++;
+  if (user.platformStats?.length > 0) filled++;
+
+  return Math.round((filled / total) * 100);
+};
+
 const SquadDetailPage = () => {
   const { niche, name } = useParams();
   const router = useRouter();
@@ -297,6 +311,16 @@ const SquadDetailPage = () => {
   // Create post handler
   const handleCreatePost = async (e) => {
     e.preventDefault();
+
+    const profileCompletion = getProfileCompletion(currentUser);
+    if (profileCompletion < 100) {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("dashboard_tab", "profile");
+      }
+      toast.error("Complete your profile to 100% before sharing posts.");
+      router.push("/dashboard");
+      return;
+    }
 
     if (!hasAcceptedRules) {
       setShowRulesDialog(true);
@@ -709,6 +733,8 @@ const SquadDetailPage = () => {
             setNewPostCaption={setNewPostCaption}
             loading={createPostLoading}
             postCount={postCount}
+            hasAcceptedRules={hasAcceptedRules}
+            onRulesRequired={() => setShowRulesDialog(true)}
           />
         </>
       )}

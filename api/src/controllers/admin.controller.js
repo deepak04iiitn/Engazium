@@ -1,5 +1,6 @@
 import { errorHandler } from "../middlewares/errorHandler.js";
 import User from "../models/user.model.js";
+import Squad from "../models/squad.model.js";
 
 // GET /api/admin/users?search=&page=1&limit=10&status=
 export const getAllUsers = async (req, res, next) => {
@@ -112,6 +113,60 @@ export const toggleAdminStatus = async (req, res, next) => {
       success: true,
       message: `User is now ${user.isUserAdmin ? "an admin" : "a regular user"}`,
       user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// GET /api/admin/squads?search=&page=1&limit=10
+export const getAllSquads = async (req, res, next) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const skip = (page - 1) * limit;
+    const search = req.query.search || "";
+    const sortField = req.query.sortField || "createdAt";
+    const sortOrder = req.query.sortOrder === "asc" ? 1 : -1;
+
+    const filter = {};
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { niche: { $regex: search, $options: "i" } },
+        { plan: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const totalSquads = await Squad.countDocuments(filter);
+    const [activeSquads, fullSquads] = await Promise.all([
+      Squad.countDocuments({ status: "Active" }),
+      Squad.countDocuments({ status: "Full" }),
+    ]);
+    const squads = await Squad.find(filter)
+      .populate("createdBy", "username email")
+      .sort({ [sortField]: sortOrder })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    const totalPages = Math.ceil(totalSquads / limit);
+
+    res.status(200).json({
+      success: true,
+      squads,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalSquads,
+        limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+      stats: {
+        activeSquads,
+        fullSquads,
+      },
     });
   } catch (error) {
     next(error);

@@ -20,7 +20,8 @@ const AdminOverview = ({
   earnings,
   activeSubs,
   adminSubscriptions,
-  adminSquads
+  totalSquads = 0,
+  activeSquads = 0,
 }) => {
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -54,7 +55,7 @@ const AdminOverview = ({
           { label: "Total Users", value: pagination.totalUsers.toString(), icon: Users, color: "text-primary", trend: `${pagination.totalUsers} registered`, mobileTrend: `${pagination.totalUsers}`, up: true },
           { label: "Lifetime Earnings", value: earnings.lifetime, icon: DollarSign, color: "text-primary", trend: earnings.growth, mobileTrend: earnings.growth, up: true },
           { label: "Active Subs", value: activeSubs.toString(), icon: CreditCard, color: "text-primary", trend: `${adminSubscriptions.length} total`, mobileTrend: `${adminSubscriptions.length}`, up: true },
-          { label: "Total Squads", value: adminSquads.length.toString(), icon: Shield, color: "text-primary", trend: `${adminSquads.filter(s => s.status === "Active").length} active`, mobileTrend: `${adminSquads.filter(s => s.status === "Active").length}`, up: true },
+          { label: "Total Squads", value: totalSquads.toString(), icon: Shield, color: "text-primary", trend: `${activeSquads} active`, mobileTrend: `${activeSquads}`, up: true },
         ].map((stat, i) => (
           <motion.div
             key={stat.label}

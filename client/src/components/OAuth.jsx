@@ -1,23 +1,26 @@
 "use client";
 
+import { useState } from "react";
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 import { useDispatch } from "react-redux";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signInStart, signInSuccess, signInFailure } from "@/redux/user/userSlice";
+import { signInSuccess, signInFailure } from "@/redux/user/userSlice";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { getPostAuthRedirect } from "@/lib/auth";
 
 const OAuth = () => {
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const dispatch = useDispatch();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/";
 
   const handleGoogleClick = async () => {
-    try {
-      dispatch(signInStart());
+    setIsGoogleLoading(true);
 
+    try {
       const result = await signInWithPopup(auth, googleProvider);
 
       const res = await fetch("/api/auth/google", {
@@ -39,10 +42,18 @@ const OAuth = () => {
 
       dispatch(signInSuccess(data));
       toast.success("Signed in successfully!");
-      router.push(redirectTo);
+      router.push(getPostAuthRedirect(redirectTo, data));
     } catch (error) {
-      dispatch(signInFailure(error.message));
+      // Popup cancellation should not look like a failure or block auth buttons.
+      if (error?.code === "auth/popup-closed-by-user" || error?.code === "auth/cancelled-popup-request") {
+        dispatch(signInFailure(null));
+        return;
+      }
+
+      dispatch(signInFailure(error?.message || "Google sign-in failed"));
       toast.error("Google sign-in failed. Please try again.");
+    } finally {
+      setIsGoogleLoading(false);
     }
   };
 
@@ -51,6 +62,7 @@ const OAuth = () => {
       type="button"
       variant="outline"
       onClick={handleGoogleClick}
+      disabled={isGoogleLoading}
       className="w-full h-11 rounded-xl font-heading font-semibold text-sm border-border/50 bg-secondary/40 hover:bg-secondary/60 text-foreground hover:text-foreground gap-2"
     >
       <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -71,7 +83,7 @@ const OAuth = () => {
           fill="#EA4335"
         />
       </svg>
-      Continue with Google
+      {isGoogleLoading ? "Connecting..." : "Continue with Google"}
     </Button>
   );
 };

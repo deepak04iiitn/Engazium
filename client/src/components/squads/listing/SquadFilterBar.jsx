@@ -4,7 +4,6 @@ import {
   Search,
   SlidersHorizontal,
   X,
-  Users,
   TrendingUp,
   LayoutGrid,
   CheckCircle2,
@@ -46,8 +45,6 @@ const SquadFilterBar = ({
   setStatusFilter,
   selectedPlans,
   togglePlan,
-  memberRangeFilter,
-  setMemberRangeFilter,
   activeFilterCount,
   clearAllFilters,
   allNiches,
@@ -63,7 +60,7 @@ const SquadFilterBar = ({
       {/* Desktop Filter Bar */}
       <div className="hidden lg:flex items-center gap-3 glass p-3 rounded-2xl border border-border/30 shadow-xl">
         {/* Search */}
-        <div className="relative flex-1 max-w-sm">
+        <div className="relative flex-1 max-w-xl">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search squads..."
@@ -177,22 +174,6 @@ const SquadFilterBar = ({
         </Popover>
 
         <div className="h-8 w-[1px] bg-border/50 mx-1" />
-
-        {/* Members Range */}
-        <Select value={memberRangeFilter} onValueChange={setMemberRangeFilter}>
-          <SelectTrigger className={`h-11 w-[150px] border-none bg-transparent hover:bg-secondary/50 rounded-xl px-4 focus:ring-0 transition-all ${memberRangeFilter !== 'all' ? 'text-primary' : 'text-muted-foreground'}`}>
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              <SelectValue placeholder="Size" />
-            </div>
-          </SelectTrigger>
-          <SelectContent className="glass border-border/30 shadow-2xl">
-            <SelectItem value="all">Any Size</SelectItem>
-            <SelectItem value="0-5">0-5 Members</SelectItem>
-            <SelectItem value="5-10">5-10 Members</SelectItem>
-            <SelectItem value="10+">10+ Members</SelectItem>
-          </SelectContent>
-        </Select>
 
         <div className="flex-1" />
 
@@ -411,14 +392,6 @@ const SquadFilterBar = ({
                <Badge variant="secondary" className="pl-3 pr-1.5 py-1 gap-1 bg-primary/10 border-primary/20 text-primary rounded-full hover:bg-primary/20 group transition-all">
                 Status: {statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
                 <button onClick={() => setStatusFilter('all')} className="p-0.5 rounded-full hover:bg-primary/20">
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            )}
-             {memberRangeFilter !== 'all' && (
-               <Badge variant="secondary" className="pl-3 pr-1.5 py-1 gap-1 bg-primary/10 border-primary/20 text-primary rounded-full hover:bg-primary/20 group transition-all">
-                Size: {memberRangeFilter}
-                <button onClick={() => setMemberRangeFilter('all')} className="p-0.5 rounded-full hover:bg-primary/20">
                   <X className="h-3 w-3" />
                 </button>
               </Badge>

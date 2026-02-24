@@ -10,6 +10,8 @@ import {
   Menu,
   MessageSquare,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import AdminSidebar from "@/components/dashboard/AdminSidebar";
 
@@ -40,15 +42,6 @@ const adminSubscriptions = [
   { id: 8, user: "Simran Kaur", squad: "Art & Design Collective", plan: "Growth", price: "₹100", status: "Active", since: "Jan 2026" },
 ];
 
-const adminSquads = [
-  { id: 1, name: "Tech Creators Hub", niche: "Tech & SaaS", members: 10, max: 10, revenue: "₹1,000/mo", status: "Active", type: "Starter" },
-  { id: 2, name: "Fitness Growth Circle", niche: "Fitness", members: 17, max: 20, revenue: "₹1,700/mo", status: "Active", type: "Growth" },
-  { id: 3, name: "Foodie Network", niche: "Food & Cooking", members: 9, max: 10, revenue: "₹450/mo", status: "Active", type: "Starter" },
-  { id: 4, name: "Fashion Forward", niche: "Fashion", members: 20, max: 20, revenue: "₹2,000/mo", status: "Active", type: "Growth" },
-  { id: 5, name: "SaaS Growth Squad", niche: "Tech & SaaS", members: 18, max: 20, revenue: "₹1,800/mo", status: "Active", type: "Growth" },
-  { id: 6, name: "Finance Gurus", niche: "Finance", members: 15, max: 20, revenue: "₹750/mo", status: "Active", type: "Growth" },
-];
-
 const sidebarItems = [
   { key: "overview", label: "Overview", icon: BarChart3 },
   { key: "users", label: "All Users", icon: Users },
@@ -70,9 +63,15 @@ const mobileTabItems = [
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 const AdminDashboard = () => {
+  const { currentUser } = useSelector((state) => state.user);
+  const router = useRouter();
+  const isAdminUser = Boolean(
+    currentUser?.isUserAdmin || currentUser?.isAdmin || currentUser?.role === "admin"
+  );
   const [activeSection, setActiveSection] = useState("overview");
   const [userSearch, setUserSearch] = useState("");
   const [subSearch, setSubSearch] = useState("");
+  const [squadSearch, setSquadSearch] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // ── Users state (API-driven) ──
@@ -81,6 +80,11 @@ const AdminDashboard = () => {
   const [usersError, setUsersError] = useState(null);
   const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalUsers: 0, hasNextPage: false, hasPrevPage: false });
   const [currentPage, setCurrentPage] = useState(1);
+  const [squads, setSquads] = useState([]);
+  const [squadsLoading, setSquadsLoading] = useState(false);
+  const [squadsError, setSquadsError] = useState(null);
+  const [squadsPagination, setSquadsPagination] = useState({ totalSquads: 0 });
+  const [squadsStats, setSquadsStats] = useState({ activeSquads: 0, fullSquads: 0 });
 
   // Delete dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -93,6 +97,16 @@ const AdminDashboard = () => {
 
   // Toggle admin state
   const [toggleAdminLoading, setToggleAdminLoading] = useState(null);
+
+  useEffect(() => {
+    if (!currentUser) {
+      router.push(`/sign-in?redirect=${encodeURIComponent("/admin-dashboard")}`);
+      return;
+    }
+    if (!isAdminUser) {
+      router.replace("/dashboard");
+    }
+  }, [currentUser, isAdminUser, router]);
 
   // Fetch users from API
   const fetchUsers = useCallback(async (search = "", page = 1) => {
@@ -113,10 +127,30 @@ const AdminDashboard = () => {
     }
   }, []);
 
+  const fetchSquads = useCallback(async (search = "", page = 1) => {
+    setSquadsLoading(true);
+    setSquadsError(null);
+    try {
+      const params = new URLSearchParams({ search, page: page.toString(), limit: "12" });
+      const res = await fetch(`${API_BASE}/api/admin/squads?${params}`, { credentials: "include" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to fetch squads");
+      setSquads(data.squads || []);
+      setSquadsPagination(data.pagination || { totalSquads: 0 });
+      setSquadsStats(data.stats || { activeSquads: 0, fullSquads: 0 });
+    } catch (err) {
+      setSquadsError(err.message);
+      setSquads([]);
+    } finally {
+      setSquadsLoading(false);
+    }
+  }, []);
+
   // Initial fetch for overview stats
   useEffect(() => {
     fetchUsers("", 1);
-  }, [fetchUsers]);
+    fetchSquads("", 1);
+  }, [fetchUsers, fetchSquads]);
 
   // Debounced search
   useEffect(() => {
@@ -134,7 +168,17 @@ const AdminDashboard = () => {
     if (activeSection === "users") {
       fetchUsers(userSearch, currentPage);
     }
-  }, [currentPage, activeSection, fetchUsers]);
+  }, [currentPage, activeSection, fetchUsers, userSearch]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (activeSection === "squads") {
+        fetchSquads(squadSearch, 1);
+      }
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [activeSection, fetchSquads, squadSearch]);
 
   // Delete user handler
   const handleDeleteUser = async () => {
@@ -203,7 +247,8 @@ const AdminDashboard = () => {
           earnings={earnings}
           activeSubs={activeSubs}
           adminSubscriptions={adminSubscriptions}
-          adminSquads={adminSquads}
+          totalSquads={squadsPagination.totalSquads}
+          activeSquads={squadsStats.activeSquads}
         />
       )}
 
@@ -255,7 +300,14 @@ const AdminDashboard = () => {
 
       {/* Squads Section */}
       {activeSection === "squads" && (
-        <AdminSquads adminSquads={adminSquads} />
+        <AdminSquads
+          adminSquads={squads}
+          squadsLoading={squadsLoading}
+          squadsError={squadsError}
+          squadSearch={squadSearch}
+          setSquadSearch={setSquadSearch}
+          onRefresh={() => fetchSquads(squadSearch, 1)}
+        />
       )}
 
       {/* Testimonials Section */}

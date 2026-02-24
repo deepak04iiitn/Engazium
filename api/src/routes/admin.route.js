@@ -5,6 +5,7 @@ import {
   getUserById,
   deleteUser,
   toggleAdminStatus,
+  getAllSquads,
 } from "../controllers/admin.controller.js";
 
 const router = express.Router();
@@ -17,6 +18,7 @@ router.get("/users", getAllUsers);
 router.get("/users/:id", getUserById);
 router.delete("/users/:id", deleteUser);
 router.patch("/users/:id/toggle-admin", toggleAdminStatus);
+router.get("/squads", getAllSquads);
 
 export default router;
 

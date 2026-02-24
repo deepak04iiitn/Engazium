@@ -57,6 +57,9 @@ const Dashboard = () => {
   const { currentUser } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const router = useRouter();
+  const isAdminUser = Boolean(
+    currentUser?.isUserAdmin || currentUser?.isAdmin || currentUser?.role === "admin"
+  );
 
   // Profile form state
   const [profile, setProfile] = useState({
@@ -117,8 +120,12 @@ const Dashboard = () => {
   useEffect(() => {
     if (!currentUser) {
       router.push(`/sign-in?redirect=${encodeURIComponent("/dashboard")}`);
+      return;
     }
-  }, [currentUser, router]);
+    if (isAdminUser) {
+      router.replace("/admin-dashboard");
+    }
+  }, [currentUser, isAdminUser, router]);
 
   // Fetch profile from API on mount and when currentUser changes
   const fetchProfile = useCallback(async () => {

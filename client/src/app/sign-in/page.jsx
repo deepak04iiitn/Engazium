@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import OAuth from "@/components/OAuth";
+import { getPostAuthRedirect, isAdminUser } from "@/lib/auth";
 
 const SignIn = () => {
   const [email, setEmail] = useState("");
@@ -29,7 +30,7 @@ const SignIn = () => {
   // Redirect if already signed in
   useEffect(() => {
     if (currentUser) {
-      router.replace("/dashboard");
+      router.replace(isAdminUser(currentUser) ? "/admin-dashboard" : "/dashboard");
     }
   }, [currentUser, router]);
 
@@ -59,7 +60,7 @@ const SignIn = () => {
 
       dispatch(signInSuccess(data));
       toast.success("Signed in successfully!");
-      router.push(redirectTo);
+      router.push(getPostAuthRedirect(redirectTo, data));
     } catch (error) {
       dispatch(signInFailure(error.message));
       toast.error("Something went wrong. Please try again.");
