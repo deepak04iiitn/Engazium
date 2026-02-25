@@ -106,6 +106,7 @@ const AdminDashboard = () => {
     pendingCount: 0,
     bugCount: 0,
     featureCount: 0,
+    contactCount: 0,
   });
 
   // Delete dialog state
@@ -190,7 +191,7 @@ const AdminDashboard = () => {
         hasNextPage: false,
         hasPrevPage: false,
       });
-      setFeedbackStats(data.stats || { pendingCount: 0, bugCount: 0, featureCount: 0 });
+      setFeedbackStats(data.stats || { pendingCount: 0, bugCount: 0, featureCount: 0, contactCount: 0 });
     } catch (err) {
       setFeedbackError(err.message);
       setFeedbackItems([]);

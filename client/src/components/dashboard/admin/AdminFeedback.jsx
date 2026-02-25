@@ -45,6 +45,7 @@ const typeOptions = [
   { key: "all", label: "All" },
   { key: "bug", label: "Bug" },
   { key: "feature", label: "Feature" },
+  { key: "contact", label: "Contact" },
 ];
 
 const statusLabel = {
@@ -62,6 +63,7 @@ const statusClass = {
 const typeClass = {
   bug: "bg-rose-500/10 text-rose-500 border-rose-500/25",
   feature: "bg-violet-500/10 text-violet-500 border-violet-500/25",
+  contact: "bg-sky-500/10 text-sky-500 border-sky-500/25",
 };
 
 const formatDate = (date) =>
@@ -114,7 +116,7 @@ export default function AdminFeedback({
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <div className="rounded-xl border border-border/50 bg-card/40 p-4">
           <div className="text-xs uppercase tracking-wider text-muted-foreground">Pending</div>
           <div className="text-2xl font-heading font-bold mt-1">{stats.pendingCount || 0}</div>
@@ -126,6 +128,10 @@ export default function AdminFeedback({
         <div className="rounded-xl border border-border/50 bg-card/40 p-4">
           <div className="text-xs uppercase tracking-wider text-muted-foreground">Features</div>
           <div className="text-2xl font-heading font-bold mt-1">{stats.featureCount || 0}</div>
+        </div>
+        <div className="rounded-xl border border-border/50 bg-card/40 p-4">
+          <div className="text-xs uppercase tracking-wider text-muted-foreground">Contact</div>
+          <div className="text-2xl font-heading font-bold mt-1">{stats.contactCount || 0}</div>
         </div>
       </div>
 
@@ -238,8 +244,18 @@ export default function AdminFeedback({
                     <TableCell className="text-muted-foreground font-medium">{rowNumber}</TableCell>
                     <TableCell>
                       <Badge className={typeClass[item.type]}>
-                        {item.type === "bug" ? <Bug className="h-3 w-3 mr-1" /> : <Lightbulb className="h-3 w-3 mr-1" />}
-                        {item.type === "bug" ? "Bug" : "Feature"}
+                        {item.type === "bug" ? (
+                          <Bug className="h-3 w-3 mr-1" />
+                        ) : item.type === "contact" ? (
+                          <Mail className="h-3 w-3 mr-1" />
+                        ) : (
+                          <Lightbulb className="h-3 w-3 mr-1" />
+                        )}
+                        {item.type === "bug"
+                          ? "Bug"
+                          : item.type === "contact"
+                            ? "Contact"
+                            : "Feature"}
                       </Badge>
                     </TableCell>
                     <TableCell className="max-w-[380px]">
@@ -249,7 +265,9 @@ export default function AdminFeedback({
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Mail className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span className="text-sm truncate max-w-[210px]">{item.reportedBy?.email || "Unknown user"}</span>
+                        <span className="text-sm truncate max-w-[210px]">
+                          {item.reportedBy?.email || item.contactEmail || "Unknown user"}
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">{formatDate(item.createdAt)}</TableCell>
@@ -281,6 +299,17 @@ export default function AdminFeedback({
                           >
                             {isActionLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <PencilRuler className="h-4 w-4 mr-2" />}
                             Implement
+                          </Button>
+                        )}
+                        {item.type === "contact" && item.status !== "resolved" && (
+                          <Button
+                            size="sm"
+                            onClick={() => onUpdateStatus(item._id, "resolved")}
+                            disabled={isActionLoading}
+                            className="h-8"
+                          >
+                            {isActionLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <CheckCircle2 className="h-4 w-4 mr-2" />}
+                            Resolve
                           </Button>
                         )}
                         {item.status !== "pending" && (

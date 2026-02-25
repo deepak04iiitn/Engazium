@@ -4,7 +4,7 @@ const feedbackSchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ["bug", "feature"],
+      enum: ["bug", "feature", "contact"],
       required: true,
     },
     title: {
@@ -27,7 +27,20 @@ const feedbackSchema = new mongoose.Schema(
     reportedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      default: null,
+    },
+    contactName: {
+      type: String,
+      trim: true,
+      maxlength: 120,
+      default: "",
+    },
+    contactEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      maxlength: 160,
+      default: "",
     },
     resolvedAt: {
       type: Date,

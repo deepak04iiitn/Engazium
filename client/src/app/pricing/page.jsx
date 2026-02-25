@@ -445,7 +445,7 @@ const Pricing = () => {
                         {currentUser ? "Go to Dashboard" : "Get Started — It's Free"}
                       </Button>
                     </Link>
-                    <Link href="/features">
+                    <Link href="/contact-us">
                       <Button
                         size="lg"
                         variant="outline"

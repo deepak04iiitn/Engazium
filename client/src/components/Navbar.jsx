@@ -24,7 +24,7 @@ const navLinks = [
   { label: "About Us", href: "/about-us" },
   { label: "Squads", href: "/squads" },
   { label: "How It Works", href: "/how-it-works" },
-  { label: "Contact Us", href: "/features" },
+  { label: "Contact Us", href: "/contact-us" },
   { label: "Pricing", href: "/pricing" },
 ];
 
