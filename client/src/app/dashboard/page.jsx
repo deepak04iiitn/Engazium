@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import {
   User,
   Users,
-  CreditCard,
+  // CreditCard,
   BarChart3,
   Home,
   Menu,
@@ -24,23 +24,23 @@ import UserSidebar from "@/components/dashboard/UserSidebar";
 import UserOverview from "@/components/dashboard/user/UserOverview";
 import UserProfile from "@/components/dashboard/user/UserProfile";
 import UserSquads from "@/components/dashboard/user/UserSquads";
-import UserSubscriptions from "@/components/dashboard/user/UserSubscriptions";
+// import UserSubscriptions from "@/components/dashboard/user/UserSubscriptions";
 import UserAnalytics from "@/components/dashboard/user/UserAnalytics";
 import UserTestimonial from "@/components/dashboard/user/UserTestimonial";
 import WeeklyCheckInDialog from "@/components/dashboard/user/WeeklyCheckInDialog";
 
-const subscriptions = [
-  { id: 1, plan: "Growth Squad", squad: "Tech Creators Hub", price: "₹100/mo", nextBilling: "Mar 10, 2026", status: "Active", since: "Jan 2026" },
-  { id: 2, plan: "Growth Squad", squad: "SaaS Growth Squad", price: "₹100/mo", nextBilling: "Mar 15, 2026", status: "Active", since: "Feb 2026" },
-  { id: 3, plan: "Starter Squad", squad: "Startup Builders", price: "₹50/mo", nextBilling: "Mar 20, 2026", status: "Active", since: "Feb 2026" },
-];
+// const subscriptions = [
+//   { id: 1, plan: "Growth Squad", squad: "Tech Creators Hub", price: "₹100/mo", nextBilling: "Mar 10, 2026", status: "Active", since: "Jan 2026" },
+//   { id: 2, plan: "Growth Squad", squad: "SaaS Growth Squad", price: "₹100/mo", nextBilling: "Mar 15, 2026", status: "Active", since: "Feb 2026" },
+//   { id: 3, plan: "Starter Squad", squad: "Startup Builders", price: "₹50/mo", nextBilling: "Mar 20, 2026", status: "Active", since: "Feb 2026" },
+// ];
 
 const sidebarItems = [
   { key: "overview", label: "Overview", icon: Home },
   { key: "profile", label: "Profile", icon: User },
   { key: "squads", label: "My Squads", icon: Users },
   { key: "testimonial", label: "Testimonial", icon: MessageSquare },
-  { key: "subscriptions", label: "Subscriptions", icon: CreditCard },
+  // { key: "subscriptions", label: "Subscriptions", icon: CreditCard },
   { key: "analytics", label: "Analytics", icon: BarChart3 },
 ];
 
@@ -50,7 +50,7 @@ const mobileTabItems = [
   { key: "squads", label: "Squads", icon: Users },
   { key: "profile", label: "Profile", icon: User },
   { key: "analytics", label: "Stats", icon: BarChart3 },
-  { key: "subscriptions", label: "Billing", icon: CreditCard },
+  // { key: "subscriptions", label: "Billing", icon: CreditCard },
 ];
 
 const Dashboard = () => {
@@ -465,10 +465,10 @@ const Dashboard = () => {
         <UserTestimonial currentUser={currentUser} />
       )}
 
-      {/* Subscriptions Section */}
-      {activeSection === "subscriptions" && (
+      {/* Subscriptions Section (temporarily hidden) */}
+      {/* {activeSection === "subscriptions" && (
         <UserSubscriptions subscriptions={subscriptions} />
-      )}
+      )} */}
 
       {/* Analytics Section */}
       {activeSection === "analytics" && (
