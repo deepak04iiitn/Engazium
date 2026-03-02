@@ -233,7 +233,7 @@ const FAQSection = () => {
             {categories.map((cat) => {
               const isActive = activeCategory === cat.id;
               return (
-                <button
+                <button className="cursor-pointer"
                   key={cat.id}
                   onClick={() => {
                     setActiveCategory(cat.id);

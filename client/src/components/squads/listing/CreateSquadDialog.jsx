@@ -127,7 +127,7 @@ const CreateSquadDialog = ({
             </label>
             <div className="grid grid-cols-3 gap-3">
               {plans.map((plan) => (
-                <button
+                <button className="cursor-pointer"
                   key={plan.value}
                   type="button"
                   onClick={() => setForm({ ...form, plan: plan.value })}

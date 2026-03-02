@@ -218,7 +218,7 @@ const TestimonialsSection = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mt-7 sm:mt-8"
           >
-            <Link
+            <Link className="cursor-pointer"
               href={currentUser ? "/dashboard" : `/sign-in?redirect=${encodeURIComponent("/dashboard")}`}
               onClick={() => {
                 // Set the dashboard to open the testimonial tab
@@ -296,7 +296,7 @@ const TestimonialsSection = () => {
 
           {/* Navigation */}
           <div className="flex items-center justify-center gap-4 mt-6">
-            <button
+            <button className="cursor-pointer"
               onClick={() =>
                 setActiveIndex(
                   (prev) =>
@@ -311,7 +311,7 @@ const TestimonialsSection = () => {
             {/* Dots */}
             <div className="flex items-center gap-2">
               {testimonials.map((_, i) => (
-                <button
+                <button className="cursor-pointer"
                   key={i}
                   onClick={() => setActiveIndex(i)}
                   className={`h-2 rounded-full transition-all duration-300 ${
@@ -323,7 +323,7 @@ const TestimonialsSection = () => {
               ))}
             </div>
 
-            <button
+            <button className="cursor-pointer"
               onClick={() =>
                 setActiveIndex((prev) => (prev + 1) % testimonials.length)
               }

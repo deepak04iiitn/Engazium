@@ -59,7 +59,7 @@ const UserSquads = ({
                 const squad = membership.squad;
                 if (!squad) return null;
                 return (
-                  <Link href={`/squads/${slugify(squad.niche)}/${squad.slug || slugify(squad.name)}`} key={membership._id}>
+                  <Link className="cursor-pointer" href={`/squads/${slugify(squad.niche)}/${squad.slug || slugify(squad.name)}`} key={membership._id}>
                     <motion.div 
                       initial={{ opacity: 0, y: 20 }} 
                       animate={{ opacity: 1, y: 0 }} 
@@ -124,7 +124,7 @@ const UserSquads = ({
                 transition={{ delay: mySquads.length * 0.1 }}
                 className="glass rounded-3xl p-6 gradient-border hover:bg-card/60 transition-all cursor-pointer border-dashed flex items-center justify-center min-h-[300px]"
               >
-                <Link href="/squads" className="flex flex-col items-center gap-4 text-center">
+                <Link href="/squads" className="flex flex-col items-center gap-4 text-center cursor-pointer">
                   <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
                     <Users className="h-8 w-8 text-primary" />
                   </div>

@@ -327,7 +327,7 @@ const ContactPage = () => {
                       Check common questions below, or message us directly for
                       tailored help.
                     </p>
-                    <Link href="/how-it-works">
+                    <Link className="cursor-pointer" href="/how-it-works">
                       <Button
                         variant="secondary"
                         className="rounded-xl px-5 font-heading text-sm"
@@ -424,7 +424,7 @@ const ContactPage = () => {
                         Email Support
                       </Button>
                     </a>
-                    <Link href="/how-it-works">
+                    <Link className="cursor-pointer" href="/how-it-works">
                       <Button
                         size="lg"
                         variant="outline"

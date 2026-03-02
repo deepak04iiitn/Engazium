@@ -159,7 +159,7 @@ const DemoSquadSection = () => {
             {/* Tab Navigation */}
             <div className="px-6 pt-3 border-b border-border/30 flex gap-1">
               {["feed", "members", "stats"].map((tab) => (
-                <button
+                <button className="cursor-pointer"
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`px-4 py-2.5 text-sm font-heading font-medium rounded-t-lg transition-all duration-200 capitalize ${

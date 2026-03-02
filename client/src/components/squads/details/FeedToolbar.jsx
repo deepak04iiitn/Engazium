@@ -104,7 +104,7 @@ const FeedToolbar = ({
             className="bg-secondary/30 dark:bg-secondary/20 border-border/50 dark:border-border/20 focus:border-primary/40 rounded-xl text-sm h-10 pl-9 pr-9 transition-colors"
           />
           {localSearch && (
-            <button
+            <button className="cursor-pointer"
               onClick={() => {
                 setLocalSearch("");
                 onSearchChange("");
@@ -118,7 +118,7 @@ const FeedToolbar = ({
 
         {/* Sort dropdown */}
         <div className="relative" ref={sortRef}>
-          <button
+          <button className="cursor-pointer"
             onClick={() => setShowSortMenu(!showSortMenu)}
             className={`flex items-center gap-1.5 px-3 h-10 rounded-xl border text-xs font-heading font-medium transition-all duration-200 ${
               sortBy !== "pending_first"
@@ -140,7 +140,7 @@ const FeedToolbar = ({
                 className="absolute right-0 top-12 z-50 w-48 bg-background border border-border/60 dark:border-border/30 rounded-xl shadow-xl overflow-hidden"
               >
                 {SORT_OPTIONS.map(({ value, label, icon: Icon }) => (
-                  <button
+                  <button className="cursor-pointer"
                     key={value}
                     onClick={() => {
                       onSortChange(value);
@@ -167,7 +167,7 @@ const FeedToolbar = ({
         </div>
 
         {/* Filter toggle */}
-        <button
+        <button className="cursor-pointer"
           onClick={() => setShowFilters(!showFilters)}
           className={`relative flex items-center gap-1.5 px-3 h-10 rounded-xl border text-xs font-heading font-medium transition-all duration-200 ${
             hasActiveFilters
@@ -203,7 +203,7 @@ const FeedToolbar = ({
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {FILTER_OPTIONS.map(({ value, label, icon: Icon }) => (
-                    <button
+                    <button className="cursor-pointer"
                       key={value}
                       onClick={() =>
                         onFilterChange(filter === value ? "" : value)
@@ -228,7 +228,7 @@ const FeedToolbar = ({
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {TIME_RANGE_OPTIONS.map(({ value, label, icon: Icon }) => (
-                    <button
+                    <button className="cursor-pointer"
                       key={value}
                       onClick={() =>
                         onTimeRangeChange(timeRange === value ? "" : value)
@@ -271,7 +271,7 @@ const FeedToolbar = ({
                       </Badge>
                     )}
                   </div>
-                  <button
+                  <button className="cursor-pointer"
                     onClick={clearAll}
                     className="text-[11px] text-muted-foreground hover:text-foreground font-heading font-medium transition-colors"
                   >
@@ -295,7 +295,7 @@ const FeedToolbar = ({
             {totalResults} {totalResults === 1 ? "post" : "posts"} found
           </p>
           {(search || hasActiveFilters) && (
-            <button
+            <button className="cursor-pointer"
               onClick={clearAll}
               className="text-xs text-primary hover:text-primary/80 font-heading font-medium transition-colors"
             >

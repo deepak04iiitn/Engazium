@@ -278,7 +278,7 @@ const AchievementsSection = () => {
           className="text-center"
         >
           <div className="inline-flex flex-col sm:flex-row items-center gap-4">
-            <Link href={currentUser ? "/dashboard" : "/sign-up"}>
+            <Link className="cursor-pointer" href={currentUser ? "/dashboard" : "/sign-up"}>
               <Button
                 size="lg"
                 className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box-intense px-8 py-6 rounded-2xl font-heading font-semibold group text-[15px]"

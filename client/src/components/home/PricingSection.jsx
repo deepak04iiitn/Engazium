@@ -149,7 +149,7 @@ const PricingSection = () => {
                   ))}
                 </ul>
 
-                <Link href={currentUser ? "/dashboard" : "/sign-up"}>
+                <Link className="cursor-pointer" href={currentUser ? "/dashboard" : "/sign-up"}>
                   <Button
                     className={`w-full rounded-xl py-4 text-sm font-heading font-semibold ${
                       plan.popular
@@ -235,7 +235,7 @@ const PricingSection = () => {
                   ))}
                 </ul>
 
-                <Link href={currentUser ? "/dashboard" : "/sign-up"}>
+                <Link className="cursor-pointer" href={currentUser ? "/dashboard" : "/sign-up"}>
                   <Button
                     className={`w-full rounded-xl py-5 sm:py-6 font-heading font-semibold text-sm sm:text-base group ${
                       plan.popular

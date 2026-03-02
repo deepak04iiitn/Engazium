@@ -175,7 +175,7 @@ const RulesContent = ({ agreed, setAgreed, onAccept, onClose, loading }) => (
         </motion.div>
 
         {/* Agreement toggle */}
-        <motion.button
+        <motion className="cursor-pointer".button
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}

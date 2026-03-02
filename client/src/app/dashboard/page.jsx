@@ -553,7 +553,7 @@ const Dashboard = () => {
           {mobileTabItems.map((item) => {
             const isActive = activeSection === item.key;
             return (
-              <button
+              <button className="cursor-pointer"
                 key={item.key}
                 onClick={() => setActiveSection(item.key)}
                 className={`flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-lg transition-all duration-200 min-w-0 flex-1 ${

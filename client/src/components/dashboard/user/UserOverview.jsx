@@ -98,7 +98,7 @@ const UserOverview = ({ currentUser, computedAnalytics, profileCompletion, squad
                 <Users className="h-10 w-10 text-muted-foreground/50 mx-auto mb-3" />
                 <p className="text-muted-foreground text-sm">You haven't joined any squads yet.</p>
                 <Button size="sm" className="mt-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl" asChild>
-                  <Link href="/squads">Browse Squads</Link>
+                  <Link className="cursor-pointer" href="/squads">Browse Squads</Link>
                 </Button>
               </div>
             ) : (
@@ -155,7 +155,7 @@ const UserOverview = ({ currentUser, computedAnalytics, profileCompletion, squad
               View Analytics
             </Button>
             <Button variant="outline" className="w-full border-border/50 hover:bg-secondary/50 rounded-xl justify-start" asChild>
-              <Link href="/squads">
+              <Link className="cursor-pointer" href="/squads">
                 <Users className="h-4 w-4 mr-2" />
                 Browse Squads
               </Link>

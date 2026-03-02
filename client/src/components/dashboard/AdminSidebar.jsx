@@ -80,7 +80,7 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
       {/* Mobile Overlay */}
       <AnimatePresence>
         {isMobile && isOpen && (
-          <motion.div
+          <motion className="cursor-pointer".div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -99,7 +99,7 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
       >
         {/* Header */}
         <div className="h-20 flex items-center px-4 border-b border-border/20">
-          <Link href="/" className="flex items-center gap-3 overflow-hidden ml-1">
+          <Link href="/" className="flex items-center gap-3 overflow-hidden ml-1 cursor-pointer">
             <div className="relative h-10 w-10 shrink-0">
               <Image 
                 src={logo} 
@@ -130,7 +130,7 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
 
         {/* Toggle Button (Desktop Only) */}
         {!isMobile && (
-          <button
+          <button className="cursor-pointer"
             onClick={() => setIsOpen(!isOpen)}
             className="absolute -right-3 top-24 h-6 w-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:scale-110 transition-transform z-50 border-2 border-background"
           >
@@ -151,7 +151,7 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
             <ul className="space-y-1">
               {navItems.map((item) => (
                 <li key={item.key}>
-                  <button
+                  <button className="cursor-pointer"
                     onClick={() => setActiveSection(item.key)}
                     className={cn(
                       "w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-300 group relative overflow-hidden",
@@ -207,7 +207,7 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
                 <li key={item.key}>
                   <Link
                     href={item.href}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-300 group relative"
+                    className="w-full flex items-center gap-3 p-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-all duration-300 group relative cursor-pointer"
                   >
                     <item.icon className="h-5 w-5 shrink-0 group-hover:scale-110 transition-transform" />
                     <AnimatePresence>

@@ -206,7 +206,7 @@ const UserAnalytics = ({
                 {platforms.map((plat) => {
                   const growth = growthData?.growthSummary?.[plat];
                   return (
-                    <button
+                    <button className="cursor-pointer"
                       key={plat}
                       onClick={() => setSelectedPlatform(plat)}
                       className={`flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-sm font-medium transition-all duration-300 border ${
@@ -295,7 +295,7 @@ const UserAnalytics = ({
               {/* Metric Toggle */}
               <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4">
                 {metricOptions.map((m) => (
-                  <button
+                  <button className="cursor-pointer"
                     key={m.key}
                     onClick={() => setActiveMetric(m.key)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all ${

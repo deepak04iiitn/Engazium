@@ -22,7 +22,7 @@ const SquadTabsNavbar = ({
         {/* Tab buttons */}
         <div className="flex gap-0.5">
           {tabs.map(({ key, label, icon: Icon }) => (
-            <button
+            <button className="cursor-pointer"
               key={key}
               onClick={() => setActiveTab(key)}
               className={`

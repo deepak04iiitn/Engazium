@@ -109,7 +109,7 @@ export default function FloatingFeedbackButton() {
         }}
       >
         <DialogTrigger asChild>
-          <button
+          <button className="cursor-pointer"
             type="button"
             onClick={openDialog}
             className="group relative inline-flex items-center gap-2 rounded-full border border-primary/30 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-[0_12px_40px_-12px_hsl(var(--primary)/0.75)] px-4 py-3 sm:px-5 sm:py-3.5 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"

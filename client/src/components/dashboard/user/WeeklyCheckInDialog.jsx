@@ -158,7 +158,7 @@ const WeeklyCheckInDialog = ({ open, onOpenChange, platforms, onSuccess }) => {
         <div className="p-6 sm:p-8">
           {/* Close button for dismissed */}
           {!isSuccess && (
-            <button
+            <button className="cursor-pointer"
               onClick={handleClose}
               className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors p-1 rounded-full hover:bg-secondary/50"
             >
@@ -210,7 +210,7 @@ const WeeklyCheckInDialog = ({ open, onOpenChange, platforms, onSuccess }) => {
                   <ChevronRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
 
-                <button
+                <button className="cursor-pointer"
                   onClick={handleClose}
                   className="mt-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
                 >

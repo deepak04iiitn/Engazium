@@ -162,7 +162,7 @@ const UserTestimonial = ({ currentUser }) => {
   const StarRating = ({ value, onChange, disabled }) => (
     <div className="flex items-center gap-1">
       {[1, 2, 3, 4, 5].map((star) => (
-        <button
+        <button className="cursor-pointer"
           key={star}
           type="button"
           disabled={disabled}

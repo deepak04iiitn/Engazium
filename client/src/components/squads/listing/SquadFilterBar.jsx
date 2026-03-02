@@ -100,7 +100,7 @@ const SquadFilterBar = ({
             <ScrollArea className="h-72">
               <div className="p-2 space-y-1">
                 {allNiches.map((niche) => (
-                  <button
+                  <button className="cursor-pointer"
                     key={niche}
                     onClick={() => toggleNiche(niche)}
                     className="flex items-center gap-2 w-full px-3 py-2 rounded-lg hover:bg-secondary/50 transition-colors text-sm text-foreground"
@@ -157,7 +157,7 @@ const SquadFilterBar = ({
           <PopoverContent className="w-56 p-2 glass border-border/30 shadow-2xl" align="start">
             <div className="space-y-1">
               {plans.map((p) => (
-                <button
+                <button className="cursor-pointer"
                   key={p.value}
                   onClick={() => togglePlan(p.value)}
                   className="flex items-center justify-between w-full px-3 py-2.5 rounded-lg hover:bg-secondary/50 transition-colors text-sm"
@@ -251,7 +251,7 @@ const SquadFilterBar = ({
                       { value: "active", label: "Active" },
                       { value: "full", label: "Full" },
                     ].map((status) => (
-                      <button
+                      <button className="cursor-pointer"
                         key={status.value}
                         onClick={() => setStatusFilter(status.value)}
                         className={`px-4 py-3 rounded-xl border text-sm transition-all ${
@@ -271,7 +271,7 @@ const SquadFilterBar = ({
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Plan Type</label>
                   <div className="grid grid-cols-1 gap-2">
                     {plans.map((p) => (
-                      <button
+                      <button className="cursor-pointer"
                         key={p.value}
                         onClick={() => togglePlan(p.value)}
                         className={`flex items-center justify-between px-4 py-3 rounded-xl border text-sm transition-all ${
@@ -295,7 +295,7 @@ const SquadFilterBar = ({
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Niches</label>
                   <div className="grid grid-cols-2 gap-2">
                     {allNiches.slice(0, 10).map((niche) => (
-                       <button
+                       <button className="cursor-pointer"
                         key={niche}
                         onClick={() => toggleNiche(niche)}
                         className={`px-3 py-2 rounded-xl border text-xs transition-all text-left truncate ${
@@ -317,7 +317,7 @@ const SquadFilterBar = ({
                       <PopoverContent className="w-64 glass border-border/30 p-0 shadow-2xl">
                          <ScrollArea className="h-64 p-2">
                             {allNiches.map((niche) => (
-                              <button
+                              <button className="cursor-pointer"
                                 key={niche}
                                 onClick={() => toggleNiche(niche)}
                                 className="flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-secondary/50 text-sm"
@@ -375,7 +375,7 @@ const SquadFilterBar = ({
             {selectedNiches.map((niche) => (
               <Badge key={niche} variant="secondary" className="pl-3 pr-1.5 py-1 gap-1 bg-primary/10 border-primary/20 text-primary rounded-full hover:bg-primary/20 group transition-all">
                 {niche}
-                <button onClick={() => toggleNiche(niche)} className="p-0.5 rounded-full hover:bg-primary/20">
+                <button className="cursor-pointer" onClick={() => toggleNiche(niche)} className="p-0.5 rounded-full hover:bg-primary/20">
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
@@ -383,7 +383,7 @@ const SquadFilterBar = ({
             {selectedPlans.map((plan) => (
                <Badge key={plan} variant="secondary" className="pl-3 pr-1.5 py-1 gap-1 bg-primary/10 border-primary/20 text-primary rounded-full hover:bg-primary/20 group transition-all">
                 {plan} Plan
-                <button onClick={() => togglePlan(plan)} className="p-0.5 rounded-full hover:bg-primary/20">
+                <button className="cursor-pointer" onClick={() => togglePlan(plan)} className="p-0.5 rounded-full hover:bg-primary/20">
                   <X className="h-3 w-3" />
                 </button>
               </Badge>
@@ -391,7 +391,7 @@ const SquadFilterBar = ({
             {statusFilter !== 'all' && (
                <Badge variant="secondary" className="pl-3 pr-1.5 py-1 gap-1 bg-primary/10 border-primary/20 text-primary rounded-full hover:bg-primary/20 group transition-all">
                 Status: {statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
-                <button onClick={() => setStatusFilter('all')} className="p-0.5 rounded-full hover:bg-primary/20">
+                <button className="cursor-pointer" onClick={() => setStatusFilter('all')} className="p-0.5 rounded-full hover:bg-primary/20">
                   <X className="h-3 w-3" />
                 </button>
               </Badge>

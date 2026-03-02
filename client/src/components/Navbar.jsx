@@ -135,7 +135,7 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-2.5">
           {/* Theme toggle */}
           {mounted && (
-            <button
+            <button className="cursor-pointer"
               onClick={toggleTheme}
               className="relative h-9 w-9 rounded-full bg-secondary/60 dark:bg-secondary/40 hover:bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-all duration-300"
               aria-label="Toggle theme"
@@ -159,7 +159,7 @@ const Navbar = () => {
 
           {currentUser ? (
             <div className="relative" ref={profileRef}>
-              <button
+              <button className="cursor-pointer"
                 onClick={() => setProfileOpen(!profileOpen)}
                 className="flex items-center gap-2 px-2.5 py-1.5 rounded-full hover:bg-secondary/60 dark:hover:bg-secondary/30 transition-colors"
               >
@@ -196,7 +196,7 @@ const Navbar = () => {
                       </p>
                     </div>
                     <div className="p-1.5">
-                      <Link
+                      <Link className="cursor-pointer"
                         href={
                           isAdminUser
                             ? "/admin-dashboard"
@@ -210,7 +210,7 @@ const Navbar = () => {
                           ? "Admin Dashboard"
                           : "Dashboard"}
                       </Link>
-                      <button
+                      <button className="cursor-pointer"
                         onClick={handleLogout}
                         className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-destructive hover:bg-destructive/10 rounded-xl transition-colors w-full"
                       >
@@ -224,7 +224,7 @@ const Navbar = () => {
             </div>
           ) : (
             <>
-              <Link href={signInHref}>
+              <Link className="cursor-pointer" href={signInHref}>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -233,7 +233,7 @@ const Navbar = () => {
                   Log In
                 </Button>
               </Link>
-              <Link href={signUpHref}>
+              <Link className="cursor-pointer" href={signUpHref}>
                 <Button
                   size="sm"
                   className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box font-heading font-semibold text-sm px-6 rounded-full"
@@ -248,7 +248,7 @@ const Navbar = () => {
         {/* Mobile Right */}
         <div className="flex items-center gap-2 md:hidden">
           {mounted && (
-            <button
+            <button className="cursor-pointer"
               onClick={toggleTheme}
               className="relative h-9 w-9 rounded-full bg-secondary/60 dark:bg-secondary/40 hover:bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground transition-all duration-200"
               aria-label="Toggle theme"
@@ -269,7 +269,7 @@ const Navbar = () => {
               />
             </button>
           )}
-          <button
+          <button className="cursor-pointer"
             onClick={() => setIsOpen(!isOpen)}
             className="h-9 w-9 flex items-center justify-center text-foreground rounded-full hover:bg-secondary/60 dark:hover:bg-secondary/30 transition-colors"
           >
@@ -290,7 +290,7 @@ const Navbar = () => {
           >
             <div className="flex flex-col gap-1 px-5 py-5">
               {navLinks.map((link) => (
-                <a
+                <a className="cursor-pointer"
                   key={link.label}
                   href={link.href}
                   onClick={() => setIsOpen(false)}
@@ -318,7 +318,7 @@ const Navbar = () => {
                         </p>
                       </div>
                     </div>
-                    <Link
+                    <Link className="cursor-pointer"
                       href={
                         isAdminUser
                           ? "/admin-dashboard"
@@ -352,7 +352,7 @@ const Navbar = () => {
                   </>
                 ) : (
                   <>
-                    <Link href={signInHref} onClick={() => setIsOpen(false)}>
+                    <Link className="cursor-pointer" href={signInHref} onClick={() => setIsOpen(false)}>
                       <Button
                         variant="outline"
                         size="sm"
@@ -361,7 +361,7 @@ const Navbar = () => {
                         Log In
                       </Button>
                     </Link>
-                    <Link href={signUpHref} onClick={() => setIsOpen(false)}>
+                    <Link className="cursor-pointer" href={signUpHref} onClick={() => setIsOpen(false)}>
                       <Button
                         size="sm"
                         className="bg-primary text-primary-foreground hover:bg-primary/90 w-full rounded-xl font-heading font-semibold"

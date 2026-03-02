@@ -106,7 +106,7 @@ const SignUp = () => {
         {/* Back link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors mb-6 sm:mb-8 text-sm"
+          className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors mb-6 sm:mb-8 text-sm cursor-pointer"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to Home
@@ -176,7 +176,7 @@ const SignUp = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="bg-secondary/40 border-border/50 text-foreground placeholder:text-muted-foreground/60 focus:border-primary/40 h-11 rounded-xl pr-10 text-sm"
                 />
-                <button
+                <button className="cursor-pointer"
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
@@ -231,7 +231,7 @@ const SignUp = () => {
               Already have an account?{" "}
               <Link
                 href={redirectTo !== "/" ? `/sign-in?redirect=${encodeURIComponent(redirectTo)}` : "/sign-in"}
-                className="text-primary hover:text-primary/80 transition-colors font-medium"
+                className="text-primary hover:text-primary/80 transition-colors font-medium cursor-pointer"
               >
                 Sign in
               </Link>

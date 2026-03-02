@@ -402,7 +402,7 @@ const HowItWorks = () => {
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Link href={currentUser ? "/dashboard" : "/sign-up"}>
+                    <Link className="cursor-pointer" href={currentUser ? "/dashboard" : "/sign-up"}>
                       <Button
                         size="lg"
                         className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box rounded-xl sm:rounded-2xl px-8 sm:px-10 py-6 font-heading font-semibold w-full sm:w-auto text-[15px] sm:text-base"
@@ -411,7 +411,7 @@ const HowItWorks = () => {
                         {currentUser ? "Go to Dashboard" : "Get Started — It's Free"}
                       </Button>
                     </Link>
-                    <Link href="/squads">
+                    <Link className="cursor-pointer" href="/squads">
                       <Button
                         size="lg"
                         variant="outline"

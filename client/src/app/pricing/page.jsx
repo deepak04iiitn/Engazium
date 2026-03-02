@@ -141,7 +141,7 @@ const Pricing = () => {
               </motion.p>
 
               <motion.div {...anim(0.3)}>
-                <Link href={currentUser ? "/dashboard" : "/sign-up"}>
+                <Link className="cursor-pointer" href={currentUser ? "/dashboard" : "/sign-up"}>
                   <Button
                     size="lg"
                     className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box rounded-xl sm:rounded-2xl px-8 sm:px-10 py-6 font-heading font-semibold text-[15px] sm:text-base"
@@ -203,7 +203,7 @@ const Pricing = () => {
 
                   {/* CTA */}
                   <div className="text-center">
-                    <Link href={currentUser ? "/dashboard" : "/sign-up"}>
+                    <Link className="cursor-pointer" href={currentUser ? "/dashboard" : "/sign-up"}>
                       <Button
                         size="lg"
                         className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box rounded-xl sm:rounded-2xl px-10 sm:px-14 py-6 font-heading font-semibold text-[15px] sm:text-base"
@@ -436,7 +436,7 @@ const Pricing = () => {
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Link href={currentUser ? "/dashboard" : "/sign-up"}>
+                    <Link className="cursor-pointer" href={currentUser ? "/dashboard" : "/sign-up"}>
                       <Button
                         size="lg"
                         className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box rounded-xl sm:rounded-2xl px-8 sm:px-10 py-6 font-heading font-semibold w-full sm:w-auto text-[15px] sm:text-base"
@@ -445,7 +445,7 @@ const Pricing = () => {
                         {currentUser ? "Go to Dashboard" : "Get Started — It's Free"}
                       </Button>
                     </Link>
-                    <Link href="/contact-us">
+                    <Link className="cursor-pointer" href="/contact-us">
                       <Button
                         size="lg"
                         variant="outline"

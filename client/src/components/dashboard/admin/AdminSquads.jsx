@@ -52,7 +52,7 @@ const AdminSquads = ({
           className="pl-9 sm:pl-11 bg-card/50 border-border/50 rounded-xl h-10 sm:h-12 text-sm"
         />
         {squadSearch && (
-          <button
+          <button className="cursor-pointer"
             onClick={() => setSquadSearch("")}
             className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           >

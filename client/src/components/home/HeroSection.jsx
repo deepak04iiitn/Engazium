@@ -109,7 +109,7 @@ const HeroSection = () => {
               {...fadeUp(0.5)}
               className="flex flex-col sm:flex-row items-center gap-3.5 sm:gap-4 lg:justify-start justify-center mb-10 lg:mb-0"
             >
-              <Link href={currentUser ? "/dashboard" : "/sign-up"} className="w-full sm:w-auto">
+              <Link href={currentUser ? "/dashboard" : "/sign-up"} className="w-full sm:w-auto cursor-pointer">
                 <Button
                   size="lg"
                   className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box-intense px-8 py-6 rounded-2xl font-heading font-semibold group w-full sm:w-auto text-[15px]"
@@ -118,7 +118,7 @@ const HeroSection = () => {
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1.5 transition-transform duration-300" />
                 </Button>
               </Link>
-              <Link href="/how-it-works" className="w-full sm:w-auto">
+              <Link href="/how-it-works" className="w-full sm:w-auto cursor-pointer">
                 <Button
                   size="lg"
                   variant="outline"

@@ -222,7 +222,7 @@ const UserProfile = ({
                   </label>
                   <div className="flex flex-wrap gap-2">
                     {PLATFORM_OPTIONS.map((platform) => (
-                      <button
+                      <button className="cursor-pointer"
                         key={platform}
                         type="button"
                         disabled={!isEditing}

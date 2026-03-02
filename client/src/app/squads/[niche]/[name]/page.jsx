@@ -593,7 +593,7 @@ const SquadDetailPage = () => {
             ))}
           </div>
           {members.length > 5 && (
-            <button
+            <button className="cursor-pointer"
               onClick={() => setActiveTab("members")}
               className="w-full mt-3 text-primary text-xs font-heading font-medium hover:underline"
             >
@@ -660,7 +660,7 @@ const SquadDetailPage = () => {
           <p className="text-muted-foreground text-sm mb-6">
             This squad may have been deleted or doesn&apos;t exist.
           </p>
-          <Link href="/squads">
+          <Link className="cursor-pointer" href="/squads">
             <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Browse Squads
@@ -691,7 +691,7 @@ const SquadDetailPage = () => {
             Join this squad to view the feed, engage with posts, and
             connect with other creators.
           </p>
-          <Link href="/squads#browse-squads">
+          <Link className="cursor-pointer" href="/squads#browse-squads">
             <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-8 py-3 text-sm font-semibold mt-2 glow-box">
               Browse & Join Squads
             </Button>
@@ -882,7 +882,7 @@ const SquadDetailPage = () => {
               {mobileTabItems.map(({ key, label, icon: Icon }) => {
                 const isActive = activeTab === key;
                 return (
-                  <button
+                  <button className="cursor-pointer"
                     key={key}
                     onClick={() => setActiveTab(key)}
                     className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 rounded-xl transition-all duration-200 ${
@@ -912,7 +912,7 @@ const SquadDetailPage = () => {
                   </button>
                 );
               })}
-              <button
+              <button className="cursor-pointer"
                 onClick={handleLeaveSquad}
                 disabled={leaveLoading}
                 className="flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 rounded-xl text-muted-foreground active:text-destructive transition-all duration-200"

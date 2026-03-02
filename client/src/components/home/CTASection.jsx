@@ -36,7 +36,7 @@ const CTASection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4">
-            <Link href={currentUser ? "/dashboard" : "/sign-up"} className="w-full sm:w-auto">
+            <Link href={currentUser ? "/dashboard" : "/sign-up"} className="w-full sm:w-auto cursor-pointer">
               <Button
                 size="lg"
                 className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box-intense px-8 py-6 rounded-2xl font-heading font-semibold group w-full sm:w-auto text-[15px]"
@@ -45,7 +45,7 @@ const CTASection = () => {
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1.5 transition-transform duration-300" />
               </Button>
             </Link>
-            <Link href="/about-us" className="w-full sm:w-auto">
+            <Link href="/about-us" className="w-full sm:w-auto cursor-pointer">
               <Button
                 size="lg"
                 variant="outline"
