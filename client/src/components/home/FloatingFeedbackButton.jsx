@@ -109,10 +109,10 @@ export default function FloatingFeedbackButton() {
         }}
       >
         <DialogTrigger asChild>
-          <button className="cursor-pointer"
+          <button
             type="button"
             onClick={openDialog}
-            className="group relative inline-flex items-center gap-2 rounded-full border border-primary/30 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-[0_12px_40px_-12px_hsl(var(--primary)/0.75)] px-4 py-3 sm:px-5 sm:py-3.5 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+            className="cursor-pointer group relative inline-flex items-center gap-2 rounded-full border border-primary/30 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-[0_12px_40px_-12px_hsl(var(--primary)/0.75)] px-4 py-3 sm:px-5 sm:py-3.5 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
           >
             <span className="absolute -inset-1 -z-10 rounded-full bg-primary/20 blur-xl opacity-75 group-hover:opacity-100 transition-opacity" />
             <MessageCircleWarning className="h-4 w-4 sm:h-5 sm:w-5" />
