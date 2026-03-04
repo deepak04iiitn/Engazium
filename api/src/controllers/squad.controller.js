@@ -300,6 +300,10 @@ export const joinSquad = async (req, res, next) => {
       return next(errorHandler(404, "Squad not found"));
     }
 
+    if ((squad.blockedUsers || []).some((userId) => userId.toString() === req.user.id)) {
+      return next(errorHandler(403, "You are blocked from this squad"));
+    }
+
     if (squad.memberCount >= squad.maxMembers) {
       return next(errorHandler(400, "Squad is full"));
     }

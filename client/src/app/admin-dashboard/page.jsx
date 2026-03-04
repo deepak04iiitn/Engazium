@@ -84,8 +84,25 @@ const AdminDashboard = () => {
   const [squads, setSquads] = useState([]);
   const [squadsLoading, setSquadsLoading] = useState(false);
   const [squadsError, setSquadsError] = useState(null);
-  const [squadsPagination, setSquadsPagination] = useState({ totalSquads: 0 });
+  const [squadsPagination, setSquadsPagination] = useState({ currentPage: 1, totalPages: 1, totalSquads: 0 });
   const [squadsStats, setSquadsStats] = useState({ activeSquads: 0, fullSquads: 0 });
+  const [squadCurrentPage, setSquadCurrentPage] = useState(1);
+  const [squadStatusFilter, setSquadStatusFilter] = useState("all");
+  const [squadPlanFilter, setSquadPlanFilter] = useState("all");
+  const [squadNicheFilter, setSquadNicheFilter] = useState("all");
+  const [selectedSquad, setSelectedSquad] = useState(null);
+  const [selectedSquadId, setSelectedSquadId] = useState(null);
+  const [squadDetailsOpen, setSquadDetailsOpen] = useState(false);
+  const [squadDetailsLoading, setSquadDetailsLoading] = useState(false);
+  const [squadActionLoading, setSquadActionLoading] = useState(null);
+  const [squadDetailQuery, setSquadDetailQuery] = useState({
+    memberPage: 1,
+    memberSearch: "",
+    memberRole: "all",
+    blockedPage: 1,
+    blockedSearch: "",
+    logsPage: 1,
+  });
   const [feedbackItems, setFeedbackItems] = useState([]);
   const [feedbackLoading, setFeedbackLoading] = useState(false);
   const [feedbackError, setFeedbackError] = useState(null);
@@ -150,16 +167,29 @@ const AdminDashboard = () => {
     }
   }, []);
 
-  const fetchSquads = useCallback(async (search = "", page = 1) => {
+  const fetchSquads = useCallback(async ({
+    search = "",
+    page = 1,
+    status = "all",
+    plan = "all",
+    niche = "all",
+  } = {}) => {
     setSquadsLoading(true);
     setSquadsError(null);
     try {
-      const params = new URLSearchParams({ search, page: page.toString(), limit: "12" });
+      const params = new URLSearchParams({
+        search,
+        page: page.toString(),
+        limit: "12",
+        status,
+        plan,
+        niche,
+      });
       const res = await fetch(`/api/admin/squads?${params}`, { credentials: "include" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Failed to fetch squads");
       setSquads(data.squads || []);
-      setSquadsPagination(data.pagination || { totalSquads: 0 });
+      setSquadsPagination(data.pagination || { currentPage: 1, totalPages: 1, totalSquads: 0 });
       setSquadsStats(data.stats || { activeSquads: 0, fullSquads: 0 });
     } catch (err) {
       setSquadsError(err.message);
@@ -203,7 +233,7 @@ const AdminDashboard = () => {
   // Initial fetch for overview stats
   useEffect(() => {
     fetchUsers("", 1);
-    fetchSquads("", 1);
+    fetchSquads({ search: "", page: 1, status: "all", plan: "all", niche: "all" });
   }, [fetchUsers, fetchSquads]);
 
   // Debounced search
@@ -227,12 +257,30 @@ const AdminDashboard = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (activeSection === "squads") {
-        fetchSquads(squadSearch, 1);
+        setSquadCurrentPage(1);
+        fetchSquads({
+          search: squadSearch,
+          page: 1,
+          status: squadStatusFilter,
+          plan: squadPlanFilter,
+          niche: squadNicheFilter,
+        });
       }
     }, 400);
 
     return () => clearTimeout(timer);
-  }, [activeSection, fetchSquads, squadSearch]);
+  }, [activeSection, fetchSquads, squadSearch, squadStatusFilter, squadPlanFilter, squadNicheFilter]);
+
+  useEffect(() => {
+    if (activeSection !== "squads") return;
+    fetchSquads({
+      search: squadSearch,
+      page: squadCurrentPage,
+      status: squadStatusFilter,
+      plan: squadPlanFilter,
+      niche: squadNicheFilter,
+    });
+  }, [activeSection, fetchSquads, squadCurrentPage]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -312,6 +360,153 @@ const AdminDashboard = () => {
       setFeedbackError(err.message);
     } finally {
       setFeedbackActionLoadingId(null);
+    }
+  };
+
+  const handleViewSquadDetails = async (squadId, queryOverrides = {}) => {
+    setSquadDetailsLoading(true);
+    setSquadsError(null);
+    try {
+      const effectiveQuery = {
+        ...squadDetailQuery,
+        ...queryOverrides,
+      };
+      const params = new URLSearchParams({
+        memberPage: String(effectiveQuery.memberPage || 1),
+        memberLimit: "8",
+        memberSearch: effectiveQuery.memberSearch || "",
+        memberRole: effectiveQuery.memberRole || "all",
+        blockedPage: String(effectiveQuery.blockedPage || 1),
+        blockedLimit: "8",
+        blockedSearch: effectiveQuery.blockedSearch || "",
+        logsPage: String(effectiveQuery.logsPage || 1),
+        logsLimit: "8",
+      });
+      const res = await fetch(`/api/admin/squads/${squadId}?${params}`, { credentials: "include" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to fetch squad details");
+      setSelectedSquad(data);
+      setSelectedSquadId(squadId);
+      setSquadDetailQuery(effectiveQuery);
+      setSquadDetailsOpen(true);
+    } catch (err) {
+      setSquadsError(err.message);
+    } finally {
+      setSquadDetailsLoading(false);
+    }
+  };
+
+  const handleDeleteSquad = async (squadId) => {
+    setSquadActionLoading(`delete-${squadId}`);
+    setSquadsError(null);
+    try {
+      const res = await fetch(`/api/admin/squads/${squadId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to delete squad");
+      if (selectedSquad?.squad?._id === squadId) {
+        setSelectedSquad(null);
+        setSquadDetailsOpen(false);
+      }
+      setSquadCurrentPage(1);
+      fetchSquads({
+        search: squadSearch,
+        page: 1,
+        status: squadStatusFilter,
+        plan: squadPlanFilter,
+        niche: squadNicheFilter,
+      });
+    } catch (err) {
+      setSquadsError(err.message);
+    } finally {
+      setSquadActionLoading(null);
+    }
+  };
+
+  const handleRemoveSquadMember = async (squadId, userId) => {
+    setSquadActionLoading(`remove-${userId}`);
+    setSquadsError(null);
+    try {
+      const res = await fetch(`/api/admin/squads/${squadId}/members/${userId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to remove member");
+      await Promise.all([
+        handleViewSquadDetails(squadId),
+        fetchSquads({
+          search: squadSearch,
+          page: squadCurrentPage,
+          status: squadStatusFilter,
+          plan: squadPlanFilter,
+          niche: squadNicheFilter,
+        }),
+      ]);
+    } catch (err) {
+      setSquadsError(err.message);
+    } finally {
+      setSquadActionLoading(null);
+    }
+  };
+
+  const handleSetSquadUserBlock = async (squadId, userId, block) => {
+    setSquadActionLoading(`${block ? "block" : "unblock"}-${userId}`);
+    setSquadsError(null);
+    try {
+      const res = await fetch(`/api/admin/squads/${squadId}/members/${userId}/block`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ block }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to update block status");
+      await Promise.all([
+        handleViewSquadDetails(squadId),
+        fetchSquads({
+          search: squadSearch,
+          page: squadCurrentPage,
+          status: squadStatusFilter,
+          plan: squadPlanFilter,
+          niche: squadNicheFilter,
+        }),
+      ]);
+    } catch (err) {
+      setSquadsError(err.message);
+    } finally {
+      setSquadActionLoading(null);
+    }
+  };
+
+  const handleTransferSquadOwnership = async (squadId, newOwnerId) => {
+    setSquadActionLoading(`transfer-${newOwnerId}`);
+    setSquadsError(null);
+    try {
+      const res = await fetch(`/api/admin/squads/${squadId}/transfer-ownership`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ newOwnerId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to transfer ownership");
+      await Promise.all([
+        handleViewSquadDetails(squadId),
+        fetchSquads({
+          search: squadSearch,
+          page: squadCurrentPage,
+          status: squadStatusFilter,
+          plan: squadPlanFilter,
+          niche: squadNicheFilter,
+        }),
+      ]);
+    } catch (err) {
+      setSquadsError(err.message);
+    } finally {
+      setSquadActionLoading(null);
     }
   };
 
@@ -429,7 +624,34 @@ const AdminDashboard = () => {
           squadsError={squadsError}
           squadSearch={squadSearch}
           setSquadSearch={setSquadSearch}
-          onRefresh={() => fetchSquads(squadSearch, 1)}
+          squadsPagination={squadsPagination}
+          squadCurrentPage={squadCurrentPage}
+          setSquadCurrentPage={setSquadCurrentPage}
+          squadStatusFilter={squadStatusFilter}
+          setSquadStatusFilter={setSquadStatusFilter}
+          squadPlanFilter={squadPlanFilter}
+          setSquadPlanFilter={setSquadPlanFilter}
+          squadNicheFilter={squadNicheFilter}
+          setSquadNicheFilter={setSquadNicheFilter}
+          onRefresh={() => fetchSquads({
+            search: squadSearch,
+            page: squadCurrentPage,
+            status: squadStatusFilter,
+            plan: squadPlanFilter,
+            niche: squadNicheFilter,
+          })}
+          onViewSquadDetails={handleViewSquadDetails}
+          onDeleteSquad={handleDeleteSquad}
+          onRemoveMember={handleRemoveSquadMember}
+          onSetMemberBlock={handleSetSquadUserBlock}
+          onTransferOwnership={handleTransferSquadOwnership}
+          selectedSquadId={selectedSquadId}
+          squadDetailQuery={squadDetailQuery}
+          selectedSquad={selectedSquad}
+          squadDetailsOpen={squadDetailsOpen}
+          setSquadDetailsOpen={setSquadDetailsOpen}
+          squadDetailsLoading={squadDetailsLoading}
+          squadActionLoading={squadActionLoading}
         />
       )}
 
@@ -479,7 +701,7 @@ const AdminDashboard = () => {
           {mobileTabItems.map((item) => {
             const isActive = activeSection === item.key;
             return (
-              <button className="cursor-pointer"
+              <button
                 key={item.key}
                 onClick={() => setActiveSection(item.key)}
                 className={`flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-lg transition-all duration-200 min-w-0 flex-1 ${

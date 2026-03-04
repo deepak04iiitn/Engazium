@@ -110,6 +110,14 @@ const squadSchema = new mongoose.Schema(
       type: String,
       index: true,
     },
+
+    // Users blocked from joining/rejoining this squad
+    blockedUsers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   { timestamps: true }
 );
