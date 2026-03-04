@@ -1,7 +1,15 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Instagram, Twitter, Youtube, ArrowUpRight } from "lucide-react";
+import {
+  Instagram,
+  Twitter,
+  Youtube,
+  ArrowUpRight,
+  Radio,
+  Users,
+} from "lucide-react";
 import { useSelector } from "react-redux";
 import logo from "@/assets/Engazium_Logo.png";
 
@@ -26,8 +34,93 @@ const footerLinks = {
   ],
 };
 
+const USER_COUNT_POLL_INTERVAL = 30000;
+
+const formatCompactNumber = (value) =>
+  new Intl.NumberFormat("en-US", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(value || 0);
+
+const DIGIT_GLYPHS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
+
+const RollingDigit = ({ digit }) => (
+  <span className="relative inline-flex h-[1em] w-[0.64em] overflow-hidden align-baseline">
+    <span
+      className="flex flex-col transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+      style={{ transform: `translateY(-${digit * 10}%)` }}
+      aria-hidden="true"
+    >
+      {DIGIT_GLYPHS.map((glyph) => (
+        <span
+          key={glyph}
+          className="inline-flex h-[1em] items-center justify-center leading-none"
+        >
+          {glyph}
+        </span>
+      ))}
+    </span>
+  </span>
+);
+
+const AnimatedCompactNumber = ({ value }) => {
+  const formatted = formatCompactNumber(value);
+
+  return (
+    <span className="inline-flex items-baseline tabular-nums">
+      {formatted.split("").map((char, index) =>
+        /\d/.test(char) ? (
+          <RollingDigit key={`digit-${index}`} digit={Number(char)} />
+        ) : (
+          <span key={`char-${index}`} className="leading-none">
+            {char}
+          </span>
+        )
+      )}
+    </span>
+  );
+};
+
 const Footer = () => {
   const { currentUser } = useSelector((state) => state.user);
+  const [liveUserCount, setLiveUserCount] = useState(10000);
+  const [newUsersToday, setNewUsersToday] = useState(0);
+  const [isCounterLoading, setIsCounterLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchLiveUserCount = async ({ silent } = { silent: false }) => {
+      if (!silent && isMounted) setIsCounterLoading(true);
+
+      try {
+        const res = await fetch("/api/growth/live-user-count", {
+          cache: "no-store",
+        });
+        const data = await res.json();
+
+        if (res.ok && data?.success && isMounted) {
+          setLiveUserCount(Number(data.totalUsers) || 0);
+          setNewUsersToday(Number(data.newUsersToday) || 0);
+        }
+      } catch {
+        // Keep the existing value when API is unavailable.
+      } finally {
+        if (isMounted) setIsCounterLoading(false);
+      }
+    };
+
+    fetchLiveUserCount();
+    const pollInterval = setInterval(
+      () => fetchLiveUserCount({ silent: true }),
+      USER_COUNT_POLL_INTERVAL
+    );
+
+    return () => {
+      isMounted = false;
+      clearInterval(pollInterval);
+    };
+  }, []);
 
   return (
     <footer className="relative border-t border-border/30 dark:border-border/15 overflow-hidden">
@@ -77,6 +170,41 @@ const Footer = () => {
                 The engagement & reach hub for creators. Build engagement,
                 expand reach, grow together.
               </p>
+              <div className="mb-6 rounded-2xl border border-primary/15 bg-gradient-to-br from-primary/[0.09] via-primary/[0.03] to-transparent p-4 backdrop-blur-sm shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1">
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                    </span>
+                    <span className="text-[10px] font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-400">
+                      Live creators
+                    </span>
+                  </div>
+                  <Radio className="h-3.5 w-3.5 text-primary animate-pulse" />
+                </div>
+
+                <div className="mt-3 flex items-end gap-2">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Users className="h-4 w-4" />
+                  </span>
+                  <p className="font-heading text-2xl font-bold tracking-tight text-foreground">
+                    {isCounterLoading ? (
+                      <span className="inline-block h-8 w-24 animate-pulse rounded-md bg-foreground/10" />
+                    ) : (
+                      <>
+                        <AnimatedCompactNumber value={liveUserCount} />
+                        <span className="ml-1 text-base text-primary">+</span>
+                      </>
+                    )}
+                  </p>
+                </div>
+
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Creators currently part of Engazium
+                  {newUsersToday > 0 ? ` · +${newUsersToday} today` : ""}
+                </p>
+              </div>
               <div className="flex items-center gap-2.5">
                 {[Instagram, Twitter, Youtube].map((Icon, i) => (
                   <a

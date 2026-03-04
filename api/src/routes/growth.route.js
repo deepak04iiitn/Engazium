@@ -6,6 +6,7 @@ import {
   getGrowthHistory,
   getGrowthAchievements,
   getLiveActivity,
+  getLiveUserCount,
 } from "../controllers/growth.controller.js";
 
 const router = express.Router();
@@ -13,6 +14,7 @@ const router = express.Router();
 // Public — landing page
 router.get("/achievements", getGrowthAchievements);
 router.get("/live-activity", getLiveActivity);
+router.get("/live-user-count", getLiveUserCount);
 
 // Protected routes
 router.use(verifyToken);

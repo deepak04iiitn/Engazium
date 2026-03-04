@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import {
   Trophy,
   TrendingUp,
-  Users,
   ArrowUp,
   Clock,
   Rocket,
@@ -38,76 +37,6 @@ const platformGradients = {
   Snapchat: "from-yellow-400/10 to-yellow-500/10 border-yellow-400/15",
   Other: "from-primary/10 to-primary/5 border-primary/15",
 };
-
-// Fallback achievements shown when there's no real data yet
-const fallbackAchievements = [
-  {
-    username: "Priya S.",
-    niche: "Lifestyle Creator",
-    platform: "Instagram",
-    followerGrowth: 4800,
-    followerPct: 240,
-    baselineFollowers: 2000,
-    latestFollowers: 6800,
-    daysSinceJoin: 21,
-    metric: "3.4x followers",
-  },
-  {
-    username: "Arjun M.",
-    niche: "Tech Reviewer",
-    platform: "YouTube",
-    followerGrowth: 3200,
-    followerPct: 160,
-    baselineFollowers: 2000,
-    latestFollowers: 5200,
-    daysSinceJoin: 30,
-    metric: "2.6x subscribers",
-  },
-  {
-    username: "Sneha R.",
-    niche: "Fashion & Beauty",
-    platform: "Instagram",
-    followerGrowth: 2500,
-    followerPct: 125,
-    baselineFollowers: 2000,
-    latestFollowers: 4500,
-    daysSinceJoin: 14,
-    metric: "2.3x followers",
-  },
-  {
-    username: "Karthik N.",
-    niche: "Fitness Creator",
-    platform: "TikTok",
-    followerGrowth: 8000,
-    followerPct: 400,
-    baselineFollowers: 2000,
-    latestFollowers: 10000,
-    daysSinceJoin: 28,
-    metric: "5x followers",
-  },
-  {
-    username: "Ananya D.",
-    niche: "Food Blogger",
-    platform: "Instagram",
-    followerGrowth: 4500,
-    followerPct: 900,
-    baselineFollowers: 500,
-    latestFollowers: 5000,
-    daysSinceJoin: 45,
-    metric: "10x followers",
-  },
-  {
-    username: "Rohan G.",
-    niche: "Photography",
-    platform: "Instagram",
-    followerGrowth: 1800,
-    followerPct: 90,
-    baselineFollowers: 2000,
-    latestFollowers: 3800,
-    daysSinceJoin: 18,
-    metric: "+90% followers",
-  },
-];
 
 const MIN_REAL_ACHIEVEMENTS = 4;
 
@@ -209,8 +138,7 @@ const AchievementCard = ({ achievement, index }) => {
 };
 
 const AchievementsSection = () => {
-  const [achievements, setAchievements] = useState(fallbackAchievements);
-  const [usingReal, setUsingReal] = useState(false);
+  const [achievements, setAchievements] = useState([]);
   const { currentUser } = useSelector((state) => state.user);
 
   useEffect(() => {
@@ -218,20 +146,21 @@ const AchievementsSection = () => {
       try {
         const res = await fetch("/api/growth/achievements");
         const data = await res.json();
-        if (
-          res.ok &&
-          data.achievements &&
-          data.achievements.length >= MIN_REAL_ACHIEVEMENTS
-        ) {
+        if (res.ok && Array.isArray(data.achievements)) {
           setAchievements(data.achievements);
-          setUsingReal(true);
         }
       } catch {
-        // Silently fall back to hardcoded
+        // Keep section hidden until enough verified achievements exist.
       }
     };
     fetchAchievements();
   }, []);
+
+  const hasMinimumRealAchievements =
+    achievements.length >= MIN_REAL_ACHIEVEMENTS;
+
+  // Hide the entire section until we have enough real achievements.
+  if (!hasMinimumRealAchievements) return null;
 
   return (
     <section className="relative py-24 sm:py-32 md:py-40 overflow-hidden">
@@ -257,8 +186,7 @@ const AchievementsSection = () => {
             <span className="text-gradient-animated">thriving</span>
           </h2>
           <p className="text-muted-foreground mt-5 sm:mt-6 text-base sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-            Real growth tracked by real creators. See how followers, reach, and engagement
-            skyrocketed after joining Engazium.
+            Real growth tracked by real creators across platforms.
           </p>
         </motion.div>
 

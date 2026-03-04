@@ -13,90 +13,6 @@ import {
 import Link from "next/link";
 import { useSelector } from "react-redux";
 
-const fallbackTestimonials = [
-  {
-    name: "Priya Sharma",
-    handle: "@priyacreates",
-    niche: "Lifestyle Creator",
-    quote:
-      "My reels used to get 200 views max. After joining an Engazium squad, my average jumped to 2,000+ within three weeks. The early engagement makes all the difference.",
-    rating: 5,
-    metric: "10x views",
-  },
-  {
-    name: "Arjun Mehta",
-    handle: "@arjuntalks",
-    niche: "Tech Reviewer",
-    quote:
-      "I was skeptical at first, but the engagement tracking keeps everyone honest. No freeloaders, just real creators supporting each other. My follower growth has been insane.",
-    rating: 5,
-    metric: "3x followers",
-  },
-  {
-    name: "Sneha Reddy",
-    handle: "@snehastyle",
-    niche: "Fashion & Beauty",
-    quote:
-      "Unlike WhatsApp pods where people ghost, Engazium squads are accountable. My engagement rate doubled and I landed my first brand deal through the network.",
-    rating: 5,
-    metric: "2x engagement",
-  },
-  {
-    name: "Karthik Nair",
-    handle: "@karthikfitness",
-    niche: "Fitness Creator",
-    quote:
-      "The niche matching is brilliant. I'm in a squad with other fitness creators so the engagement actually looks natural and helps the algorithm push my content.",
-    rating: 5,
-    metric: "5x reach",
-  },
-  {
-    name: "Ananya Das",
-    handle: "@ananyaeats",
-    niche: "Food Blogger",
-    quote:
-      "From 500 followers to 5K in two months. The weekly accountability tracking keeps me consistent and motivated. Best ₹50 I've ever spent.",
-    rating: 5,
-    metric: "10x growth",
-  },
-  {
-    name: "Rohan Gupta",
-    handle: "@rohanvisuals",
-    niche: "Photography",
-    quote:
-      "The time-distributed engagement feature is what sold me. My account feels safe and the growth is 100% organic. Highly recommend to any micro creator.",
-    rating: 5,
-    metric: "100% safe",
-  },
-  {
-    name: "Meera Joshi",
-    handle: "@meerawrites",
-    niche: "Content Writer",
-    quote:
-      "I was stuck at 800 followers for months. After two weeks in my Engazium squad, I crossed 2K. The structured engagement is a game-changer for micro creators.",
-    rating: 5,
-    metric: "2.5x growth",
-  },
-  {
-    name: "Vikram Singh",
-    handle: "@vikramvlogs",
-    niche: "Travel Vlogger",
-    quote:
-      "What I love most is the accountability. Everyone in my squad genuinely engages because the tracking system keeps everyone on their toes. It's fair and effective.",
-    rating: 5,
-    metric: "4x reach",
-  },
-  {
-    name: "Divya Patel",
-    handle: "@divyadesigns",
-    niche: "Graphic Designer",
-    quote:
-      "The time-distributed engagement means my account stays safe. No weird spikes, just consistent organic growth. Already recommended it to three other creators.",
-    rating: 5,
-    metric: "100% organic",
-  },
-];
-
 // Helper — get initials from a name
 const getInitials = (name) => {
   if (!name) return "??";
@@ -125,8 +41,8 @@ const TestimonialCard = ({ t }) => (
       ))}
     </div>
 
-    {/* Author + metric */}
-    <div className="flex items-center justify-between">
+    {/* Author */}
+    <div className="flex items-center">
       <div className="flex items-center gap-2.5">
         <div className="w-8 h-8 rounded-full bg-primary/8 dark:bg-primary/10 border border-border/30 dark:border-border/15 flex items-center justify-center shrink-0">
           <span className="text-[9px] font-bold text-primary font-heading">
@@ -142,11 +58,6 @@ const TestimonialCard = ({ t }) => (
           </p>
         </div>
       </div>
-      {t.metric && (
-        <span className="text-[10px] sm:text-xs font-heading font-semibold text-primary bg-primary/8 dark:bg-primary/10 px-2.5 py-0.5 rounded-full shrink-0">
-          {t.metric}
-        </span>
-      )}
     </div>
   </div>
 );
@@ -155,7 +66,7 @@ const MIN_REAL_TESTIMONIALS = 10;
 
 const TestimonialsSection = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [testimonials, setTestimonials] = useState(fallbackTestimonials);
+  const [testimonials, setTestimonials] = useState([]);
   const { currentUser } = useSelector((state) => state.user);
 
   useEffect(() => {
@@ -163,20 +74,17 @@ const TestimonialsSection = () => {
       try {
         const res = await fetch("/api/testimonials");
         const data = await res.json();
-        // Only show real testimonials once we have 10+ approved
-        if (
-          res.ok &&
-          data.testimonials &&
-          data.testimonials.length >= MIN_REAL_TESTIMONIALS
-        ) {
+        if (res.ok && Array.isArray(data.testimonials)) {
           setTestimonials(data.testimonials);
         }
       } catch {
-        // Silently fall back to hardcoded testimonials
+        // Keep empty state until enough verified testimonials are available.
       }
     };
     fetchTestimonials();
   }, []);
+
+  const hasEnoughRealTestimonials = testimonials.length >= MIN_REAL_TESTIMONIALS;
 
   /* Split testimonials into 3 columns for vertical scroll */
   const col1 = testimonials.filter((_, i) => i % 3 === 0);
@@ -206,134 +114,153 @@ const TestimonialsSection = () => {
             <span className="text-gradient-animated">loving it</span>
           </h2>
           <p className="text-muted-foreground mt-5 sm:mt-6 text-base sm:text-lg md:text-xl max-w-lg mx-auto">
-            Don&apos;t take our word for it — hear from creators who&apos;ve
-            transformed their growth.
+            Honest feedback from early creators using Engazium in their weekly workflow.
           </p>
-
-          {/* CTA — write a testimonial */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-7 sm:mt-8"
-          >
-            <Link className="cursor-pointer"
-              href={currentUser ? "/dashboard" : `/sign-in?redirect=${encodeURIComponent("/dashboard")}`}
-              onClick={() => {
-                // Set the dashboard to open the testimonial tab
-                if (typeof window !== "undefined") {
-                  sessionStorage.setItem("dashboard_tab", "testimonial");
-                }
-              }}
-              className="inline-flex items-center gap-2 rounded-full bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/30 px-5 py-2.5 text-sm font-semibold text-primary transition-all duration-300 hover:shadow-[0_0_20px_-5px_hsl(var(--primary)/0.3)]"
-            >
-              <PenLine className="h-4 w-4" />
-              Share Your Experience
-            </Link>
-          </motion.div>
         </motion.div>
       </div>
 
-      {/* ═══════ Desktop — 3-column vertical scroll ═══════ */}
-      <div className="hidden md:block relative max-w-6xl mx-auto px-5 sm:px-6">
-        {/* Top and bottom fade masks */}
-        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-background to-transparent z-10 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
+      {hasEnoughRealTestimonials ? (
+        <>
+          {/* ═══════ Desktop — 3-column vertical scroll ═══════ */}
+          <div className="hidden md:block relative max-w-6xl mx-auto px-5 sm:px-6">
+            {/* Top and bottom fade masks */}
+            <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-background to-transparent z-10 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
 
-        <div className="h-[600px] lg:h-[650px] overflow-hidden">
-          <div className="grid grid-cols-3 gap-4 lg:gap-5 h-full">
-            {/* Column 1 — scrolls DOWN */}
-            <div className="overflow-hidden">
-              <div className="animate-scroll-down">
-                {[...col1, ...col1].map((t, i) => (
-                  <div key={`c1-${i}`} className="mb-4 lg:mb-5">
-                    <TestimonialCard t={t} />
+            <div className="h-[600px] lg:h-[650px] overflow-hidden">
+              <div className="grid grid-cols-3 gap-4 lg:gap-5 h-full">
+                {/* Column 1 — scrolls DOWN */}
+                <div className="overflow-hidden">
+                  <div className="animate-scroll-down">
+                    {[...col1, ...col1].map((t, i) => (
+                      <div key={`c1-${i}`} className="mb-4 lg:mb-5">
+                        <TestimonialCard t={t} />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
 
-            {/* Column 2 — scrolls UP */}
-            <div className="overflow-hidden">
-              <div className="animate-scroll-up">
-                {[...col2, ...col2].map((t, i) => (
-                  <div key={`c2-${i}`} className="mb-4 lg:mb-5">
-                    <TestimonialCard t={t} />
+                {/* Column 2 — scrolls UP */}
+                <div className="overflow-hidden">
+                  <div className="animate-scroll-up">
+                    {[...col2, ...col2].map((t, i) => (
+                      <div key={`c2-${i}`} className="mb-4 lg:mb-5">
+                        <TestimonialCard t={t} />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </div>
+                </div>
 
-            {/* Column 3 — scrolls DOWN (slower) */}
-            <div className="overflow-hidden">
-              <div className="animate-scroll-down-slow">
-                {[...col3, ...col3].map((t, i) => (
-                  <div key={`c3-${i}`} className="mb-4 lg:mb-5">
-                    <TestimonialCard t={t} />
+                {/* Column 3 — scrolls DOWN (slower) */}
+                <div className="overflow-hidden">
+                  <div className="animate-scroll-down-slow">
+                    {[...col3, ...col3].map((t, i) => (
+                      <div key={`c3-${i}`} className="mb-4 lg:mb-5">
+                        <TestimonialCard t={t} />
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* ═══════ Mobile — swipeable carousel ═══════ */}
-      <div className="md:hidden px-5 sm:px-6">
-        <div className="relative">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeIndex}
-              initial={{ opacity: 0, x: 40 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -40 }}
-              transition={{ duration: 0.3 }}
-            >
-              <TestimonialCard t={testimonials[activeIndex]} />
-            </motion.div>
-          </AnimatePresence>
+          {/* ═══════ Mobile — swipeable carousel ═══════ */}
+          <div className="md:hidden px-5 sm:px-6">
+            <div className="relative">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeIndex}
+                  initial={{ opacity: 0, x: 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -40 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <TestimonialCard t={testimonials[activeIndex]} />
+                </motion.div>
+              </AnimatePresence>
 
-          {/* Navigation */}
-          <div className="flex items-center justify-center gap-4 mt-6">
-            <button className="cursor-pointer"
-              onClick={() =>
-                setActiveIndex(
-                  (prev) =>
-                    (prev - 1 + testimonials.length) % testimonials.length
-                )
-              }
-              className="w-10 h-10 rounded-full bg-card/80 dark:bg-card/50 border border-border/40 dark:border-border/20 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/20 transition-all"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-
-            {/* Dots */}
-            <div className="flex items-center gap-2">
-              {testimonials.map((_, i) => (
+              {/* Navigation */}
+              <div className="flex items-center justify-center gap-4 mt-6">
                 <button className="cursor-pointer"
-                  key={i}
-                  onClick={() => setActiveIndex(i)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    i === activeIndex
-                      ? "w-6 bg-primary"
-                      : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"
-                  }`}
-                />
-              ))}
-            </div>
+                  onClick={() =>
+                    setActiveIndex(
+                      (prev) =>
+                        (prev - 1 + testimonials.length) % testimonials.length
+                    )
+                  }
+                  className="w-10 h-10 rounded-full bg-card/80 dark:bg-card/50 border border-border/40 dark:border-border/20 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/20 transition-all"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
 
-            <button className="cursor-pointer"
-              onClick={() =>
-                setActiveIndex((prev) => (prev + 1) % testimonials.length)
-              }
-              className="w-10 h-10 rounded-full bg-card/80 dark:bg-card/50 border border-border/40 dark:border-border/20 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/20 transition-all"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
+                {/* Dots */}
+                <div className="flex items-center gap-2">
+                  {testimonials.map((_, i) => (
+                    <button className="cursor-pointer"
+                      key={i}
+                      onClick={() => setActiveIndex(i)}
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        i === activeIndex
+                          ? "w-6 bg-primary"
+                          : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                <button className="cursor-pointer"
+                  onClick={() =>
+                    setActiveIndex((prev) => (prev + 1) % testimonials.length)
+                  }
+                  className="w-10 h-10 rounded-full bg-card/80 dark:bg-card/50 border border-border/40 dark:border-border/20 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/20 transition-all"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
           </div>
+        </>
+      ) : (
+        <div className="max-w-3xl mx-auto px-5 sm:px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.55, ease: [0.215, 0.61, 0.355, 1] }}
+            className="relative overflow-hidden rounded-3xl border border-primary/15 bg-card/70 dark:bg-card/50 p-7 sm:p-10 backdrop-blur-xl text-center shadow-[0_22px_80px_-34px_hsl(var(--primary)/0.45)]"
+          >
+            <div className="pointer-events-none absolute -top-16 -left-14 h-44 w-44 rounded-full bg-primary/14 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-20 -right-12 h-52 w-52 rounded-full bg-violet-500/12 blur-3xl" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-transparent to-primary/[0.02]" />
+
+            <div className="relative">
+              <div className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
+                <MessageSquare className="h-5 w-5" />
+              </div>
+              <p className="text-foreground font-heading font-semibold text-xl sm:text-2xl tracking-tight">
+                Be the first public story
+              </p>
+              <p className="text-muted-foreground text-sm sm:text-base mt-2 max-w-xl mx-auto">
+                We only show verified creator testimonials. Share your experience and help early visitors understand how Engazium feels in real use.
+              </p>
+
+              <Link
+                className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 text-sm font-semibold transition-all duration-300 hover:shadow-[0_0_24px_-10px_hsl(var(--primary)/0.65)]"
+                href={currentUser ? "/dashboard" : `/sign-in?redirect=${encodeURIComponent("/dashboard")}`}
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    sessionStorage.setItem("dashboard_tab", "testimonial");
+                  }
+                }}
+              >
+                <PenLine className="h-4 w-4" />
+                Share Your Experience
+              </Link>
+            </div>
+          </motion.div>
         </div>
-      </div>
+      )}
     </section>
   );
 };

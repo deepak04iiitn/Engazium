@@ -10,6 +10,7 @@ const PLAN_LIMITS = {
   Pro: 2,
   Momentum: 3,
 };
+const MIN_POST_ENGAGEMENT_PERCENT = 30;
 
 // POST /api/posts — create a post in a squad
 export const createPost = async (req, res, next) => {
@@ -49,6 +50,16 @@ export const createPost = async (req, res, next) => {
         errorHandler(
           403,
           "You must accept the squad rules before creating your first post"
+        )
+      );
+    }
+
+    // Block posting when engagement is below threshold
+    if (membership.engagementPercentage < MIN_POST_ENGAGEMENT_PERCENT) {
+      return next(
+        errorHandler(
+          403,
+          `Posting is disabled while your engagement is below ${MIN_POST_ENGAGEMENT_PERCENT}%. Increase it to at least ${MIN_POST_ENGAGEMENT_PERCENT}% to share posts again.`
         )
       );
     }

@@ -43,7 +43,7 @@ const values = [
     icon: Shield,
     title: "Safety & Trust",
     description:
-      "Every interaction is verified through our credit system. No bots, no fake engagement — only real creators helping each other.",
+      "Every interaction is validated through our percentage-based engagement system. No bots, no fake engagement — only real creators helping each other.",
     color: "from-blue-500/20 to-blue-500/5",
     iconBg: "bg-blue-500/10 dark:bg-blue-500/15",
     iconColor: "text-blue-500",
@@ -52,7 +52,7 @@ const values = [
     icon: Zap,
     title: "Smart Engagement",
     description:
-      "Our algorithm ensures fair, meaningful interactions. Credits keep the ecosystem balanced and rewarding for everyone.",
+      "Our algorithm ensures fair, meaningful interactions. Percentage-based tracking keeps the ecosystem balanced and rewarding for everyone.",
     color: "from-amber-500/20 to-amber-500/5",
     iconBg: "bg-amber-500/10 dark:bg-amber-500/15",
     iconColor: "text-amber-500",
@@ -61,7 +61,7 @@ const values = [
     icon: Target,
     title: "Goal-Oriented Growth",
     description:
-      "Whether you want 1K followers or 100K, our squad system scales with your ambitions and keeps you accountable.",
+      "Whether you are just getting started or already scaling, our squad system grows with your goals and keeps you accountable.",
     color: "from-emerald-500/20 to-emerald-500/5",
     iconBg: "bg-emerald-500/10 dark:bg-emerald-500/15",
     iconColor: "text-emerald-500",
@@ -88,42 +88,42 @@ const values = [
 
 const milestones = [
   {
-    year: "2025",
-    quarter: "Q1",
+    year: "2026",
+    quarter: "January",
     event: "Engazium idea born from creator frustration with declining organic reach",
     icon: Lightbulb,
   },
   {
-    year: "2025",
-    quarter: "Q3",
+    year: "2026",
+    quarter: "January",
     event: "Squad-based engagement system designed and prototyped",
     icon: Target,
   },
   {
     year: "2026",
-    quarter: "Q1",
+    quarter: "February",
     event: "Beta launch with early creator community",
     icon: Rocket,
   },
   {
     year: "2026",
-    quarter: "Q2",
-    event: "Credit-based engagement verification system goes live",
+    quarter: "February",
+    event: "Percentage-based engagement verification system goes live",
     icon: Zap,
   },
   {
     year: "2026",
-    quarter: "Q3",
+    quarter: "February",
     event: "Multi-platform support across Instagram, YouTube, X & LinkedIn",
     icon: Globe,
   },
 ];
 
-const stats = [
-  { value: "500+", label: "Active Creators" },
-  { value: "50+", label: "Squads Running" },
-  { value: "4", label: "Platforms Supported" },
-  { value: "3.2x", label: "Avg Reach Boost" },
+const trustSignals = [
+  { value: "Real", label: "Creator Interactions" },
+  { value: "Fair", label: "Percentage Verification" },
+  { value: "Safe", label: "Engagement Approach" },
+  { value: "Focused", label: "Niche Squads" },
 ];
 
 const About = () => {
@@ -175,17 +175,17 @@ const About = () => {
               {/* Stats row */}
               <motion.div
                 {...anim(0.3)}
-                className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 max-w-3xl mx-auto"
+                className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-5 max-w-3xl mx-auto"
               >
-                {stats.map((stat) => (
+                {trustSignals.map((stat) => (
                   <div
                     key={stat.label}
-                    className="bg-card/80 dark:bg-card/50 backdrop-blur-sm border border-border/40 dark:border-border/20 rounded-2xl p-4 sm:p-5"
+                    className="bg-card/80 dark:bg-card/50 backdrop-blur-sm border border-border/40 dark:border-border/20 rounded-2xl p-3.5 sm:p-4.5"
                   >
-                    <div className="text-2xl sm:text-3xl font-heading font-bold text-primary">
+                    <div className="text-xl sm:text-2xl font-heading font-semibold tracking-tight text-primary">
                       {stat.value}
                     </div>
-                    <div className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wider mt-1">
+                    <div className="text-[10px] sm:text-[11px] text-muted-foreground font-medium uppercase tracking-wide mt-1.5">
                       {stat.label}
                     </div>
                   </div>
@@ -233,7 +233,7 @@ const About = () => {
                   </p>
                   <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
                     By connecting creators into focused squads and using a
-                    credit-based verification system, we ensure that every like,
+                    percentage-based verification system, we ensure that every like,
                     comment, and share is genuine — creating a ripple effect that
                     algorithms can&apos;t ignore.
                   </p>
@@ -492,9 +492,8 @@ const About = () => {
                     <span className="text-gradient-animated">movement?</span>
                   </h2>
                   <p className="text-muted-foreground text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-                    Thousands of creators are already growing together on
-                    Engazium. Be part of the community that&apos;s rewriting the
-                    rules of social media growth.
+                    Join Engazium and grow with a creator-first community built
+                    on genuine engagement, consistency, and collaboration.
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">

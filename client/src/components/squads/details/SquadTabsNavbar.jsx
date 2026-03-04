@@ -15,16 +15,29 @@ const SquadTabsNavbar = ({
   isMember,
   onLeave,
   leaveLoading,
+  shareDisabled = false,
+  onShareDisabled,
 }) => {
   return (
     <div className="w-full">
       <div className="flex items-center justify-between">
         {/* Tab buttons */}
         <div className="flex gap-0.5">
-          {tabs.map(({ key, label, icon: Icon }) => (
-            <button className="cursor-pointer"
+          {tabs.map(({ key, label, icon: Icon }) => {
+            const isShareTab = key === "share";
+            const isDisabled = isShareTab && shareDisabled;
+
+            return (
+            <button
               key={key}
-              onClick={() => setActiveTab(key)}
+              onClick={() => {
+                if (isDisabled) {
+                  onShareDisabled?.();
+                  return;
+                }
+                setActiveTab(key);
+              }}
+              disabled={isDisabled}
               className={`
                 relative px-4 lg:px-5 py-3 text-[13px] font-heading font-medium transition-all duration-200
                 flex items-center gap-2 rounded-lg
@@ -32,6 +45,7 @@ const SquadTabsNavbar = ({
                   ? "text-primary bg-primary/12 dark:bg-primary/8"
                   : "text-muted-foreground hover:text-foreground hover:bg-secondary/50 dark:hover:bg-secondary/30"
                 }
+                ${isDisabled ? "opacity-50 cursor-not-allowed hover:text-muted-foreground hover:bg-transparent" : "cursor-pointer"}
               `}
             >
               <Icon className="h-4 w-4" />
@@ -41,7 +55,8 @@ const SquadTabsNavbar = ({
                 <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-primary rounded-full" />
               )}
             </button>
-          ))}
+            );
+          })}
         </div>
 
         {/* Leave */}

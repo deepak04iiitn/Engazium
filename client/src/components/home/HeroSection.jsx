@@ -165,7 +165,7 @@ const HeroSection = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.5 }}
-                className="absolute top-[6%] left-[0%] w-[65%] z-20"
+                className="absolute top-[7%] left-[0%] w-[58%] z-20"
               >
                 <motion.div
                   animate={{ y: [0, -8, 0] }}
@@ -182,26 +182,26 @@ const HeroSection = () => {
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-foreground">
-                        Engagement Rate
+                        Engagement Quality
                       </p>
                       <p className="text-[11px] text-muted-foreground">
-                        Last 30 days
+                        Based on consistent check-ins
                       </p>
                     </div>
                   </div>
                   <div className="flex items-baseline gap-2.5 mb-3">
                     <p className="text-3xl font-heading font-bold text-foreground tracking-tight">
-                      92%
+                      Strong
                     </p>
                     <span className="text-xs text-primary font-semibold bg-primary/8 dark:bg-primary/10 px-2 py-0.5 rounded-full">
-                      ↑ 24%
+                      improving
                     </span>
                   </div>
                   {/* Progress bar */}
                   <div className="w-full h-2 bg-secondary/80 dark:bg-secondary/50 rounded-full overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
-                      animate={{ width: "92%" }}
+                      animate={{ width: "78%" }}
                       transition={{ duration: 1.5, delay: 1, ease: "easeOut" }}
                       className="h-full bg-primary rounded-full"
                     />
@@ -214,7 +214,7 @@ const HeroSection = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.7 }}
-                className="absolute top-[2%] right-[0%] w-[42%] z-10"
+                className="absolute top-[3%] right-[0%] w-[36%] z-30"
               >
                 <motion.div
                   animate={{ y: [0, 6, 0] }}
@@ -229,11 +229,11 @@ const HeroSection = () => {
                   <div className="flex items-center gap-2 mb-2">
                     <Users className="h-3.5 w-3.5 text-primary" />
                     <span className="text-[11px] font-medium text-muted-foreground">
-                      Active Creators
+                      Creator Community
                     </span>
                   </div>
                   <p className="text-2xl font-heading font-bold text-foreground tracking-tight">
-                    10,240+
+                    Growing daily
                   </p>
                   {/* Mini avatar stack */}
                   <div className="flex -space-x-1.5 mt-2.5">
@@ -272,11 +272,11 @@ const HeroSection = () => {
                     <div className="flex items-center gap-2">
                       <BarChart3 className="h-3.5 w-3.5 text-primary" />
                       <span className="text-[11px] font-medium text-muted-foreground">
-                        Weekly Growth
+                        Weekly Momentum
                       </span>
                     </div>
                     <span className="text-xs text-primary font-semibold">
-                      ↑ 12%
+                      steady
                     </span>
                   </div>
                   {/* Bar chart */}
@@ -327,10 +327,10 @@ const HeroSection = () => {
                     </div>
                     <div>
                       <p className="text-base font-heading font-bold text-foreground">
-                        500+ Squads
+                        Curated Squads
                       </p>
                       <p className="text-[11px] text-muted-foreground">
-                        Active & Growing
+                        Niche-first matching
                       </p>
                     </div>
                   </div>
@@ -353,10 +353,10 @@ const HeroSection = () => {
           className="lg:hidden mt-12 grid grid-cols-2 sm:grid-cols-4 gap-3"
         >
           {[
-            { icon: Users, value: "10K+", label: "Creators" },
-            { icon: Activity, value: "500+", label: "Squads" },
-            { icon: TrendingUp, value: "92%", label: "Engagement" },
-            { icon: BarChart3, value: "100%", label: "Safe" },
+            { icon: Users, value: "Real", label: "Creators" },
+            { icon: Activity, value: "Niche", label: "Squads" },
+            { icon: TrendingUp, value: "Steady", label: "Growth" },
+            { icon: BarChart3, value: "Safe", label: "Approach" },
           ].map((stat) => (
             <div
               key={stat.label}

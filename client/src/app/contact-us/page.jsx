@@ -47,11 +47,11 @@ const contactChannels = [
   },
   {
     icon: MapPin,
-    title: "Office",
-    detail: "Bengaluru, India",
-    helper: "Meetings by appointment for partnership discussions.",
-    action: "#",
-    cta: "Get Directions",
+    title: "Founder Desk",
+    detail: "Remote (Online-first)",
+    helper: "Engazium is currently built solo. For collaborations, reach out by email to schedule a call.",
+    action: "mailto:support@engazium.com?subject=Partnership%20Call%20Request",
+    cta: "Schedule a Call",
     color: "from-violet-500/15 to-violet-500/5",
   },
 ];

@@ -16,6 +16,8 @@ const CreatePostForm = ({
   postCount,
   hasAcceptedRules,
   onRulesRequired,
+  shareBlocked,
+  shareBlockedMessage,
 }) => {
   const limitReached = postCount && postCount.remaining <= 0;
   const rulesBlocked = !hasAcceptedRules;
@@ -27,6 +29,13 @@ const CreatePostForm = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (shareBlocked) {
+      toast.error(
+        shareBlockedMessage ||
+          "Posting is temporarily disabled due to low engagement."
+      );
+      return;
+    }
     if (rulesBlocked) {
       handleRulesBlocked();
       return;
@@ -82,6 +91,7 @@ const CreatePostForm = ({
               placeholder="Paste your content link..."
               value={newPostLink}
               onChange={(e) => setNewPostLink(e.target.value)}
+              disabled={shareBlocked}
               className="bg-secondary/20 border-border/20 focus:border-primary/40 rounded-xl text-sm h-11 md:h-12 pl-10 pr-4 transition-colors"
             />
           </div>
@@ -89,12 +99,13 @@ const CreatePostForm = ({
             placeholder="Add a caption (optional)..."
             value={newPostCaption}
             onChange={(e) => setNewPostCaption(e.target.value)}
+            disabled={shareBlocked}
             className="bg-secondary/20 border-border/20 focus:border-primary/40 rounded-xl text-sm h-11 md:h-12 px-4 transition-colors"
             maxLength={280}
           />
           <Button
             type={rulesBlocked ? "button" : "submit"}
-            disabled={loading || !newPostLink.trim() || limitReached}
+            disabled={loading || !newPostLink.trim() || limitReached || shareBlocked}
             onClick={rulesBlocked ? handleRulesBlocked : undefined}
             className={`bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl h-11 w-full text-sm font-semibold transition-all duration-200 disabled:opacity-40 ${
               rulesBlocked ? "opacity-50 cursor-not-allowed hover:bg-primary" : ""
@@ -102,6 +113,8 @@ const CreatePostForm = ({
           >
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
+            ) : shareBlocked ? (
+              "Posting Disabled (<30% Engagement)"
             ) : limitReached ? (
               "Daily Limit Reached"
             ) : rulesBlocked ? (

@@ -13,45 +13,7 @@ import {
   Users,
 } from "lucide-react";
 
-// ─── Fallback Activity Data (shown when not enough real data) ────────
-
-const fallbackActivityPool = [
-  // ── Squad Joins ──
-  { type: "join", user: "Priya S.", squad: "Lifestyle Creators" },
-  { type: "join", user: "Arjun M.", squad: "Tech Reviewers" },
-  { type: "join", user: "Sneha R.", squad: "Fashion & Beauty" },
-  { type: "join", user: "Karthik N.", squad: "Fitness Motivation" },
-  { type: "join", user: "Meera J.", squad: "Content Writers" },
-  { type: "join", user: "Vikram S.", squad: "Travel Vloggers" },
-  { type: "join", user: "Divya P.", squad: "Design Enthusiasts" },
-  { type: "join", user: "Rohan G.", squad: "Photography Hub" },
-  { type: "join", user: "Neha K.", squad: "Cooking Creators" },
-  { type: "join", user: "Aditya R.", squad: "Gaming Squad" },
-
-  // ── Engagements ──
-  { type: "engage", user: "Ananya D.", targetUser: "Priya S.", action: "liked", content: "latest reel" },
-  { type: "engage", user: "Priya S.", targetUser: "Arjun M.", action: "commented on", content: "tech review" },
-  { type: "engage", user: "Karthik N.", targetUser: "Sneha R.", action: "shared", content: "styling tips" },
-  { type: "engage", user: "Meera J.", targetUser: "Vikram S.", action: "saved", content: "travel vlog" },
-  { type: "engage", user: "Rohan G.", targetUser: "Divya P.", action: "liked", content: "design showcase" },
-  { type: "engage", user: "Vikram S.", targetUser: "Ananya D.", action: "commented on", content: "recipe post" },
-  { type: "engage", user: "Arjun M.", targetUser: "Karthik N.", action: "shared", content: "workout routine" },
-  { type: "engage", user: "Divya P.", targetUser: "Meera J.", action: "liked", content: "writing tips" },
-  { type: "engage", user: "Neha K.", targetUser: "Rohan G.", action: "saved", content: "landscape shot" },
-  { type: "engage", user: "Aditya R.", targetUser: "Neha K.", action: "commented on", content: "cooking tutorial" },
-
-  // ── Growth Milestones ──
-  { type: "growth", user: "Priya S.", metric: "followers", increase: "340%", days: 21 },
-  { type: "growth", user: "Arjun M.", metric: "reach", increase: "520%", days: 30 },
-  { type: "growth", user: "Sneha R.", metric: "engagement", increase: "180%", days: 14 },
-  { type: "growth", user: "Karthik N.", metric: "followers", increase: "460%", days: 28 },
-  { type: "growth", user: "Ananya D.", metric: "reach", increase: "290%", days: 18 },
-  { type: "growth", user: "Rohan G.", metric: "engagement", increase: "210%", days: 25 },
-  { type: "growth", user: "Meera J.", metric: "followers", increase: "380%", days: 35 },
-  { type: "growth", user: "Vikram S.", metric: "reach", increase: "440%", days: 22 },
-];
-
-// Minimum real activities required before switching from fallback
+// Minimum real activities required before showing this section
 const MIN_REAL_ACTIVITIES = 10;
 
 // How often to poll the API for fresh activities (ms)
@@ -143,13 +105,19 @@ const ActivityText = ({ activity }) => {
           <span className="font-semibold text-foreground">{activity.user}</span>
           {"'s "}
           <span className="font-medium text-foreground">{activity.metric}</span>
-          {" increased by "}
+          {" increased "}
           <span className={`font-bold ${typeConfig.growth.accentText}`}>
             {activity.increase}
           </span>
-          {" after "}
-          <span className="font-medium text-foreground">{activity.days} days</span>
-          {" on Engazium"}
+          {activity.days ? (
+            <>
+              {" after "}
+              <span className="font-medium text-foreground">{activity.days} days</span>
+              {" on Engazium"}
+            </>
+          ) : (
+            " on Engazium"
+          )}
         </p>
       );
     default:
@@ -222,21 +190,15 @@ const VISIBLE_MOBILE = 4;
 const CYCLE_INTERVAL = 2800;
 
 const LiveActivitySection = () => {
-  const [activityPool, setActivityPool] = useState(fallbackActivityPool);
-  const [recentCount, setRecentCount] = useState(247);
+  const [activityPool, setActivityPool] = useState([]);
+  const [recentCount, setRecentCount] = useState(null);
+  const [visibleActivities, setVisibleActivities] = useState([]);
+  const [hasRealData, setHasRealData] = useState(false);
 
-  const [visibleActivities, setVisibleActivities] = useState(() =>
-    fallbackActivityPool.slice(0, VISIBLE_DESKTOP).map((a, i) => ({
-      ...a,
-      _id: i,
-      timeLabel: timeLabels[i % timeLabels.length],
-    }))
-  );
-
-  const poolIndexRef = useRef(VISIBLE_DESKTOP);
-  const idCounterRef = useRef(VISIBLE_DESKTOP);
+  const poolIndexRef = useRef(0);
+  const idCounterRef = useRef(0);
   const slotIndexRef = useRef(0);
-  const activityPoolRef = useRef(fallbackActivityPool);
+  const activityPoolRef = useRef([]);
 
   // ── Fetch real activities from API ──
   useEffect(() => {
@@ -245,16 +207,13 @@ const LiveActivitySection = () => {
         const res = await fetch("/api/growth/live-activity");
         const data = await res.json();
 
-        if (
-          res.ok &&
-          data.activities &&
-          data.activities.length >= MIN_REAL_ACTIVITIES
-        ) {
+        if (res.ok && data.activities && data.activities.length >= MIN_REAL_ACTIVITIES) {
           setActivityPool(data.activities);
           activityPoolRef.current = data.activities;
-          if (data.recentCount) setRecentCount(data.recentCount);
+          if (typeof data.recentCount === "number") setRecentCount(data.recentCount);
+          setHasRealData(true);
 
-          // Reset visible activities with real data
+          // Reset visible activities with real data only
           const initial = data.activities
             .slice(0, VISIBLE_DESKTOP)
             .map((a, i) => ({
@@ -267,7 +226,7 @@ const LiveActivitySection = () => {
           slotIndexRef.current = 0;
         }
       } catch {
-        // Silently fall back to hardcoded data
+        // Keep section hidden until enough real data is available.
       }
     };
 
@@ -280,9 +239,12 @@ const LiveActivitySection = () => {
 
   // ── Cycle visible activities ──
   useEffect(() => {
+    if (!hasRealData) return undefined;
+
     const interval = setInterval(() => {
       setVisibleActivities((prev) => {
         const pool = activityPoolRef.current;
+        if (!pool.length || !prev.length) return prev;
         const next = [...prev];
         const poolIndex = poolIndexRef.current % pool.length;
         const newActivity = {
@@ -312,11 +274,13 @@ const LiveActivitySection = () => {
     }, CYCLE_INTERVAL);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [hasRealData]);
 
   // Split columns for desktop
   const leftCol = visibleActivities.filter((_, i) => i % 2 === 0);
   const rightCol = visibleActivities.filter((_, i) => i % 2 === 1);
+
+  if (!hasRealData) return null;
 
   return (
     <section className="relative py-24 sm:py-32 md:py-40 overflow-hidden">
@@ -381,7 +345,9 @@ const LiveActivitySection = () => {
                 </span>
               </div>
               <span className="text-[11px] sm:text-xs text-muted-foreground hidden sm:inline">
-                {recentCount} activities in the last hour
+                {typeof recentCount === "number"
+                  ? `${recentCount} activities in the last hour`
+                  : "Live feed updates automatically"}
               </span>
             </div>
 

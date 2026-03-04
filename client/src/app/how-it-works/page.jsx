@@ -397,8 +397,8 @@ const HowItWorks = () => {
                     <span className="text-gradient-animated">revolution?</span>
                   </h2>
                   <p className="text-muted-foreground text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-                    Join hundreds of creators who are growing their audience
-                    authentically. Start your journey today.
+                    Join a creator-first community built on authentic
+                    engagement. Start your journey today.
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -429,12 +429,12 @@ const HowItWorks = () => {
                     className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 mt-10 sm:mt-14 pt-8 border-t border-border/30 dark:border-border/15"
                   >
                     {[
-                      { val: "500+", label: "Active Creators" },
-                      { val: "50+", label: "Squads Running" },
-                      { val: "3.2x", label: "Avg Reach Boost" },
+                      { val: "Real", label: "Creator Community" },
+                      { val: "Fair", label: "Engagement Tracking" },
+                      { val: "Safe", label: "Growth Approach" },
                     ].map((s) => (
                       <div key={s.label} className="text-center">
-                        <div className="text-xl sm:text-2xl font-heading font-bold text-primary">
+                        <div className="text-lg sm:text-xl font-heading font-semibold text-primary">
                           {s.val}
                         </div>
                         <div className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wider">

@@ -335,6 +335,30 @@ export const getGrowthAchievements = async (req, res, next) => {
 };
 
 // ──────────────────────────────────────────────────────────────────────────────
+// GET /api/growth/live-user-count — Public endpoint for footer live counter
+// ──────────────────────────────────────────────────────────────────────────────
+export const getLiveUserCount = async (req, res, next) => {
+  try {
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const [totalUsers, newUsersToday] = await Promise.all([
+      User.countDocuments(),
+      User.countDocuments({ createdAt: { $gte: startOfToday } }),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      totalUsers,
+      newUsersToday,
+      lastUpdated: new Date().toISOString(),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ──────────────────────────────────────────────────────────────────────────────
 // GET /api/growth/live-activity — Public endpoint for landing page live feed
 // Aggregates recent squad joins, engagements, and growth milestones
 // ──────────────────────────────────────────────────────────────────────────────

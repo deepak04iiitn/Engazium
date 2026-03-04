@@ -45,6 +45,7 @@ const mobileTabItems = [
   { key: "members", label: "Members", icon: Users },
   { key: "stats", label: "Stats", icon: BarChart3 },
 ];
+const MIN_POST_ENGAGEMENT_PERCENT = 30;
 
 const getEngagementColor = (pct) => {
   if (pct >= 70) return "text-primary";
@@ -129,6 +130,13 @@ const SquadDetailPage = () => {
   const isAdmin = currentMembership?.role === "admin";
   const isMember = !!currentMembership;
   const hasAcceptedRules = currentMembership?.rulesAccepted === true;
+  const currentEngagementPercentage = Number(
+    currentMembership?.engagementPercentage ??
+      engagementStats?.engagementPercentage ??
+      100
+  );
+  const isShareBlockedByEngagement =
+    isMember && currentEngagementPercentage < MIN_POST_ENGAGEMENT_PERCENT;
 
   const id = squad?._id;
 
@@ -311,6 +319,13 @@ const SquadDetailPage = () => {
   // Create post handler
   const handleCreatePost = async (e) => {
     e.preventDefault();
+
+    if (isShareBlockedByEngagement) {
+      toast.error(
+        `Posting is disabled while your engagement is below ${MIN_POST_ENGAGEMENT_PERCENT}%. Increase it to at least ${MIN_POST_ENGAGEMENT_PERCENT}% to share again.`
+      );
+      return;
+    }
 
     const profileCompletion = getProfileCompletion(currentUser);
     if (profileCompletion < 100) {
@@ -702,6 +717,22 @@ const SquadDetailPage = () => {
       {/* Share Post Tab */}
       {isMember && activeTab === "share" && (
         <>
+          {isShareBlockedByEngagement && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-destructive/5 border border-destructive/20 rounded-2xl p-6 mb-5 text-center"
+            >
+              <AlertTriangle className="h-8 w-8 text-destructive mx-auto mb-2" />
+              <h4 className="font-heading font-semibold text-foreground text-base mb-1">
+                Posting Disabled
+              </h4>
+              <p className="text-muted-foreground text-sm max-w-md mx-auto">
+                Your engagement is currently {Math.round(currentEngagementPercentage)}%.
+                Posting is enabled again once you are at least {MIN_POST_ENGAGEMENT_PERCENT}%.
+              </p>
+            </motion.div>
+          )}
           {!hasAcceptedRules && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -735,6 +766,8 @@ const SquadDetailPage = () => {
             postCount={postCount}
             hasAcceptedRules={hasAcceptedRules}
             onRulesRequired={() => setShowRulesDialog(true)}
+            shareBlocked={isShareBlockedByEngagement}
+            shareBlockedMessage={`Posting is disabled while your engagement is below ${MIN_POST_ENGAGEMENT_PERCENT}%. Increase it to at least ${MIN_POST_ENGAGEMENT_PERCENT}% to share again.`}
           />
         </>
       )}
@@ -881,15 +914,26 @@ const SquadDetailPage = () => {
             <div className="flex items-center justify-around h-16 px-2">
               {mobileTabItems.map(({ key, label, icon: Icon }) => {
                 const isActive = activeTab === key;
+                const isShareTabDisabled =
+                  key === "share" && isShareBlockedByEngagement;
                 return (
-                  <button className="cursor-pointer"
+                  <button
                     key={key}
-                    onClick={() => setActiveTab(key)}
+                    onClick={() => {
+                      if (isShareTabDisabled) {
+                        toast.error(
+                          `Posting is disabled while engagement is below ${MIN_POST_ENGAGEMENT_PERCENT}%`
+                        );
+                        return;
+                      }
+                      setActiveTab(key);
+                    }}
+                    disabled={isShareTabDisabled}
                     className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 rounded-xl transition-all duration-200 ${
                       isActive
                         ? "text-primary"
                         : "text-muted-foreground active:text-foreground"
-                    }`}
+                    } ${isShareTabDisabled ? "opacity-45 cursor-not-allowed" : "cursor-pointer"}`}
                   >
                     <div
                       className={`relative p-1.5 rounded-xl transition-all duration-200 ${
@@ -967,6 +1011,12 @@ const SquadDetailPage = () => {
                 isMember={isMember}
                 onLeave={handleLeaveSquad}
                 leaveLoading={leaveLoading}
+                shareDisabled={isShareBlockedByEngagement}
+                onShareDisabled={() =>
+                  toast.error(
+                    `Posting is disabled while engagement is below ${MIN_POST_ENGAGEMENT_PERCENT}%`
+                  )
+                }
               />
             </div>
           )}
