@@ -46,6 +46,7 @@ const mobileTabItems = [
   { key: "stats", label: "Stats", icon: BarChart3 },
 ];
 const MIN_POST_ENGAGEMENT_PERCENT = 30;
+const MIN_ENGAGEMENT_SECONDS = 20;
 
 const getEngagementColor = (pct) => {
   if (pct >= 70) return "text-primary";
@@ -114,6 +115,7 @@ const SquadDetailPage = () => {
   const [activeEngagementId, setActiveEngagementId] = useState(null);
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [isTabVisible, setIsTabVisible] = useState(true);
+  const [isValidatingEngagement, setIsValidatingEngagement] = useState(false);
   const engagementIntervalRef = useRef(null);
 
   // Leave squad
@@ -399,8 +401,9 @@ const SquadDetailPage = () => {
   };
 
   // Validate engagement
-  const handleValidateEngagement = async () => {
-    if (!activeEngagementId) return;
+  const handleValidateEngagement = useCallback(async () => {
+    if (!activeEngagementId || isValidatingEngagement) return;
+    setIsValidatingEngagement(true);
     try {
       const res = await fetch("/api/engagement/validate", {
         method: "POST",
@@ -424,14 +427,30 @@ const SquadDetailPage = () => {
       fetchEngagementStats();
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setIsValidatingEngagement(false);
     }
-  };
+  }, [activeEngagementId, timerSeconds, isValidatingEngagement, fetchPosts, fetchEngagementStats]);
+
+  // Auto-validate once the required time is reached.
+  useEffect(() => {
+    if (!engagingPostId || !activeEngagementId || isValidatingEngagement) return;
+    if (timerSeconds < MIN_ENGAGEMENT_SECONDS) return;
+    handleValidateEngagement();
+  }, [
+    timerSeconds,
+    engagingPostId,
+    activeEngagementId,
+    isValidatingEngagement,
+    handleValidateEngagement,
+  ]);
 
   const handleCancelEngagement = () => {
     setEngagingPostId(null);
     setActiveEngagementId(null);
     setTimerSeconds(0);
     setIsTabVisible(true);
+    setIsValidatingEngagement(false);
   };
 
   // Load more posts
@@ -780,7 +799,6 @@ const SquadDetailPage = () => {
             activeEngagementId={activeEngagementId}
             timerSeconds={timerSeconds}
             isTabVisible={isTabVisible}
-            onValidate={handleValidateEngagement}
             onCancel={handleCancelEngagement}
           />
 

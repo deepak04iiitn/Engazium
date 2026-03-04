@@ -1,17 +1,18 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Clock, CheckCircle2, X, Pause } from "lucide-react";
+import { Clock, X, Pause } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const MIN_ENGAGEMENT_SECONDS = 20;
 
 const EngagementTimer = ({
   engagingPostId,
   activeEngagementId,
   timerSeconds,
   isTabVisible,
-  onValidate,
   onCancel,
 }) => {
-  const isReady = timerSeconds >= 25;
+  const isReady = timerSeconds >= MIN_ENGAGEMENT_SECONDS;
   const isPaused = isTabVisible && !isReady;
 
   return (
@@ -53,26 +54,16 @@ const EngagementTimer = ({
               </p>
               <p className="text-[11px] md:text-xs text-muted-foreground mt-0.5">
                 {isReady
-                  ? "Ready to validate!"
+                  ? "Engagement counted automatically."
                   : isPaused && timerSeconds === 0
                   ? "Switch to the content tab to start the timer"
                   : isPaused
-                  ? `Go back to the content! ${25 - timerSeconds}s more needed`
-                  : `${25 - timerSeconds}s more needed`}
+                  ? `Go back to the content! ${MIN_ENGAGEMENT_SECONDS - timerSeconds}s more needed`
+                  : `${MIN_ENGAGEMENT_SECONDS - timerSeconds}s more needed`}
               </p>
             </div>
           </div>
           <div className="flex gap-2">
-            {isReady && (
-              <Button
-                size="sm"
-                onClick={onValidate}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg md:rounded-xl text-xs md:text-sm h-9 md:h-10 px-4 md:px-5 flex-1 md:flex-none"
-              >
-                <CheckCircle2 className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5" />
-                Validate
-              </Button>
-            )}
             <Button
               size="sm"
               variant="ghost"

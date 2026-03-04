@@ -4,7 +4,7 @@ import Post from "../models/post.model.js";
 import SquadMember from "../models/squadMember.model.js";
 
 // Minimum seconds a user must spend on the linked content
-const MIN_ENGAGEMENT_SECONDS = 25;
+const MIN_ENGAGEMENT_SECONDS = 20;
 
 // POST /api/engagement/start — record that user clicked a post link
 export const startEngagement = async (req, res, next) => {
