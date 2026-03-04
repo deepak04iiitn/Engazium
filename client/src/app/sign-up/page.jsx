@@ -101,7 +101,7 @@ const SignUp = () => {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="relative z-10 w-full max-w-md"
+        className="relative z-10 w-full max-w-xl"
       >
         {/* Back link */}
         <Link

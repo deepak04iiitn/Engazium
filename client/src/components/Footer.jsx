@@ -44,6 +44,11 @@ const formatCompactNumber = (value) =>
 
 const DIGIT_GLYPHS = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"];
 
+const toSafeNumber = (value, fallback = null) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
 const RollingDigit = ({ digit }) => (
   <span className="relative inline-flex h-[1em] w-[0.64em] overflow-hidden align-baseline">
     <span
@@ -99,9 +104,21 @@ const Footer = () => {
         });
         const data = await res.json();
 
-        if (res.ok && data?.success && isMounted) {
-          setLiveUserCount(Number(data.totalUsers) || 0);
-          setNewUsersToday(Number(data.newUsersToday) || 0);
+        if (res.ok && isMounted && data?.success !== false) {
+          // Supports both:
+          // - /api/growth/live-user-count => { totalUsers, newUsersToday }
+          // - /api/admin/users => { pagination: { totalUsers } }
+          const totalUsers =
+            toSafeNumber(data?.totalUsers) ??
+            toSafeNumber(data?.pagination?.totalUsers) ??
+            toSafeNumber(data?.data?.totalUsers);
+
+          const todayUsers =
+            toSafeNumber(data?.newUsersToday) ??
+            toSafeNumber(data?.data?.newUsersToday);
+
+          if (totalUsers !== null) setLiveUserCount(totalUsers);
+          if (todayUsers !== null) setNewUsersToday(todayUsers);
         }
       } catch {
         // Keep the existing value when API is unavailable.
