@@ -79,7 +79,7 @@ const UserSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) => 
       {/* Mobile Overlay */}
       <AnimatePresence>
         {isMobile && isOpen && (
-          <motion className="cursor-pointer".div
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
