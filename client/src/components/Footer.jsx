@@ -1,28 +1,36 @@
 "use client";
 
 import Image from "next/image";
-import { Instagram, Twitter, Youtube, ArrowUpRight } from "lucide-react";
+import { Send, MessageCircle, Linkedin, ArrowUpRight } from "lucide-react";
 import { useSelector } from "react-redux";
 import logo from "@/assets/Engazium_Logo.png";
 
+const WHATSAPP_LINK = "https://chat.whatsapp.com/H0FkMBg2Ein2wZQbiqwR2k?mode=hq1tcla";
+const TELEGRAM_LINK = "https://t.me/+rJ0KtCJd5UsyZGQ1";
+const LINKEDIN_LINK = "https://www.linkedin.com/in/deepak-kumar-yadav-a0653b248/";
+
+const socialLinks = [
+  { label: "Telegram", href: TELEGRAM_LINK, icon: Send },
+  { label: "WhatsApp", href: WHATSAPP_LINK, icon: MessageCircle },
+  { label: "LinkedIn", href: LINKEDIN_LINK, icon: Linkedin },
+];
+
 const footerLinks = {
   Product: [
+    { label: "Features", href: "/features" },
     { label: "How It Works", href: "/how-it-works" },
-    { label: "Contact Us", href: "/contact-us" },
     { label: "Pricing", href: "/pricing" },
     { label: "Squads", href: "/squads" },
   ],
   Company: [
-    { label: "About", href: "/about-us" },
-    { label: "Blog", href: "#" },
-    { label: "Careers", href: "#" },
-    { label: "Contact", href: "/contact-us" },
+    { label: "About Us", href: "/about-us" },
+    { label: "Contact Us", href: "/contact-us" },
+    { label: "Privacy Policy", href: "/privacy-policy" },
   ],
   Support: [
-    { label: "Help Center", href: "#" },
-    { label: "Community", href: "#" },
-    { label: "Guidelines", href: "#" },
-    { label: "Safety", href: "#" },
+    { label: "Sign In", href: "/sign-in" },
+    { label: "Sign Up", href: "/sign-up" },
+    { label: "Dashboard", href: "/dashboard" },
   ],
 };
 
@@ -94,10 +102,13 @@ const Footer = () => {
                 expand reach, grow together.
               </p>
               <div className="flex items-center gap-2.5">
-                {[Instagram, Twitter, Youtube].map((Icon, i) => (
+                {socialLinks.map(({ label, href, icon: Icon }) => (
                   <a
-                    key={i}
-                    href="#"
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={label}
                     className="w-10 h-10 rounded-full bg-secondary/70 dark:bg-secondary/40 flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 hover:scale-110 transition-all duration-300"
                   >
                     <Icon className="h-4 w-4" />
@@ -137,16 +148,10 @@ const Footer = () => {
           </p>
           <div className="flex items-center gap-6 sm:gap-8">
             <a
-              href="#"
+              href="/privacy-policy"
               className="text-muted-foreground/70 text-xs sm:text-sm hover:text-foreground transition-colors"
             >
               Privacy Policy
-            </a>
-            <a
-              href="#"
-              className="text-muted-foreground/70 text-xs sm:text-sm hover:text-foreground transition-colors"
-            >
-              Terms of Service
             </a>
           </div>
         </div>
