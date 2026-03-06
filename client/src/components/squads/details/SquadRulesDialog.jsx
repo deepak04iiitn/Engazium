@@ -9,6 +9,7 @@ import {
   Ban,
   Heart,
   CalendarClock,
+  Lock,
   Check,
 } from "lucide-react";
 import {
@@ -66,6 +67,15 @@ const SQUAD_RULES = [
     border: "border-violet-500/10",
     title: "Stay Consistent",
     description: "Regular activity keeps the squad thriving.",
+  },
+  {
+    icon: Lock,
+    color: "text-rose-400",
+    bg: "from-rose-500/15 to-rose-500/5",
+    border: "border-rose-500/10",
+    title: "Posting Locks Below 30%",
+    description:
+      "If your engagement drops below 30%, posting is disabled until you engage and recover to 30%+.",
   },
 ];
 
