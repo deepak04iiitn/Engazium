@@ -3,8 +3,8 @@
 import { motion } from "framer-motion";
 import { ArrowRight, MessageCircle, Send } from "lucide-react";
 
-const WHATSAPP_LINK = process.env.NEXT_PUBLIC_WHATSAPP_COMMUNITY_URL || "#";
-const TELEGRAM_LINK = process.env.NEXT_PUBLIC_TELEGRAM_COMMUNITY_URL || "#";
+const WHATSAPP_LINK = "https://chat.whatsapp.com/H0FkMBg2Ein2wZQbiqwR2k?mode=hq1tcla";
+const TELEGRAM_LINK = "https://t.me/+rJ0KtCJd5UsyZGQ1";
 
 const loopItems = [
   {

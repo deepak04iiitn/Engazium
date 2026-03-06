@@ -43,6 +43,12 @@ Engazium matches creators into **niche-based squads** where everyone contributes
 | **Organic Timing** | Engagement spread over time to avoid algorithmic penalties |
 | **Weekly Accountability** | Track follower growth, reach, and engagement metrics weekly |
 | **Real Human Engagement** | No bots, no automation — every interaction comes from real creators |
+| **Squad Rules Gate** | Members must accept squad rules before posting for the first time |
+| **Engagement Validation Timer** | Engagement is only counted after validated viewing time (20s minimum) |
+| **Plan-Based Post Limits** | Daily posting limits are enforced by plan (`Growth`: 1, `Pro`: 2, `Momentum`: 3) |
+| **Admin Moderation Suite** | Admins can manage users, squads, feedback, testimonials, and squad ownership/blocking |
+| **Public Live Signals** | Landing pages show live activity, growth achievements, and live user count |
+| **Automated Governance Jobs** | Hourly/daily cron jobs recalculate engagement, clean old posts, and seed growth baselines |
 
 ---
 
@@ -55,6 +61,38 @@ Engazium matches creators into **niche-based squads** where everyone contributes
 3. **Share & Engage** — Post your content link; squad members engage with meaningful comments, likes, and saves.
 
 4. **Watch Your Reach Grow** — Early engagement signals boost your algorithmic reach organically and safely.
+
+---
+
+## Implemented User/Admin Flows
+
+### User Flows
+
+- **Authentication**: Email/password signup/signin + Google OAuth signin, cookie-based JWT sessions
+- **Profile Management**: Update username/email/bio/niche/platform stats, change password, delete account with password confirmation
+- **Squad Discovery**: Browse squads with search, multi-select filters, status filter, and sorting
+- **Membership Lifecycle**: Join squad, leave squad, view personal memberships with pagination and engagement stats
+- **Squad Participation**:
+  - accept squad rules before first post
+  - create/delete posts (with daily plan limits)
+  - engage with posts using start + validate flow
+  - get per-squad engagement stats and pending engagement counts
+- **Growth Tracking**:
+  - weekly check-in snapshots across platforms
+  - growth history for analytics charts
+  - baseline-aware growth summary calculations
+- **Testimonials & Feedback**:
+  - submit/edit/delete personal testimonial (re-enters review on edit)
+  - submit in-app bug/feature feedback
+  - submit public contact form messages
+
+### Admin Flows
+
+- **User Management**: list/search/paginate users, view user details, delete users, toggle admin status
+- **Squad Governance**: list/filter squads, view detailed squad metrics, remove members, block/unblock users, transfer ownership, delete squads
+- **Audit Logging**: admin squad actions are tracked in `AdminAuditLog`
+- **Feedback Hub**: list/filter/search feedback and update status (`resolved` or `implemented` based on type)
+- **Testimonial Moderation**: list all testimonials and approve/reject/delete submissions
 
 ---
 
@@ -92,52 +130,33 @@ Engazium matches creators into **niche-based squads** where everyone contributes
 
 ```
 engazium/
-├── api/                              # Backend API server
+├── api/
 │   ├── src/
-│   │   ├── index.js                  # Express app entry point
-│   │   ├── config/
-│   │   │   └── db.js                 # MongoDB connection setup
-│   │   ├── controllers/
-│   │   │   └── auth.controller.js    # Auth logic (signup, signin, google, logout)
-│   │   ├── middlewares/
-│   │   │   ├── errorHandler.js       # Global error handler & error factory
-│   │   │   └── verifyUser.js         # JWT verification & admin guard
-│   │   ├── models/
-│   │   │   └── user.model.js         # User schema (niche, platforms, stats)
-│   │   └── routes/
-│   │       └── auth.route.js         # Auth route definitions
+│   │   ├── index.js                  # Express app + route mounting + scheduler init
+│   │   ├── config/db.js              # MongoDB connection
+│   │   ├── controllers/              # auth, user, squad, post, engagement, growth, feedback, admin, testimonial
+│   │   ├── jobs/scheduler.js         # cron jobs: engagement recalculation, cleanup, baseline snapshots
+│   │   ├── middlewares/              # JWT verification/admin guard + global error handling
+│   │   ├── models/                   # User, Squad, SquadMember, Post, Engagement, GrowthSnapshot, Feedback, Testimonial, AdminAuditLog
+│   │   └── routes/                   # auth, user, admin, squad, post, engagement, growth, feedback, testimonial
 │   └── package.json
 │
-├── client/                           # Frontend Next.js app
+├── client/
 │   ├── src/
 │   │   ├── app/
-│   │   │   ├── globals.css           # Global styles & CSS variables
-│   │   │   ├── layout.js             # Root layout (Geist fonts)
-│   │   │   ├── page.js               # Entry point
-│   │   │   └── home/
-│   │   │       └── page.jsx          # Home page
+│   │   │   ├── dashboard/            # user dashboard
+│   │   │   ├── admin-dashboard/      # admin dashboard
+│   │   │   ├── squads/               # squads listing + dynamic squad detail pages
+│   │   │   ├── sign-in/ & sign-up/   # auth pages
+│   │   │   ├── contact-us/           # public contact form
+│   │   │   └── ...marketing pages
 │   │   ├── assets/
-│   │   │   ├── Engazium_Logo.png     # Brand logo
-│   │   │   └── hero-bg.jpg           # Hero background image
-│   │   ├── components/
-│   │   │   ├── Navbar.jsx            # Navigation bar
-│   │   │   ├── Footer.jsx            # Footer
-│   │   │   ├── home/
-│   │   │   │   ├── HeroSection.jsx
-│   │   │   │   ├── ProblemSection.jsx
-│   │   │   │   ├── HowItWorksSection.jsx
-│   │   │   │   ├── FeaturesSection.jsx
-│   │   │   │   ├── PricingSection.jsx
-│   │   │   │   ├── TestimonialsSection.jsx
-│   │   │   │   ├── FAQSection.jsx
-│   │   │   │   └── CTASection.jsx
-│   │   │   └── ui/                   # shadcn/ui components
-│   │   │       ├── accordion.jsx
-│   │   │       ├── avatar.jsx
-│   │   │       └── button.jsx
-│   │   └── lib/
-│   │       └── utils.js              # Utility functions (cn helper)
-│   ├── components.json               # shadcn/ui configuration
+│   │   ├── components/               # dashboard, squads, home, shared, shadcn/ui
+│   │   ├── lib/                      # auth helpers, firebase config, utilities
+│   │   ├── redux/                    # global user state
+│   │   └── hooks/                    # shared hooks
+│   ├── next.config.mjs               # /api rewrite to backend via NEXT_PUBLIC_API_URL
+│   ├── components.json               # shadcn/ui config
 │   └── package.json
 │
 └── README.md
@@ -221,18 +240,50 @@ npm start
 
 ## Environment Variables
 
-Create a `.env` file in the `api/` directory with the following variables:
+### Backend (`api/.env`)
 
 | Variable | Description | Example |
 |----------|-------------|---------|
 | `PORT` | Port the API server listens on | `5000` |
 | `MONGO_URI` | MongoDB connection string | `mongodb+srv://user:pass@cluster.mongodb.net/engazium` |
 | `JWT_SECRET` | Secret key for signing JSON Web Tokens | `your-super-secret-key` |
+| `CLIENT_URL` | Primary allowed CORS origin | `http://localhost:3000` |
+| `CLIENT_URLS` | Comma-separated additional allowed CORS origins | `http://localhost:3000,https://engazium.com` |
 
 ```env
 PORT=5000
 MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/engazium
 JWT_SECRET=your-super-secret-key
+CLIENT_URL=http://localhost:3000
+CLIENT_URLS=http://localhost:3000
+```
+
+---
+
+### Frontend (`client/.env.local`)
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `NEXT_PUBLIC_API_URL` | Backend base URL used by Next.js rewrite for `/api/*` | `http://localhost:5000` |
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | Firebase web API key | `...` |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Firebase auth domain | `...` |
+| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Firebase project id | `...` |
+| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Firebase storage bucket | `...` |
+| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Firebase messaging sender id | `...` |
+| `NEXT_PUBLIC_FIREBASE_APP_ID` | Firebase app id | `...` |
+| `NEXT_PUBLIC_WHATSAPP_COMMUNITY_URL` | Community CTA link | `https://chat.whatsapp.com/...` |
+| `NEXT_PUBLIC_TELEGRAM_COMMUNITY_URL` | Community CTA link | `https://t.me/...` |
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_FIREBASE_API_KEY=...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=...
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=...
+NEXT_PUBLIC_FIREBASE_APP_ID=...
+NEXT_PUBLIC_WHATSAPP_COMMUNITY_URL=https://chat.whatsapp.com/...
+NEXT_PUBLIC_TELEGRAM_COMMUNITY_URL=https://t.me/...
 ```
 
 ---
@@ -244,6 +295,7 @@ JWT_SECRET=your-super-secret-key
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/health` | Returns server status |
+| `GET` | `/api/ping` | Returns `pong` |
 
 ### Authentication (`/api/auth`)
 
@@ -259,6 +311,109 @@ JWT_SECRET=your-super-secret-key
 - **Token**: JWT stored as an `httpOnly` cookie (`access_token`) with a 7-day expiry.
 - **Password Hashing**: Passwords are hashed with bcryptjs (10 salt rounds) before storage.
 - **Middleware**: `verifyToken` validates JWTs on protected routes; `verifyAdmin` checks admin privileges.
+
+### User (`/api/user`, protected)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/user/profile` | Get current user's profile |
+| `PUT` | `/api/user/profile` | Update profile (username/email/bio/niche/platform stats) |
+| `PUT` | `/api/user/change-password` | Change password |
+| `DELETE` | `/api/user/delete-account` | Delete account with password confirmation |
+
+### Squads (`/api/squads`)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/squads` | Public | Browse squads with pagination/search/filter/sort |
+| `POST` | `/api/squads` | Yes | Create squad |
+| `GET` | `/api/squads/:id` | Yes | Get squad details + members |
+| `GET` | `/api/squads/niche/:niche/slug/:slug` | Yes | Get squad by niche slug + squad slug |
+| `DELETE` | `/api/squads/:id` | Yes | Delete squad (owner/admin) |
+| `POST` | `/api/squads/:id/join` | Yes | Join squad (blocked/full checks) |
+| `POST` | `/api/squads/:id/leave` | Yes | Leave squad (protects last admin) |
+| `POST` | `/api/squads/:id/accept-rules` | Yes | Accept squad rules before first post |
+| `GET` | `/api/squads/my/memberships` | Yes | Get memberships + engagement/post stats |
+
+### Posts (`/api/posts`, protected)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/posts` | Create post (URL validation, rules gate, plan/day limits, engagement threshold checks) |
+| `GET` | `/api/posts/squad/:squadId` | Get squad feed with search/filter/sort/time-range + pending engagement count |
+| `GET` | `/api/posts/my-count/:squadId` | Get user's daily post count and remaining quota |
+| `DELETE` | `/api/posts/:id` | Delete post (author/squad admin/platform admin) |
+
+### Engagement (`/api/engagement`, protected)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/engagement/start` | Start engagement tracking for a post click |
+| `POST` | `/api/engagement/validate` | Validate engagement after minimum viewing threshold |
+| `GET` | `/api/engagement/stats/:squadId` | User engagement stats in squad |
+| `GET` | `/api/engagement/squad-overview/:squadId` | Squad-wide engagement view |
+
+### Growth (`/api/growth`)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `POST` | `/api/growth/snapshot` | Yes | Submit/update weekly growth snapshot |
+| `GET` | `/api/growth/check-in-status` | Yes | Check weekly check-in completion |
+| `GET` | `/api/growth/history` | Yes | Historical growth data + baseline summary |
+| `GET` | `/api/growth/achievements` | Public | Landing page achievements |
+| `GET` | `/api/growth/live-activity` | Public | Landing page live activity feed |
+| `GET` | `/api/growth/live-user-count` | Public | Total users/new users counter |
+
+### Feedback (`/api/feedback`)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `POST` | `/api/feedback/contact` | Public | Submit contact form message |
+| `POST` | `/api/feedback` | Yes | Submit bug/feature feedback |
+
+### Testimonials (`/api/testimonials`)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/api/testimonials` | Public | Get approved testimonials |
+| `POST` | `/api/testimonials` | Yes | Submit testimonial |
+| `GET` | `/api/testimonials/mine` | Yes | Get my testimonial |
+| `PUT` | `/api/testimonials/mine` | Yes | Update my testimonial (resets to pending) |
+| `DELETE` | `/api/testimonials/mine` | Yes | Delete my testimonial |
+| `GET` | `/api/testimonials/admin/all` | Admin | Get all testimonials |
+| `PATCH` | `/api/testimonials/admin/:id/status` | Admin | Approve/reject testimonial |
+| `DELETE` | `/api/testimonials/admin/:id` | Admin | Delete testimonial |
+
+### Admin (`/api/admin`, admin only)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/admin/users` | List users (search, sort, pagination) |
+| `GET` | `/api/admin/users/:id` | Get user details |
+| `DELETE` | `/api/admin/users/:id` | Delete user |
+| `PATCH` | `/api/admin/users/:id/toggle-admin` | Toggle admin access |
+| `GET` | `/api/admin/squads` | List squads with filters + stats |
+| `GET` | `/api/admin/squads/:id` | Squad deep details (members, blocked users, metrics, audit logs) |
+| `DELETE` | `/api/admin/squads/:id` | Delete squad |
+| `DELETE` | `/api/admin/squads/:id/members/:userId` | Remove member |
+| `PATCH` | `/api/admin/squads/:id/members/:userId/block` | Block/unblock member |
+| `PATCH` | `/api/admin/squads/:id/transfer-ownership` | Transfer squad ownership |
+| `GET` | `/api/admin/feedback` | List feedback items |
+| `PATCH` | `/api/admin/feedback/:id/status` | Update feedback status |
+
+---
+
+## Automated Scheduler Jobs
+
+The backend initializes cron jobs at startup (`api/src/jobs/scheduler.js`):
+
+- **Hourly**: recompute squad member engagement percentages from valid engagements in last 7 days
+- **Low Engagement Enforcement**:
+  - threshold is `< 30%`
+  - warning state is recorded (`lowEngagementSince`, `warningNotified`)
+  - members below threshold for 7+ days are removed from squad
+- **Daily (00:00 UTC)**: delete posts older than 15 days and related engagement records
+- **Daily (01:00 UTC)**: create baseline growth snapshots for users missing baselines
 
 ---
 
