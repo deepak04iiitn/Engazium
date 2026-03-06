@@ -29,9 +29,16 @@ async function recalculateEngagement() {
       }).lean();
 
       for (const member of members) {
+        const engagementWindowStart =
+          member.joinedAt && member.joinedAt > sevenDaysAgo
+            ? member.joinedAt
+            : sevenDaysAgo;
+
         // Posts by OTHER members (opportunities for this user)
         const opportunities = recentPosts.filter(
-          (p) => p.author.toString() !== member.user.toString()
+          (p) =>
+            p.author.toString() !== member.user.toString() &&
+            p.createdAt >= engagementWindowStart
         );
 
         if (opportunities.length === 0) {

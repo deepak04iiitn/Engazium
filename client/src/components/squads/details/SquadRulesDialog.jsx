@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ShieldCheck,
@@ -84,169 +84,140 @@ const item = {
 
 // ── Shared inner content used by both Dialog and Drawer ──
 const RulesContent = ({ agreed, setAgreed, onAccept, onClose, loading }) => (
-  <div className="relative glass rounded-2xl gradient-border overflow-hidden">
-    {/* Background mesh */}
-    <div className="absolute inset-0 mesh-gradient opacity-60 pointer-events-none" />
-    <div className="absolute inset-0 noise-overlay pointer-events-none rounded-2xl" />
+  <div className="relative overflow-hidden rounded-3xl border border-border/50 bg-card/95 backdrop-blur-xl shadow-2xl">
+    <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute -top-24 -right-20 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
+      <div className="absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-glow-secondary/10 blur-3xl" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.05] via-transparent to-primary/[0.02]" />
+    </div>
+    <div className="relative z-10 border-t border-primary/40" />
 
-    {/* Accent glow blobs */}
-    <div className="absolute -top-16 -right-16 w-40 h-40 bg-primary/10 rounded-full blur-[70px] pointer-events-none" />
-    <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-glow-secondary/8 rounded-full blur-[50px] pointer-events-none" />
-
-    {/* Top gradient bar */}
-    <div className="h-[2px] w-full bg-gradient-to-r from-primary/80 via-glow-secondary/60 to-primary/80" />
-
-    <div className="relative z-10">
-      {/* Header */}
-      <div className="px-5 sm:px-6 pt-5 pb-0 text-center">
+    <div className="relative z-10 px-5 sm:px-6 pb-5 pt-5 sm:pt-6">
+      <div className="mb-4 sm:mb-5 text-center">
         <motion.div
-          initial={{ scale: 0.5, opacity: 0 }}
+          initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 200, damping: 15 }}
-          className="mx-auto w-11 h-11 rounded-xl bg-gradient-to-br from-primary/25 to-primary/5 border border-primary/15 flex items-center justify-center mb-3 glow-box"
+          transition={{ type: "spring", stiffness: 180, damping: 16 }}
+          className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/25 bg-primary/10"
         >
-          <ShieldCheck className="h-5 w-5 text-primary" />
+          <ShieldCheck className="h-6 w-6 text-primary" />
         </motion.div>
-
-        <h3 className="font-heading text-lg md:text-xl font-bold tracking-tight">
-          <span className="text-gradient">Squad Rules</span>
+        <p className="mx-auto mb-2 inline-flex rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
+          Required before posting
+        </p>
+        <h3 className="font-heading text-lg sm:text-xl font-bold tracking-tight text-foreground">
+          Accept Squad Rules
         </h3>
-        <p className="text-muted-foreground text-xs mt-1 max-w-xs mx-auto">
-          Accept these guidelines before sharing your first post.
+        <p className="mx-auto mt-1.5 max-w-md text-xs sm:text-sm text-muted-foreground">
+          Keep the squad healthy and high-performing by following these shared rules.
         </p>
       </div>
 
-      {/* Rules Grid */}
       <motion.div
         variants={container}
         initial="hidden"
         animate="show"
-        className="px-4 sm:px-6 pt-4 pb-3"
+        className="grid grid-cols-1 sm:grid-cols-2 gap-2.5"
       >
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {SQUAD_RULES.map((rule, index) => {
-            const Icon = rule.icon;
-            const isLast =
-              index === SQUAD_RULES.length - 1 &&
-              SQUAD_RULES.length % 2 !== 0;
-
-            return (
-              <motion.div
-                key={index}
-                variants={item}
-                className={`group flex items-center gap-3 px-3 py-2.5 rounded-lg border ${rule.border} bg-gradient-to-br ${rule.bg} hover:scale-[1.02] transition-transform duration-200 ${
-                  isLast ? "sm:col-span-2 sm:max-w-[calc(50%-4px)] sm:mx-auto" : ""
-                }`}
-              >
-                <div className="w-7 h-7 rounded-lg bg-background/50 border border-border/20 flex items-center justify-center flex-shrink-0">
-                  <Icon className={`h-3.5 w-3.5 ${rule.color}`} />
+        {SQUAD_RULES.map((rule, index) => {
+          const Icon = rule.icon;
+          return (
+            <motion.div
+              key={index}
+              variants={item}
+              className={`group rounded-xl border ${rule.border} bg-gradient-to-br ${rule.bg} p-3.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-border/40`}
+            >
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border/30 bg-background/70">
+                  <Icon className={`h-4 w-4 ${rule.color}`} />
                 </div>
-                <div className="min-w-0">
-                  <h4 className="font-heading font-semibold text-[13px] text-foreground leading-tight">
+                <div>
+                  <p className="font-heading text-[13px] sm:text-sm font-semibold text-foreground leading-tight">
                     {rule.title}
-                  </h4>
-                  <p className="text-muted-foreground text-[11px] leading-snug mt-0.5">
+                  </p>
+                  <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground leading-snug">
                     {rule.description}
                   </p>
                 </div>
-              </motion.div>
-            );
-          })}
-        </div>
+              </div>
+            </motion.div>
+          );
+        })}
       </motion.div>
 
-      {/* Footer section */}
-      <div className="px-4 sm:px-6 pb-5 space-y-2.5">
-        {/* Warning */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="relative flex items-center gap-3 px-3.5 py-2.5 rounded-lg bg-destructive/[0.06] border border-destructive/10 overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-destructive/[0.03] to-transparent pointer-events-none" />
-          <div className="relative w-6 h-6 rounded-md bg-destructive/10 flex items-center justify-center flex-shrink-0">
-            <AlertTriangle className="h-3 w-3 text-destructive" />
-          </div>
-          <p className="relative text-[11px] text-muted-foreground leading-snug">
-            <span className="font-semibold text-destructive">Warning:</span>{" "}
-            Below 30% engagement for 7 days → automatic removal.
-          </p>
-        </motion.div>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.35 }}
+        className="mt-3.5 flex items-start gap-3 rounded-xl border border-destructive/20 bg-destructive/[0.07] px-3.5 py-3"
+      >
+        <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-destructive/15">
+          <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
+        </div>
+        <p className="text-[11px] sm:text-xs text-muted-foreground leading-snug">
+          <span className="font-semibold text-destructive">Important:</span> If engagement stays
+          below 30% for 7 days, automatic squad removal applies.
+        </p>
+      </motion.div>
 
-        {/* Agreement toggle */}
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          type="button"
-          onClick={() => setAgreed(!agreed)}
-          className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg border transition-all duration-200 cursor-pointer select-none ${
-            agreed
-              ? "border-primary/30 bg-primary/[0.06]"
-              : "border-border/20 bg-secondary/15 hover:border-border/40 hover:bg-secondary/25"
-          }`}
-        >
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.45 }}
+        type="button"
+        onClick={() => setAgreed(!agreed)}
+        className={`mt-3.5 w-full cursor-pointer select-none rounded-xl border px-3.5 py-3 text-left transition-all duration-200 ${
+          agreed
+            ? "border-primary/35 bg-primary/[0.08]"
+            : "border-border/35 bg-secondary/20 hover:border-border/60 hover:bg-secondary/30"
+        }`}
+      >
+        <div className="flex items-center gap-3">
           <div
-            className={`w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
-              agreed
-                ? "bg-primary border-primary"
-                : "border-muted-foreground/30"
+            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-all ${
+              agreed ? "border-primary bg-primary" : "border-muted-foreground/35"
             }`}
           >
-            {agreed && (
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 15 }}
-              >
-                <Check className="h-2.5 w-2.5 text-primary-foreground" strokeWidth={3} />
-              </motion.div>
-            )}
+            {agreed ? <Check className="h-3 w-3 text-primary-foreground" strokeWidth={3} /> : null}
           </div>
-          <span className="text-[12px] text-foreground/80 leading-snug text-left">
-            I agree to follow all squad rules and understand the termination policy.
+          <span className="text-[12px] sm:text-[13px] text-foreground/90 leading-snug">
+            I agree to follow these squad rules and understand the engagement policy.
           </span>
-        </motion.button>
+        </div>
+      </motion.button>
 
-        {/* Buttons */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.55 }}
-          className="flex gap-2.5 pt-0.5"
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="mt-4 flex gap-2.5"
+      >
+        <Button
+          variant="ghost"
+          className="h-10 flex-1 rounded-xl border border-border/30 bg-background/40 text-[13px] font-medium hover:bg-secondary/35"
+          onClick={() => onClose(false)}
+          disabled={loading}
         >
-          <Button
-            variant="ghost"
-            className="flex-1 rounded-xl h-10 text-[13px] font-medium border border-border/15 hover:bg-secondary/30 transition-all"
-            onClick={() => onClose(false)}
-            disabled={loading}
-          >
-            Cancel
-          </Button>
-          <Button
-            className={`flex-1 rounded-xl h-10 text-[13px] font-semibold transition-all duration-300 ${
-              agreed && !loading
-                ? "bg-primary text-primary-foreground hover:bg-primary/90 glow-box"
-                : "bg-muted text-muted-foreground cursor-not-allowed"
-            }`}
-            onClick={() => agreed && onAccept()}
-            disabled={!agreed || loading}
-          >
-            {loading ? (
-              <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
-                Accepting...
-              </>
-            ) : (
-              <>
-                <ShieldCheck className="h-3.5 w-3.5 mr-1.5" />
-                Accept & Continue
-              </>
-            )}
-          </Button>
-        </motion.div>
-      </div>
+          Cancel
+        </Button>
+        <Button
+          className="h-10 flex-1 rounded-xl bg-primary text-primary-foreground text-[13px] font-semibold hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
+          onClick={() => agreed && onAccept()}
+          disabled={!agreed || loading}
+        >
+          {loading ? (
+            <>
+              <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+              Accepting...
+            </>
+          ) : (
+            <>
+              <ShieldCheck className="mr-1.5 h-3.5 w-3.5" />
+              Accept & Continue
+            </>
+          )}
+        </Button>
+      </motion.div>
     </div>
   </div>
 );
@@ -254,6 +225,12 @@ const RulesContent = ({ agreed, setAgreed, onAccept, onClose, loading }) => (
 const SquadRulesDialog = ({ open, onOpenChange, onAccept, loading }) => {
   const [agreed, setAgreed] = useState(false);
   const isMobile = useIsMobile();
+
+  useEffect(() => {
+    if (open) {
+      setAgreed(false);
+    }
+  }, [open]);
 
   // ── Mobile: use Drawer (slides up from bottom, scrollable) ──
   if (isMobile) {

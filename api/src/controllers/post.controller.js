@@ -3,6 +3,7 @@ import { errorHandler } from "../middlewares/errorHandler.js";
 import Squad from "../models/squad.model.js";
 import SquadMember from "../models/squadMember.model.js";
 import Post from "../models/post.model.js";
+import Engagement from "../models/engagement.model.js";
 
 // Plan limits
 const PLAN_LIMITS = {
@@ -54,12 +55,45 @@ export const createPost = async (req, res, next) => {
       );
     }
 
+    // Recalculate engagement in real-time so new members are not penalized
+    // for posts that existed before they joined, and to avoid stale scheduler values.
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const engagementWindowStart =
+      membership.joinedAt && membership.joinedAt > sevenDaysAgo
+        ? membership.joinedAt
+        : sevenDaysAgo;
+
+    const [totalOpportunities, validEngagements] = await Promise.all([
+      Post.countDocuments({
+        squad: squadId,
+        author: { $ne: req.user.id },
+        createdAt: { $gte: engagementWindowStart },
+      }),
+      Engagement.countDocuments({
+        squad: squadId,
+        user: req.user.id,
+        isValid: true,
+        createdAt: { $gte: engagementWindowStart },
+      }),
+    ]);
+
+    const currentEngagementPercentage =
+      totalOpportunities > 0
+        ? Math.round((validEngagements / totalOpportunities) * 100)
+        : 100;
+
+    // Keep persisted value in sync to reduce UI/backend drift between scheduler runs.
+    if (membership.engagementPercentage !== currentEngagementPercentage) {
+      membership.engagementPercentage = currentEngagementPercentage;
+      await membership.save();
+    }
+
     // Block posting when engagement is below threshold
-    if (membership.engagementPercentage < MIN_POST_ENGAGEMENT_PERCENT) {
+    if (currentEngagementPercentage < MIN_POST_ENGAGEMENT_PERCENT) {
       return next(
         errorHandler(
           403,
-          `Posting is disabled while your engagement is below ${MIN_POST_ENGAGEMENT_PERCENT}%. Increase it to at least ${MIN_POST_ENGAGEMENT_PERCENT}% to share posts again.`
+          `Posting is disabled while your engagement is below ${MIN_POST_ENGAGEMENT_PERCENT}%. Your current engagement is ${currentEngagementPercentage}%. Increase it to at least ${MIN_POST_ENGAGEMENT_PERCENT}% to share posts again.`
         )
       );
     }

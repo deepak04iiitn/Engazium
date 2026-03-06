@@ -167,20 +167,24 @@ export const getEngagementStats = async (req, res, next) => {
       return next(errorHandler(403, "You are not a member of this squad"));
     }
 
-    // Total posts in squad by other members (last 7 days)
+    // Total posts in squad by other members since the user joined (capped to last 7 days)
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const engagementWindowStart =
+      membership.joinedAt && membership.joinedAt > sevenDaysAgo
+        ? membership.joinedAt
+        : sevenDaysAgo;
     const totalOpportunities = await Post.countDocuments({
       squad: squadId,
       author: { $ne: req.user.id },
-      createdAt: { $gte: sevenDaysAgo },
+      createdAt: { $gte: engagementWindowStart },
     });
 
-    // Valid engagements by this user in this squad (last 7 days)
+    // Valid engagements by this user in this squad in the same engagement window
     const validEngagements = await Engagement.countDocuments({
       squad: squadId,
       user: req.user.id,
       isValid: true,
-      createdAt: { $gte: sevenDaysAgo },
+      createdAt: { $gte: engagementWindowStart },
     });
 
     // Total engagements (all time)

@@ -20,7 +20,7 @@ import {
   Trophy,
   AlertTriangle,
   UserRoundCheck,
-  Sparkles,
+  ClipboardCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -136,9 +136,10 @@ const SquadDetailPage = () => {
   const isAdmin = currentMembership?.role === "admin";
   const isMember = !!currentMembership;
   const hasAcceptedRules = currentMembership?.rulesAccepted === true;
+  // Prefer live engagement stats; membership value can be stale between scheduler runs.
   const currentEngagementPercentage = Number(
-    currentMembership?.engagementPercentage ??
-      engagementStats?.engagementPercentage ??
+    engagementStats?.engagementPercentage ??
+      currentMembership?.engagementPercentage ??
       100
   );
   const isShareBlockedByEngagement =
@@ -1127,11 +1128,11 @@ const SquadDetailPage = () => {
             <div className="relative p-5 sm:p-6 md:p-7">
               <div className="flex items-start gap-3 mb-5">
                 <div className="w-10 h-10 rounded-xl bg-primary/12 border border-primary/20 flex items-center justify-center">
-                  <Sparkles className="h-5 w-5 text-primary" />
+                  <ClipboardCheck className="h-5 w-5 text-primary" />
                 </div>
                 <div>
                   <h3 className="font-heading font-bold text-foreground text-lg sm:text-xl tracking-tight">
-                    Before your first post
+                    First Post Checklist
                   </h3>
                   <p className="text-muted-foreground text-sm mt-1">
                     Complete these two quick steps to start posting smoothly.
