@@ -2,7 +2,16 @@
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import { UserPlus, Users, Share2, TrendingUp, ArrowDown } from "lucide-react";
+import {
+  UserPlus,
+  Users,
+  Share2,
+  TrendingUp,
+  ArrowDown,
+  Target,
+  Rocket,
+  LineChart,
+} from "lucide-react";
 
 const steps = [
   {
@@ -11,7 +20,7 @@ const steps = [
     title: "Sign Up & Pick Your Niche",
     description:
       "Create your account and select your content niche, format, and language preferences. Our smart matching begins immediately.",
-    visual: "🎯",
+    timelineIcon: Target,
   },
   {
     icon: Users,
@@ -19,7 +28,7 @@ const steps = [
     title: "Join a Squad",
     description:
       "Get matched into a squad of 10–20 creators in your niche with similar follower ranges. Every squad is curated for maximum relevance.",
-    visual: "👥",
+    timelineIcon: Users,
   },
   {
     icon: Share2,
@@ -27,7 +36,7 @@ const steps = [
     title: "Share & Engage",
     description:
       "Post your content link. Squad members engage with meaningful comments, likes, and saves — all time-distributed for natural behavior.",
-    visual: "🚀",
+    timelineIcon: Rocket,
   },
   {
     icon: TrendingUp,
@@ -35,7 +44,7 @@ const steps = [
     title: "Watch Your Reach Grow",
     description:
       "Early engagement signals boost your algorithmic reach organically and safely. Track your growth with detailed analytics.",
-    visual: "📈",
+    timelineIcon: LineChart,
   },
 ];
 
@@ -97,6 +106,7 @@ const HowItWorksSection = () => {
           <div className="space-y-8 lg:space-y-0">
             {steps.map((step, i) => {
               const isEven = i % 2 === 0;
+              const TimelineIcon = step.timelineIcon;
 
               return (
                 <motion.div
@@ -137,7 +147,7 @@ const HowItWorksSection = () => {
 
                   {/* Center dot — desktop only */}
                   <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-card border-2 border-primary/30 dark:border-primary/40 items-center justify-center z-10 shadow-lg dark:shadow-none">
-                    <span className="text-lg">{step.visual}</span>
+                    <TimelineIcon className="h-5 w-5 text-primary" />
                   </div>
 
                   {/* Empty space for the other side — desktop */}

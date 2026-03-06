@@ -96,7 +96,7 @@ const DemoSquadSection = () => {
       <div className="absolute top-1/3 left-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[150px]" />
       <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] bg-glow-secondary/5 rounded-full blur-[120px]" />
 
-      <div className="container relative z-10 mx-auto px-6">
+      <div className="container relative z-10 mx-auto px-4 sm:px-6">
         <motion.div {...fadeUp} className="text-center mb-12">
           <Badge variant="outline" className="mb-4 border-primary/30 text-primary px-4 py-1.5">
             <Eye className="h-3.5 w-3.5 mr-1.5" />
@@ -121,48 +121,53 @@ const DemoSquadSection = () => {
           {/* Squad Header Card */}
           <div className="glass rounded-2xl gradient-border overflow-hidden">
             {/* Top Bar */}
-            <div className="px-6 py-4 border-b border-border/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
+            <div className="px-4 sm:px-6 py-4 border-b border-border/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-start sm:items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                   <Instagram className="h-5 w-5 text-primary" />
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-heading font-bold text-foreground text-lg">Tech Creators Hub</h3>
-                    <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px]">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-heading font-bold text-foreground text-base sm:text-lg leading-tight">
+                      Tech Creators Hub
+                    </h3>
+                    <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] shrink-0">
                       <Crown className="h-2.5 w-2.5 mr-1" />
                       Growth
                     </Badge>
                   </div>
-                  <p className="text-muted-foreground text-xs">Technology · 10 Members · Instagram · 1 post/day</p>
+                  <p className="text-muted-foreground text-xs leading-relaxed">
+                    Technology · 10 Members · Instagram · 1 post/day
+                  </p>
                 </div>
               </div>
-              <div className="flex items-center gap-6">
+              <div className="w-full sm:w-auto grid grid-cols-3 gap-3 sm:flex sm:items-center sm:gap-6">
                 <div className="text-center">
-                  <div className="text-primary font-heading font-bold text-lg">82%</div>
+                  <div className="text-primary font-heading font-bold text-base sm:text-lg">82%</div>
                   <div className="text-muted-foreground text-[10px] uppercase tracking-wider">Your Engagement</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-primary font-heading font-bold text-lg flex items-center gap-1">
+                  <div className="text-primary font-heading font-bold text-base sm:text-lg flex items-center justify-center gap-1">
                     <TrendingUp className="h-3.5 w-3.5" />
                     74%
                   </div>
                   <div className="text-muted-foreground text-[10px] uppercase tracking-wider">Avg Eng</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-foreground font-heading font-bold text-lg">Week 6</div>
+                  <div className="text-foreground font-heading font-bold text-base sm:text-lg">Week 6</div>
                   <div className="text-muted-foreground text-[10px] uppercase tracking-wider">Active</div>
                 </div>
               </div>
             </div>
 
             {/* Tab Navigation */}
-            <div className="px-6 pt-3 border-b border-border/30 flex gap-1">
+            <div className="px-3 sm:px-6 pt-3 border-b border-border/30 overflow-x-auto">
+              <div className="flex gap-1 min-w-max">
               {["feed", "members", "stats"].map((tab) => (
                 <button className="cursor-pointer"
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2.5 text-sm font-heading font-medium rounded-t-lg transition-all duration-200 capitalize ${
+                  className={`px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-heading font-medium rounded-t-lg transition-all duration-200 capitalize whitespace-nowrap ${
                     activeTab === tab
                       ? "bg-primary/10 text-primary border-b-2 border-primary"
                       : "text-muted-foreground hover:text-foreground"
@@ -174,10 +179,11 @@ const DemoSquadSection = () => {
                   {tab}
                 </button>
               ))}
+              </div>
             </div>
 
             {/* Tab Content */}
-            <div className="p-6 min-h-[400px]">
+            <div className="p-4 sm:p-6 min-h-[400px]">
               {/* Feed Tab */}
               {activeTab === "feed" && (
                 <div className="space-y-4">
@@ -187,7 +193,7 @@ const DemoSquadSection = () => {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="bg-secondary/30 rounded-xl p-5 border border-border/20 hover:border-border/40 transition-colors"
+                      className="bg-secondary/30 rounded-xl p-4 sm:p-5 border border-border/20 hover:border-border/40 transition-colors"
                     >
                       <div className="flex items-start gap-3">
                         <Avatar className="h-9 w-9">
@@ -196,12 +202,12 @@ const DemoSquadSection = () => {
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1.5">
-                            <div className="flex items-center gap-2">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 mb-1.5">
+                            <div className="flex items-center gap-2 min-w-0">
                               <span className="font-heading font-semibold text-foreground text-sm">
                                 {post.author}
                               </span>
-                              <span className="text-muted-foreground text-xs">{post.handle}</span>
+                              <span className="text-muted-foreground text-xs truncate">{post.handle}</span>
                             </div>
                             <div className="flex items-center gap-2">
                               <span className="text-muted-foreground text-xs flex items-center gap-1">
@@ -216,7 +222,7 @@ const DemoSquadSection = () => {
                           <p className="text-secondary-foreground text-sm leading-relaxed mb-3">
                             {post.caption}
                           </p>
-                          <div className="flex items-center justify-between">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               <Activity className="h-3.5 w-3.5" />
                               <span>{post.engagements} engagements</span>
@@ -224,7 +230,7 @@ const DemoSquadSection = () => {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="border-primary/30 text-primary hover:bg-primary/10 rounded-lg text-xs h-8 px-3"
+                              className="border-primary/30 text-primary hover:bg-primary/10 rounded-lg text-xs h-8 px-3 w-full sm:w-auto"
                             >
                               <ExternalLink className="h-3 w-3 mr-1.5" />
                               Engage
@@ -260,7 +266,7 @@ const DemoSquadSection = () => {
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className="flex items-center justify-between bg-secondary/30 rounded-xl px-4 py-3 border border-border/20 hover:border-border/40 transition-colors"
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-secondary/30 rounded-xl px-4 py-3 border border-border/20 hover:border-border/40 transition-colors"
                     >
                       <div className="flex items-center gap-3">
                         <Avatar className="h-9 w-9">
@@ -282,7 +288,7 @@ const DemoSquadSection = () => {
                           <span className="text-muted-foreground text-xs">{member.handle}</span>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 self-start sm:self-auto">
                         {member.engagement < 30 && (
                           <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
                         )}

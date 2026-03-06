@@ -5,6 +5,7 @@ import SquadMember from "../models/squadMember.model.js";
 import Post from "../models/post.model.js";
 import Engagement from "../models/engagement.model.js";
 import AdminAuditLog from "../models/adminAuditLog.model.js";
+import { removeUserFromAllSquads } from "../services/userCleanup.service.js";
 
 const logAdminAction = async ({ adminId, action, squadId = null, targetUserId = null, details = {} }) => {
   try {
@@ -100,6 +101,7 @@ export const deleteUser = async (req, res, next) => {
       return next(errorHandler(400, "You cannot delete your own account from admin panel"));
     }
 
+    await removeUserFromAllSquads(req.params.id);
     await User.findByIdAndDelete(req.params.id);
 
     res.status(200).json({

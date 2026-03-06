@@ -4,6 +4,13 @@ import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import { globalErrorHandler } from './middlewares/errorHandler.js';
+import {
+    createRateLimiter,
+    maxConcurrentRequests,
+    preventHttpParamPollution,
+    securityConfigFromEnv,
+    securityHeaders,
+} from './middlewares/security.js';
 import { initScheduler } from './jobs/scheduler.js';
 import authRoutes from './routes/auth.route.js';
 import adminRoutes from './routes/admin.route.js';
@@ -20,6 +27,10 @@ dotenv.config();
 connectDB();
 
 const app = express();
+const securityConfig = securityConfigFromEnv();
+
+// Important behind reverse proxies/CDNs to get a real client IP in req.ip.
+app.set('trust proxy', securityConfig.trustProxyHops);
 
 const normalizeOrigin = (origin = '') => origin.trim().replace(/\/+$/, '');
 const configuredOrigins = [process.env.CLIENT_URL, process.env.CLIENT_URLS]
@@ -40,7 +51,14 @@ app.use(cors({
     },
     credentials: true,
 }));
-app.use(express.json());
+app.use(securityHeaders);
+app.use(preventHttpParamPollution);
+app.use(maxConcurrentRequests(securityConfig.maxConcurrentPerIp));
+app.use(createRateLimiter({
+    keyPrefix: 'global',
+    ...securityConfig.globalRate,
+}));
+app.use(express.json({ limit: securityConfig.jsonLimit }));
 app.use(cookieParser());
 
 
@@ -53,7 +71,10 @@ app.get('/api/ping', (req, res) => {
     res.status(200).send('pong');
 });
 
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', createRateLimiter({
+    keyPrefix: 'auth',
+    ...securityConfig.authRate,
+}), authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/squads', squadRoutes);
@@ -61,7 +82,10 @@ app.use('/api/posts', postRoutes);
 app.use('/api/engagement', engagementRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/growth', growthRoutes);
-app.use('/api/feedback', feedbackRoutes);
+app.use('/api/feedback', createRateLimiter({
+    keyPrefix: 'feedback',
+    ...securityConfig.feedbackRate,
+}), feedbackRoutes);
 
 
 app.use(globalErrorHandler);

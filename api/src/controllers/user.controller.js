@@ -1,6 +1,7 @@
 import { errorHandler } from "../middlewares/errorHandler.js";
 import User from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
+import { removeUserFromAllSquads } from "../services/userCleanup.service.js";
 
 // GET /api/user/profile — get logged-in user's profile
 export const getProfile = async (req, res, next) => {
@@ -139,6 +140,7 @@ export const deleteAccount = async (req, res, next) => {
       return next(errorHandler(400, "Incorrect password"));
     }
 
+    await removeUserFromAllSquads(req.user.id);
     await User.findByIdAndDelete(req.user.id);
 
     res.clearCookie("access_token")

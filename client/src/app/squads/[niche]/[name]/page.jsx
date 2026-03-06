@@ -18,13 +18,15 @@ import {
   Heart,
   Activity,
   Trophy,
-  Shield,
   AlertTriangle,
+  UserRoundCheck,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 // Components
@@ -124,6 +126,8 @@ const SquadDetailPage = () => {
   // Rules dialog
   const [showRulesDialog, setShowRulesDialog] = useState(false);
   const [acceptRulesLoading, setAcceptRulesLoading] = useState(false);
+  const [showFirstPostModal, setShowFirstPostModal] = useState(false);
+  const [hasSeenFirstPostModal, setHasSeenFirstPostModal] = useState(false);
 
   // Check if current user is a member
   const currentMembership = members.find(
@@ -139,8 +143,13 @@ const SquadDetailPage = () => {
   );
   const isShareBlockedByEngagement =
     isMember && currentEngagementPercentage < MIN_POST_ENGAGEMENT_PERCENT;
+  const profileCompletion = getProfileCompletion(currentUser);
 
   const id = squad?._id;
+  const firstPostModalStorageKey = useMemo(() => {
+    if (!id || !currentUser?._id) return null;
+    return `engazium:first-post-guide:${id}:${currentUser._id}`;
+  }, [id, currentUser?._id]);
 
   // Fetch squad details + members by niche and name
   const fetchSquad = useCallback(async () => {
@@ -298,6 +307,25 @@ const SquadDetailPage = () => {
     };
   }, [engagingPostId, activeEngagementId]);
 
+  // Read one-time post-guide visibility from localStorage (per user + squad).
+  useEffect(() => {
+    if (!firstPostModalStorageKey || typeof window === "undefined") return;
+    const alreadySeen = localStorage.getItem(firstPostModalStorageKey) === "1";
+    setHasSeenFirstPostModal(alreadySeen);
+  }, [firstPostModalStorageKey]);
+
+  // Show post-guide modal the first time member opens Post tab in this squad.
+  useEffect(() => {
+    if (!isMember || activeTab !== "share") return;
+    if (!firstPostModalStorageKey || hasSeenFirstPostModal) return;
+
+    setShowFirstPostModal(true);
+    setHasSeenFirstPostModal(true);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(firstPostModalStorageKey, "1");
+    }
+  }, [activeTab, isMember, firstPostModalStorageKey, hasSeenFirstPostModal]);
+
   // Accept squad rules handler
   const handleAcceptRules = async () => {
     setAcceptRulesLoading(true);
@@ -329,7 +357,6 @@ const SquadDetailPage = () => {
       return;
     }
 
-    const profileCompletion = getProfileCompletion(currentUser);
     if (profileCompletion < 100) {
       if (typeof window !== "undefined") {
         sessionStorage.setItem("dashboard_tab", "profile");
@@ -627,9 +654,9 @@ const SquadDetailPage = () => {
             ))}
           </div>
           {members.length > 5 && (
-            <button className="cursor-pointer"
+            <button
               onClick={() => setActiveTab("members")}
-              className="w-full mt-3 text-primary text-xs font-heading font-medium hover:underline"
+              className="cursor-pointer w-full mt-3 text-primary text-xs font-heading font-medium hover:underline"
             >
               View all {members.length} members →
             </button>
@@ -785,6 +812,13 @@ const SquadDetailPage = () => {
             postCount={postCount}
             hasAcceptedRules={hasAcceptedRules}
             onRulesRequired={() => setShowRulesDialog(true)}
+            profileCompletion={profileCompletion}
+            onProfileRequired={() => {
+              if (typeof window !== "undefined") {
+                sessionStorage.setItem("dashboard_tab", "profile");
+              }
+              router.push("/dashboard");
+            }}
             shareBlocked={isShareBlockedByEngagement}
             shareBlockedMessage={`Posting is disabled while your engagement is below ${MIN_POST_ENGAGEMENT_PERCENT}%. Increase it to at least ${MIN_POST_ENGAGEMENT_PERCENT}% to share again.`}
           />
@@ -819,7 +853,7 @@ const SquadDetailPage = () => {
                   engagement
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Engage with squad members' posts to boost your activity
+                  Engage with squad members&apos; posts to boost your activity
                 </p>
               </div>
               <Badge
@@ -974,10 +1008,10 @@ const SquadDetailPage = () => {
                   </button>
                 );
               })}
-              <button className="cursor-pointer"
+              <button
                 onClick={handleLeaveSquad}
                 disabled={leaveLoading}
-                className="flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 rounded-xl text-muted-foreground active:text-destructive transition-all duration-200"
+                className="cursor-pointer flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 rounded-xl text-muted-foreground active:text-destructive transition-all duration-200"
               >
                 <div className="p-1.5">
                   {leaveLoading ? (
@@ -1079,6 +1113,109 @@ const SquadDetailPage = () => {
       </div>
 
       {/* Squad Rules Dialog */}
+      <Dialog open={showFirstPostModal} onOpenChange={setShowFirstPostModal}>
+        <DialogContent className="sm:max-w-[680px] p-0 gap-0 border-border/50 bg-card/95 backdrop-blur-xl">
+          <DialogTitle className="sr-only">Before your first post</DialogTitle>
+          <DialogDescription className="sr-only">
+            Complete required setup before sharing your first post in this squad.
+          </DialogDescription>
+
+          <div className="relative overflow-hidden rounded-2xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.05] via-transparent to-primary/[0.03]" />
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+
+            <div className="relative p-5 sm:p-6 md:p-7">
+              <div className="flex items-start gap-3 mb-5">
+                <div className="w-10 h-10 rounded-xl bg-primary/12 border border-primary/20 flex items-center justify-center">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-heading font-bold text-foreground text-lg sm:text-xl tracking-tight">
+                    Before your first post
+                  </h3>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    Complete these two quick steps to start posting smoothly.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-3.5">
+                <div className="rounded-2xl border border-primary/20 bg-primary/[0.05] p-4 sm:p-4.5">
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-primary/15 border border-primary/20 flex items-center justify-center shrink-0">
+                      <ShieldCheck className="h-4.5 w-4.5 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-heading font-semibold text-foreground text-sm sm:text-base">
+                        Accept squad rules before first post
+                      </p>
+                      <p className="text-muted-foreground text-xs sm:text-sm mt-1 mb-3">
+                        Read the guidelines and accept them to unlock posting.
+                      </p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="rounded-xl border-primary/25 text-primary hover:bg-primary/10 text-xs sm:text-sm"
+                        onClick={() => {
+                          setShowFirstPostModal(false);
+                          setShowRulesDialog(true);
+                        }}
+                      >
+                        Open Rules Modal
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-border/40 bg-secondary/20 p-4 sm:p-4.5">
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-primary/12 border border-border/30 flex items-center justify-center shrink-0">
+                      <UserRoundCheck className="h-4.5 w-4.5 text-primary" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-heading font-semibold text-foreground text-sm sm:text-base">
+                        Complete your profile to 100%
+                      </p>
+                      <p className="text-muted-foreground text-xs sm:text-sm mt-1 mb-3">
+                        Current completion: <span className="font-semibold text-foreground">{profileCompletion}%</span>. A complete profile builds trust and improves squad quality.
+                      </p>
+                      <Link
+                        className="inline-flex"
+                        href="/dashboard"
+                        onClick={() => {
+                          if (typeof window !== "undefined") {
+                            sessionStorage.setItem("dashboard_tab", "profile");
+                          }
+                          setShowFirstPostModal(false);
+                        }}
+                      >
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="rounded-xl border-border/50 text-foreground hover:bg-secondary/60 text-xs sm:text-sm"
+                        >
+                          Go to Dashboard
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-5 flex justify-end">
+                <Button
+                  type="button"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl px-5"
+                  onClick={() => setShowFirstPostModal(false)}
+                >
+                  Continue to Post Tab
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <SquadRulesDialog
         open={showRulesDialog}
         onOpenChange={setShowRulesDialog}

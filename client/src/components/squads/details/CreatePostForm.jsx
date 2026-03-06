@@ -18,9 +18,12 @@ const CreatePostForm = ({
   onRulesRequired,
   shareBlocked,
   shareBlockedMessage,
+  profileCompletion = 100,
+  onProfileRequired,
 }) => {
   const limitReached = postCount && postCount.remaining <= 0;
   const rulesBlocked = !hasAcceptedRules;
+  const profileBlocked = hasAcceptedRules && profileCompletion < 100;
 
   const handleRulesBlocked = () => {
     toast.error("Please accept squad rules before sharing a post.");
@@ -38,6 +41,11 @@ const CreatePostForm = ({
     }
     if (rulesBlocked) {
       handleRulesBlocked();
+      return;
+    }
+    if (profileBlocked) {
+      toast.error("Go to Dashboard and complete your profile to 100% before posting.");
+      onProfileRequired?.();
       return;
     }
     if (limitReached) {
@@ -104,11 +112,24 @@ const CreatePostForm = ({
             maxLength={280}
           />
           <Button
-            type={rulesBlocked ? "button" : "submit"}
-            disabled={loading || !newPostLink.trim() || limitReached || shareBlocked}
-            onClick={rulesBlocked ? handleRulesBlocked : undefined}
+            type={rulesBlocked || profileBlocked ? "button" : "submit"}
+            disabled={
+              loading ||
+              limitReached ||
+              shareBlocked ||
+              (!rulesBlocked && !profileBlocked && !newPostLink.trim())
+            }
+            onClick={
+              rulesBlocked
+                ? handleRulesBlocked
+                : profileBlocked
+                ? onProfileRequired
+                : undefined
+            }
             className={`bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl h-11 w-full text-sm font-semibold transition-all duration-200 disabled:opacity-40 ${
-              rulesBlocked ? "opacity-50 cursor-not-allowed hover:bg-primary" : ""
+              rulesBlocked || profileBlocked
+                ? "opacity-80 cursor-pointer hover:bg-primary"
+                : ""
             }`}
           >
             {loading ? (
@@ -119,6 +140,8 @@ const CreatePostForm = ({
               "Daily Limit Reached"
             ) : rulesBlocked ? (
               "Accept Rules to Share"
+            ) : profileBlocked ? (
+              "Go to Dashboard & Complete Profile to 100%"
             ) : (
               <>
                 <Send className="h-4 w-4 mr-2" />

@@ -541,4 +541,3 @@ export const deleteSquad = async (req, res, next) => {
     next(error);
   }
 };
-

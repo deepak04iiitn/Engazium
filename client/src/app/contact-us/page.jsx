@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Mail,
-  Phone,
   MapPin,
   Clock3,
   Headset,
@@ -18,6 +17,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { getCalApi } from "@calcom/embed-react";
 
 const anim = (delay = 0) => ({
   initial: { opacity: 0, y: 24 },
@@ -30,27 +30,18 @@ const contactChannels = [
   {
     icon: Mail,
     title: "Email Support",
-    detail: "support@engazium.com",
+    detail: "engazium@gmail.com",
     helper: "Best for account, billing, and verification queries.",
-    action: "mailto:support@engazium.com",
+    action: "mailto:engazium@gmail.com",
     cta: "Send Email",
     color: "from-blue-500/15 to-blue-500/5",
-  },
-  {
-    icon: Phone,
-    title: "Phone Line",
-    detail: "+91 98765 43210",
-    helper: "Available for priority and urgent business requests.",
-    action: "tel:+919876543210",
-    cta: "Call Now",
-    color: "from-emerald-500/15 to-emerald-500/5",
   },
   {
     icon: MapPin,
     title: "Founder Desk",
     detail: "Remote (Online-first)",
     helper: "Engazium is currently built solo. For collaborations, reach out by email to schedule a call.",
-    action: "mailto:support@engazium.com?subject=Partnership%20Call%20Request",
+    isCal: true,
     cta: "Schedule a Call",
     color: "from-violet-500/15 to-violet-500/5",
   },
@@ -99,6 +90,13 @@ const ContactPage = () => {
     subject: "",
     message: "",
   });
+
+  useEffect(() => {
+    (async function initCal() {
+      const cal = await getCalApi({ namespace: "30min" });
+      cal("ui", { hideEventTypeDetails: false, layout: "month_view" });
+    })();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -168,7 +166,7 @@ const ContactPage = () => {
           <div className="container relative z-10 mx-auto px-5 sm:px-6">
             <motion.div
               {...anim(0)}
-              className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5"
+              className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5"
             >
               {contactChannels.map((item) => (
                 <div
@@ -191,13 +189,26 @@ const ContactPage = () => {
                     <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed mb-4 sm:mb-5">
                       {item.helper}
                     </p>
-                    <a
-                      href={item.action}
-                      className="inline-flex items-center gap-1.5 text-primary text-sm font-medium hover:gap-2 transition-all"
-                    >
-                      {item.cta}
-                      <ArrowRight className="h-4 w-4" />
-                    </a>
+                    {item.isCal ? (
+                      <button
+                        type="button"
+                        data-cal-namespace="30min"
+                        data-cal-link="deepak-yadav-04/30min"
+                        data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true","theme":"auto"}'
+                        className="inline-flex items-center gap-1.5 text-primary text-sm font-medium hover:gap-2 transition-all cursor-pointer"
+                      >
+                        {item.cta}
+                        <ArrowRight className="h-4 w-4" />
+                      </button>
+                    ) : (
+                      <a
+                        href={item.action}
+                        className="inline-flex items-center gap-1.5 text-primary text-sm font-medium hover:gap-2 transition-all"
+                      >
+                        {item.cta}
+                        <ArrowRight className="h-4 w-4" />
+                      </a>
+                    )}
                   </div>
                 </div>
               ))}
@@ -415,15 +426,17 @@ const ContactPage = () => {
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a href="mailto:support@engazium.com">
-                      <Button
-                        size="lg"
-                        className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box rounded-xl sm:rounded-2xl px-8 sm:px-10 py-6 font-heading font-semibold w-full sm:w-auto text-[15px] sm:text-base"
-                      >
-                        <Mail className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                        Email Support
-                      </Button>
-                    </a>
+                    <Button
+                      type="button"
+                      size="lg"
+                      data-cal-namespace="30min"
+                      data-cal-link="deepak-yadav-04/30min"
+                      data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true","theme":"auto"}'
+                      className="bg-primary text-primary-foreground hover:bg-primary/90 glow-box rounded-xl sm:rounded-2xl px-8 sm:px-10 py-6 font-heading font-semibold w-full sm:w-auto text-[15px] sm:text-base cursor-pointer"
+                    >
+                      <Mail className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                      Book a 30-min Call
+                    </Button>
                     <Link className="cursor-pointer" href="/how-it-works">
                       <Button
                         size="lg"

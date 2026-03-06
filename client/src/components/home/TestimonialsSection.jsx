@@ -228,15 +228,23 @@ const TestimonialsSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.55, ease: [0.215, 0.61, 0.355, 1] }}
-            className="relative overflow-hidden rounded-3xl border border-primary/15 bg-card/70 dark:bg-card/50 p-7 sm:p-10 backdrop-blur-xl text-center shadow-[0_22px_80px_-34px_hsl(var(--primary)/0.45)]"
+            className="relative overflow-hidden rounded-3xl border border-border/40 dark:border-border/20 bg-card/80 dark:bg-card/55 p-7 sm:p-10 text-center"
           >
-            <div className="pointer-events-none absolute -top-16 -left-14 h-44 w-44 rounded-full bg-primary/14 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-20 -right-12 h-52 w-52 rounded-full bg-violet-500/12 blur-3xl" />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.06] via-transparent to-primary/[0.02]" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.05] via-transparent to-primary/[0.03]" />
+            <div className="pointer-events-none absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+            <div className="pointer-events-none absolute -top-20 right-6 h-36 w-36 rounded-full bg-primary/[0.08] blur-3xl" />
 
             <div className="relative">
-              <div className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
+              <div className="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary shadow-sm">
                 <MessageSquare className="h-5 w-5" />
+              </div>
+              <div className="mb-4 flex items-center justify-center gap-2">
+                <span className="inline-flex items-center rounded-full border border-border/40 dark:border-border/20 bg-secondary/50 px-2.5 py-1 text-[10px] font-medium text-muted-foreground">
+                  Verified creators only
+                </span>
+                <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/8 px-2.5 py-1 text-[10px] font-medium text-primary">
+                  Public stories coming soon
+                </span>
               </div>
               <p className="text-foreground font-heading font-semibold text-xl sm:text-2xl tracking-tight">
                 Be the first public story
@@ -246,7 +254,7 @@ const TestimonialsSection = () => {
               </p>
 
               <Link
-                className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 text-sm font-semibold transition-all duration-300 hover:shadow-[0_0_24px_-10px_hsl(var(--primary)/0.65)]"
+                className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-3 text-sm font-semibold transition-all duration-300 shadow-sm hover:shadow-[0_0_20px_-10px_hsl(var(--primary)/0.6)]"
                 href={currentUser ? "/dashboard" : `/sign-in?redirect=${encodeURIComponent("/dashboard")}`}
                 onClick={() => {
                   if (typeof window !== "undefined") {
