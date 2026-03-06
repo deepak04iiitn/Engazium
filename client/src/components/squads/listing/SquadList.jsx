@@ -10,13 +10,6 @@ import {
   ChevronsRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import SquadCard from "./SquadCard";
 
 const fadeUp = {
@@ -34,8 +27,6 @@ const SquadList = ({
   totalPages,
   currentPage,
   setCurrentPage,
-  pageSize,
-  setPageSize,
   joiningId,
   onJoin,
   isMySquadsView,
@@ -115,24 +106,7 @@ const SquadList = ({
           className="glass rounded-2xl p-4 gradient-border mt-6"
         >
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            {/* Page Size Selector */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Show:</span>
-              <Select
-                value={pageSize.toString()}
-                onValueChange={(value) => setPageSize(Number(value))}
-              >
-                <SelectTrigger className="w-[100px] bg-secondary/30 border-border/40 rounded-lg h-9">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="5">5</SelectItem>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="15">15</SelectItem>
-                </SelectContent>
-              </Select>
-              <span className="text-sm text-muted-foreground">per page</span>
-            </div>
+            <div className="text-sm text-muted-foreground">Server-side pagination</div>
 
             {/* Page Navigation */}
             <div className="flex items-center gap-2">

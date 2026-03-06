@@ -67,7 +67,7 @@ const Squads = () => {
   const [sortBy, setSortBy] = useState("members");
   const [sortOrder, setSortOrder] = useState("desc");
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const SERVER_PAGE_SIZE = 10;
 
   const [showFilters, setShowFilters] = useState(true);
   const [squads, setSquads] = useState([]);
@@ -75,7 +75,6 @@ const Squads = () => {
   const [mySquads, setMySquads] = useState([]);
   const [mySquadsLoading, setMySquadsLoading] = useState(false);
   const [mySquadsPage, setMySquadsPage] = useState(1);
-  const [mySquadsPageSize, setMySquadsPageSize] = useState(5);
   const [mySquadsTotalPages, setMySquadsTotalPages] = useState(0);
   const [joinedSquadIds, setJoinedSquadIds] = useState([]);
   const [joiningId, setJoiningId] = useState(null);
@@ -104,7 +103,7 @@ const Squads = () => {
 
       // Pagination
       params.set("page", currentPage.toString());
-      params.set("limit", pageSize.toString());
+      params.set("limit", SERVER_PAGE_SIZE.toString());
 
       // Search
       if (searchQuery) params.set("search", searchQuery);
@@ -137,13 +136,13 @@ const Squads = () => {
     }
   }, [
     currentPage,
-    pageSize,
     searchQuery,
     selectedNiches,
     selectedPlans,
     statusFilter,
     sortBy,
     sortOrder,
+    SERVER_PAGE_SIZE,
   ]);
 
   const fetchMySquads = useCallback(async () => {
@@ -152,7 +151,7 @@ const Squads = () => {
       setMySquadsLoading(true);
       const params = new URLSearchParams();
       params.set("page", mySquadsPage.toString());
-      params.set("limit", mySquadsPageSize.toString());
+      params.set("limit", SERVER_PAGE_SIZE.toString());
 
       const res = await fetch(`/api/squads/my/memberships?${params.toString()}`, {
         credentials: "include",
@@ -173,7 +172,7 @@ const Squads = () => {
     } finally {
       setMySquadsLoading(false);
     }
-  }, [currentUser, mySquadsPage, mySquadsPageSize]);
+  }, [currentUser, mySquadsPage, SERVER_PAGE_SIZE]);
 
   useEffect(() => {
     if (activeTab === "browse") {
@@ -200,13 +199,7 @@ const Squads = () => {
     statusFilter,
     sortBy,
     sortOrder,
-    pageSize,
   ]);
-
-  // Reset My Squads page to 1 when page size changes
-  useEffect(() => {
-    setMySquadsPage(1);
-  }, [mySquadsPageSize]);
 
   // Helper functions
   const toggleNiche = (niche) => {
@@ -407,8 +400,6 @@ const Squads = () => {
                     totalPages={totalPages}
                     currentPage={currentPage}
                     setCurrentPage={setCurrentPage}
-                    pageSize={pageSize}
-                    setPageSize={setPageSize}
                     joiningId={joiningId}
                     onJoin={handleJoinSquad}
                     joinedSquadIds={joinedSquadIds}
@@ -424,8 +415,6 @@ const Squads = () => {
                       totalPages={mySquadsTotalPages}
                       currentPage={mySquadsPage}
                       setCurrentPage={setMySquadsPage}
-                      pageSize={mySquadsPageSize}
-                      setPageSize={setMySquadsPageSize}
                     />
                   ) : (
                     <motion.div

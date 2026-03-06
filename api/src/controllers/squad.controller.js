@@ -74,7 +74,7 @@ export const createSquad = async (req, res, next) => {
 export const getSquads = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 5;
+    const limit = 10;
     const skip = (page - 1) * limit;
     const search = req.query.search || "";
     
@@ -397,7 +397,7 @@ export const leaveSquad = async (req, res, next) => {
 export const getMySquads = async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 5;
+    const limit = 10;
     const skip = (page - 1) * limit;
 
     // Get total count of memberships for pagination
