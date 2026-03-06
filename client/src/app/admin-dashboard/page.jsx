@@ -80,6 +80,7 @@ const AdminDashboard = () => {
   const [usersLoading, setUsersLoading] = useState(false);
   const [usersError, setUsersError] = useState(null);
   const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalUsers: 0, hasNextPage: false, hasPrevPage: false });
+  const [userStats, setUserStats] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [squads, setSquads] = useState([]);
   const [squadsLoading, setSquadsLoading] = useState(false);
@@ -230,11 +231,22 @@ const AdminDashboard = () => {
     }
   }, []);
 
+  const fetchUserStats = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/users/stats", { credentials: "include" });
+      const data = await res.json();
+      if (res.ok) setUserStats(data.stats);
+    } catch {
+      // non-critical, fail silently
+    }
+  }, []);
+
   // Initial fetch for overview stats
   useEffect(() => {
     fetchUsers("", 1);
     fetchSquads({ search: "", page: 1, status: "all", plan: "all", niche: "all" });
-  }, [fetchUsers, fetchSquads]);
+    fetchUserStats();
+  }, [fetchUsers, fetchSquads, fetchUserStats]);
 
   // Debounced search
   useEffect(() => {
@@ -545,9 +557,11 @@ const AdminDashboard = () => {
 
       {/* Users Section */}
       {activeSection === "users" && (
-        <AdminUsers 
+        <AdminUsers
           pagination={pagination}
           fetchUsers={fetchUsers}
+          fetchUserStats={fetchUserStats}
+          userStats={userStats}
           usersLoading={usersLoading}
           usersError={usersError}
           setUsersError={setUsersError}

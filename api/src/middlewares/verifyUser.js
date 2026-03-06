@@ -20,6 +20,8 @@ export const verifyToken = (req , res , next) => {
         }
 
         req.user = user;
+        // Fire-and-forget lastSeen update
+        User.findByIdAndUpdate(user.id, { lastSeen: new Date() }).catch(() => {});
         next();
     })
 }

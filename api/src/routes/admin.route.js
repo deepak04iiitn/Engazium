@@ -2,6 +2,7 @@ import express from "express";
 import { verifyToken, verifyAdmin } from "../middlewares/verifyUser.js";
 import {
   getAllUsers,
+  getUserStats,
   getUserById,
   deleteUser,
   toggleAdminStatus,
@@ -21,6 +22,7 @@ router.use(verifyToken, verifyAdmin);
 
 // Users management
 router.get("/users", getAllUsers);
+router.get("/users/stats", getUserStats);
 router.get("/users/:id", getUserById);
 router.delete("/users/:id", deleteUser);
 router.patch("/users/:id/toggle-admin", toggleAdminStatus);

@@ -106,6 +106,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
       maxlength: 300
+    },
+
+    lastSeen: {
+      type: Date,
+      default: null,
     }
   },
   { timestamps: true }

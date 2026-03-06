@@ -22,6 +22,74 @@ const logAdminAction = async ({ adminId, action, squadId = null, targetUserId = 
   }
 };
 
+// GET /api/admin/users/stats
+export const getUserStats = async (req, res, next) => {
+  try {
+    const now = new Date();
+    const fiveMinAgo = new Date(now - 5 * 60 * 1000);
+    const oneDayAgo = new Date(now - 24 * 60 * 60 * 1000);
+    const oneWeekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+    const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+
+    const [onlineNow, activeToday, activeWeek, newThisMonth, newLastMonth, monthlyGrowthRaw] =
+      await Promise.all([
+        User.countDocuments({ lastSeen: { $gte: fiveMinAgo } }),
+        User.countDocuments({ lastSeen: { $gte: oneDayAgo } }),
+        User.countDocuments({ lastSeen: { $gte: oneWeekAgo } }),
+        User.countDocuments({ createdAt: { $gte: startOfMonth } }),
+        User.countDocuments({ createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth } }),
+        User.aggregate([
+          { $match: { createdAt: { $gte: twelveMonthsAgo } } },
+          {
+            $group: {
+              _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+              count: { $sum: 1 },
+            },
+          },
+          { $sort: { "_id.year": 1, "_id.month": 1 } },
+        ]),
+      ]);
+
+    // Build last 12 months with running total
+    const monthlyGrowth = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const year = d.getFullYear();
+      const month = d.getMonth() + 1;
+      const entry = monthlyGrowthRaw.find(g => g._id.year === year && g._id.month === month);
+      monthlyGrowth.push({
+        month: d.toLocaleDateString("en-US", { month: "short", year: "2-digit" }),
+        newUsers: entry?.count || 0,
+      });
+    }
+
+    const growthPercent =
+      newLastMonth > 0
+        ? parseFloat((((newThisMonth - newLastMonth) / newLastMonth) * 100).toFixed(1))
+        : newThisMonth > 0
+        ? 100
+        : 0;
+
+    res.status(200).json({
+      success: true,
+      stats: {
+        onlineNow,
+        activeToday,
+        activeWeek,
+        newThisMonth,
+        newLastMonth,
+        growthPercent,
+        monthlyGrowth,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // GET /api/admin/users?search=&page=1&limit=10&status=
 export const getAllUsers = async (req, res, next) => {
   try {
