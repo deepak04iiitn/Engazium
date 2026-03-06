@@ -1,0 +1,39 @@
+# Engazium
+
+> Engazium is a squad-based social media growth platform that connects content creators for genuine, algorithm-boosting engagement across Instagram, YouTube, X (Twitter), and LinkedIn.
+
+## What is Engazium?
+
+Engazium solves the problem of declining organic reach for small and mid-sized creators. Instead of paying for ads or relying on luck, creators join niche-specific squads where they support each other through real likes, comments, and shares. A percentage-based verification system ensures all engagement is authentic — no bots, no fake interactions.
+
+## Core Concepts
+
+- **Squads**: Small groups of creators within the same niche who engage with each other's content consistently.
+- **Percentage-based verification**: Tracks engagement ratios to keep the ecosystem fair and balanced. Members who engage more, receive more.
+- **Niche matching**: Creators are grouped by their content niche so engagement comes from relevant audiences.
+- **Multi-platform support**: Works across Instagram, YouTube, X (Twitter), and LinkedIn from a single dashboard.
+
+## Key Pages
+
+- [Home](https://engazium.com/): Landing page with platform overview and value proposition.
+- [Features](https://engazium.com/features): Detailed breakdown of platform features — squads, verification system, analytics.
+- [How It Works](https://engazium.com/how-it-works): Step-by-step explanation of the squad engagement process.
+- [Pricing](https://engazium.com/pricing): Subscription plans and what each tier includes.
+- [Squads](https://engazium.com/squads): Browse and join active creator squads by niche.
+- [About Us](https://engazium.com/about-us): The story, mission, and values behind Engazium.
+- [Contact Us](https://engazium.com/contact-us): Get in touch with the Engazium team.
+- [Privacy Policy](https://engazium.com/privacy-policy): How user data is collected, stored, and protected.
+- [Sign Up](https://engazium.com/sign-up): Create a free Engazium account.
+- [Sign In](https://engazium.com/sign-in): Log in to an existing account.
+
+## Who Is It For?
+
+- Content creators on Instagram, YouTube, X, or LinkedIn with small to medium audiences.
+- Creators struggling with low organic reach and engagement rates.
+- Anyone looking to grow their social media presence without paid advertising.
+
+## Company
+
+- **Founded**: 2026
+- **Mission**: Democratise social media growth so every creator — regardless of follower count — can reach their audience authentically.
+- **Approach**: Community-first, creator-built, no bots, no fake engagement.

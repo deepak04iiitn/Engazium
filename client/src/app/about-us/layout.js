@@ -1,7 +1,7 @@
 export const metadata = {
-  title: "About Us | Engazium",
+  title: "About Us - Engazium",
   description:
-    "Learn how Engazium empowers creators to grow together through squad-based engagement and a percentage-based verification system.",
+    "Learn about Engazium's mission to help creators grow through authentic engagement squads, accountability, and community-driven collaboration.",
 };
 
 export default function AboutLayout({ children }) {

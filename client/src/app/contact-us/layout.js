@@ -1,7 +1,7 @@
 export const metadata = {
-  title: "Contact Us | Engazium",
+  title: "Contact Us - Engazium",
   description:
-    "Get in touch with the Engazium team for support, partnerships, onboarding, and creator success.",
+    "Contact the Engazium team for support, partnerships, product questions, and creator onboarding help.",
 };
 
 export default function ContactUsLayout({ children }) {

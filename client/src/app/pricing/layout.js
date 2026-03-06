@@ -1,7 +1,7 @@
 export const metadata = {
-  title: "Pricing | Engazium",
+  title: "Pricing - Engazium",
   description:
-    "Engazium is completely free. No subscriptions, no hidden fees — just real engagement from real creators.",
+    "See Engazium pricing details. Join creator engagement squads with transparent, creator-friendly plans and no hidden fees.",
 };
 
 export default function PricingLayout({ children }) {

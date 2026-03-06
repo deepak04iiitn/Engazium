@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Keep auth and admin routes private
+Disallow: /dashboard
+Disallow: /admin-dashboard
+
+# Sitemap
+Sitemap: https://engazium.com/sitemap.xml
