@@ -2,6 +2,7 @@
 
 import { Geist, Geist_Mono } from "next/font/google";
 import { usePathname } from "next/navigation";
+import Script from "next/script";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -27,6 +28,7 @@ export default function RootLayout({ children }) {
 
   return (
     <html lang="en" suppressHydrationWarning>
+      <Script src="https://analytics.ahrefs.com/analytics.js" data-key="obk3kRHnebwWrY3gU5sCZA" async />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
