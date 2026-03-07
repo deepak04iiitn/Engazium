@@ -1,13 +1,23 @@
 "use client";
 
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useSelector } from "react-redux";
+import { getCalApi } from "@calcom/embed-react";
 
 const CTASection = () => {
   const { currentUser } = useSelector((state) => state.user);
+
+  useEffect(() => {
+    (async function initCal() {
+      const cal = await getCalApi({ namespace: "30min" });
+      cal("ui", { hideEventTypeDetails: false, layout: "month_view" });
+    })();
+  }, []);
+
   return (
     <section className="relative py-20 sm:py-28 md:py-32 overflow-hidden">
       {/* Background glow */}
@@ -45,15 +55,17 @@ const CTASection = () => {
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1.5 transition-transform duration-300" />
               </Button>
             </Link>
-            <Link href="/about-us" className="w-full sm:w-auto cursor-pointer">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-border/60 dark:border-border/40 text-foreground hover:bg-card/80 dark:hover:bg-card/50 backdrop-blur-sm px-8 py-6 rounded-2xl font-heading w-full sm:w-auto text-[15px]"
-              >
-                Talk to Our Team
-              </Button>
-            </Link>
+            <Button
+              type="button"
+              size="lg"
+              variant="outline"
+              data-cal-namespace="30min"
+              data-cal-link="deepak-yadav-04/30min"
+              data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true","theme":"auto"}'
+              className="border-border/60 dark:border-border/40 text-foreground hover:bg-card/80 dark:hover:bg-card/50 backdrop-blur-sm px-8 py-6 rounded-2xl font-heading w-full sm:w-auto text-[15px]"
+            >
+              Talk to Our Team
+            </Button>
           </div>
         </motion.div>
       </div>
