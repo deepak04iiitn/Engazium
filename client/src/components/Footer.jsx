@@ -17,7 +17,6 @@ const socialLinks = [
 
 const footerLinks = {
   Product: [
-    { label: "Features", href: "/features" },
     { label: "How It Works", href: "/how-it-works" },
     { label: "Pricing", href: "/pricing" },
     { label: "Squads", href: "/squads" },
@@ -115,6 +114,18 @@ const Footer = () => {
                   </a>
                 ))}
               </div>
+              <a
+                href="https://www.producthunt.com/products/engazium?utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-engazium"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-8 inline-block"
+              >
+                <img
+                  alt="Engazium - The engagement pod - done right. No bots. No chaos. | Product Hunt"
+                  src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1092155&theme=light&t=1772901940878"
+                  style={{ width: "200px", height: "auto" }}
+                />
+              </a>
             </div>
 
             {/* Link columns */}
