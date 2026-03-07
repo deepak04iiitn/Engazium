@@ -293,43 +293,23 @@ const SquadFilterBar = ({
                 {/* Niches */}
                 <div className="space-y-4">
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Niches</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {allNiches.slice(0, 10).map((niche) => (
-                       <button className="cursor-pointer"
-                        key={niche}
-                        onClick={() => toggleNiche(niche)}
-                        className={`px-3 py-2 rounded-xl border text-xs transition-all text-left truncate ${
-                          selectedNiches.includes(niche)
-                            ? "border-primary bg-primary/10 text-primary"
-                            : "border-border/30 bg-secondary/30 text-muted-foreground"
-                        }`}
-                      >
-                        {niche}
-                      </button>
-                    ))}
-                    {/* Simplified for mobile: only showing first 10 or just a scrollable list */}
-                  </div>
-                  {allNiches.length > 10 && (
-                    <Popover>
-                      <PopoverTrigger asChild>
-                         <Button variant="link" className="p-0 h-auto text-primary text-xs">View all {allNiches.length} niches</Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-64 glass border-border/30 p-0 shadow-2xl">
-                        <div className="max-h-[60vh] overflow-y-auto overscroll-contain p-2">
-                          {allNiches.map((niche) => (
-                            <button
-                              key={niche}
-                              onClick={() => toggleNiche(niche)}
-                              className="cursor-pointer flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-secondary/50 text-sm"
-                            >
-                              <span>{niche}</span>
-                              {selectedNiches.includes(niche) && <CheckCircle2 className="h-3 w-3 text-primary" />}
-                            </button>
-                          ))}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  )}
+                  <ScrollArea className="h-64">
+                    <div className="grid grid-cols-2 gap-2 pr-2">
+                      {allNiches.map((niche) => (
+                        <button
+                          key={niche}
+                          onClick={() => toggleNiche(niche)}
+                          className={`cursor-pointer px-3 py-2 rounded-xl border text-xs transition-all text-left truncate ${
+                            selectedNiches.includes(niche)
+                              ? "border-primary bg-primary/10 text-primary"
+                              : "border-border/30 bg-secondary/30 text-muted-foreground"
+                          }`}
+                        >
+                          {niche}
+                        </button>
+                      ))}
+                    </div>
+                  </ScrollArea>
                 </div>
 
                 {/* Sort (Mobile) */}
