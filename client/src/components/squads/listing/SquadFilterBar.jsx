@@ -315,18 +315,18 @@ const SquadFilterBar = ({
                          <Button variant="link" className="p-0 h-auto text-primary text-xs">View all {allNiches.length} niches</Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-64 glass border-border/30 p-0 shadow-2xl">
-                         <ScrollArea className="h-64 p-2">
-                            {allNiches.map((niche) => (
-                              <button className="cursor-pointer"
-                                key={niche}
-                                onClick={() => toggleNiche(niche)}
-                                className="flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-secondary/50 text-sm"
-                              >
-                                <span>{niche}</span>
-                                {selectedNiches.includes(niche) && <CheckCircle2 className="h-3 w-3 text-primary" />}
-                              </button>
-                            ))}
-                         </ScrollArea>
+                        <div className="max-h-[60vh] overflow-y-auto overscroll-contain p-2">
+                          {allNiches.map((niche) => (
+                            <button
+                              key={niche}
+                              onClick={() => toggleNiche(niche)}
+                              className="cursor-pointer flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-secondary/50 text-sm"
+                            >
+                              <span>{niche}</span>
+                              {selectedNiches.includes(niche) && <CheckCircle2 className="h-3 w-3 text-primary" />}
+                            </button>
+                          ))}
+                        </div>
                       </PopoverContent>
                     </Popover>
                   )}
