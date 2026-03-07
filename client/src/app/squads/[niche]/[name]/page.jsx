@@ -834,7 +834,6 @@ const SquadDetailPage = () => {
             activeEngagementId={activeEngagementId}
             timerSeconds={timerSeconds}
             isTabVisible={isTabVisible}
-            onCancel={handleCancelEngagement}
           />
 
           {/* Pending Engagement Banner */}
