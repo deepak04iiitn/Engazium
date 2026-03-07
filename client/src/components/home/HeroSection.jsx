@@ -7,7 +7,6 @@ import {
   TrendingUp,
   Users,
   Activity,
-  Rocket,
   BarChart3,
   CheckCircle2,
 } from "lucide-react";
@@ -73,21 +72,9 @@ const HeroSection = () => {
         <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 lg:gap-16 xl:gap-20 items-center">
           {/* ═══════ LEFT — Content ═══════ */}
           <div className="text-center lg:text-left">
-            {/* Badge */}
-            <motion.div {...fadeUp(0.1)} className="mb-7 sm:mb-8">
-              <span className="inline-flex items-center gap-2.5 rounded-full bg-card/80 dark:bg-card/60 backdrop-blur-sm border border-border/50 dark:border-border/30 px-5 py-2 text-xs sm:text-sm font-medium text-muted-foreground shadow-sm dark:shadow-none">
-                <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
-                </span>
-                The engagement platform for serious creators
-                <Rocket className="h-3.5 w-3.5 text-primary" />
-              </span>
-            </motion.div>
-
             {/* Headline */}
             <motion.h1
-              {...fadeUp(0.2)}
+              {...fadeUp(0.1)}
               className="text-[2.75rem] leading-[1.05] sm:text-5xl md:text-6xl lg:text-[4.25rem] xl:text-[4.75rem] font-heading font-bold tracking-tighter mb-5 sm:mb-6"
             >
               Build Engagement.
