@@ -72,7 +72,7 @@ const squadSchema = new mongoose.Schema(
       type: Number,
       required: true,
       min: 5,
-      max: 30,
+      max: 50,
       default: 10,
     },
 
