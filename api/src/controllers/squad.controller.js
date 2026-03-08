@@ -237,6 +237,53 @@ export const getSquadById = async (req, res, next) => {
   }
 };
 
+// GET /api/squads/invite/:niche/:slug — public, for invite landing page (no auth required)
+export const getSquadForInvite = async (req, res, next) => {
+  try {
+    const { niche, slug } = req.params;
+
+    let squad = await Squad.findOne({ nicheSlug: niche, slug })
+      .populate("createdBy", "username")
+      .lean();
+
+    if (!squad) {
+      squad = await Squad.findOne({
+        $or: [
+          { name: new RegExp(`^${slug.replace(/-/g, " ")}$`, "i") },
+          { slug: slug },
+        ],
+      })
+        .populate("createdBy", "username")
+        .lean();
+    }
+
+    if (!squad) {
+      return next(errorHandler(404, "Squad not found"));
+    }
+
+    res.status(200).json({
+      success: true,
+      squad: {
+        _id: squad._id,
+        name: squad.name,
+        slug: squad.slug,
+        niche: squad.niche,
+        nicheSlug: squad.nicheSlug,
+        platform: squad.platform,
+        plan: squad.plan,
+        memberCount: squad.memberCount,
+        maxMembers: squad.maxMembers,
+        description: squad.description,
+        status: squad.status,
+        createdBy: squad.createdBy,
+        createdAt: squad.createdAt,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // GET /api/squads/niche/:niche/slug/:slug — get single squad by slug
 export const getSquadBySlug = async (req, res, next) => {
   try {

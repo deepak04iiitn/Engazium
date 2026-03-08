@@ -21,7 +21,9 @@ import {
   AlertTriangle,
   UserRoundCheck,
   ClipboardCheck,
+  Link2,
 } from "lucide-react";
+import { slugify } from "@/lib/slugify";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -527,6 +529,18 @@ const SquadDetailPage = () => {
     }
   };
 
+  // Copy invite link
+  const handleCopyInviteLink = () => {
+    if (!squad) return;
+    const platformSlug = slugify(squad.platform || "general");
+    const inviteUrl = `${window.location.origin}/invite/${squad.nicheSlug}/${platformSlug}/${squad.slug}`;
+    navigator.clipboard.writeText(inviteUrl).then(() => {
+      toast.success("Invite link copied to clipboard!");
+    }).catch(() => {
+      toast.error("Failed to copy link");
+    });
+  };
+
   // Delete post
   const handleDeletePost = async (postId) => {
     try {
@@ -1009,6 +1023,17 @@ const SquadDetailPage = () => {
                 );
               })}
               <button
+                onClick={handleCopyInviteLink}
+                className="cursor-pointer flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 rounded-xl text-muted-foreground active:text-primary transition-all duration-200"
+              >
+                <div className="p-1.5">
+                  <Link2 className="h-5 w-5" />
+                </div>
+                <span className="text-[10px] font-heading font-medium">
+                  Invite
+                </span>
+              </button>
+              <button
                 onClick={handleLeaveSquad}
                 disabled={leaveLoading}
                 className="cursor-pointer flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 rounded-xl text-muted-foreground active:text-destructive transition-all duration-200"
@@ -1069,6 +1094,7 @@ const SquadDetailPage = () => {
                     `Posting is disabled while engagement is below ${MIN_POST_ENGAGEMENT_PERCENT}%`
                   )
                 }
+                onInvite={handleCopyInviteLink}
               />
             </div>
           )}

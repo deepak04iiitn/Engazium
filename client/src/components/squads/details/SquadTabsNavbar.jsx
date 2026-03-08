@@ -1,5 +1,5 @@
 import React from "react";
-import { MessageCircle, Users, BarChart3, Loader2, LogOut, PenSquare } from "lucide-react";
+import { MessageCircle, Users, BarChart3, Loader2, LogOut, PenSquare, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const tabs = [
@@ -17,6 +17,7 @@ const SquadTabsNavbar = ({
   leaveLoading,
   shareDisabled = false,
   onShareDisabled,
+  onInvite,
 }) => {
   return (
     <div className="w-full">
@@ -59,25 +60,36 @@ const SquadTabsNavbar = ({
           })}
         </div>
 
-        {/* Leave */}
+        {/* Right actions */}
         {isMember && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onLeave}
-            disabled={leaveLoading}
-            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 text-xs rounded-lg px-3 py-2 h-auto"
-          >
-            {leaveLoading ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <>
-                <LogOut className="h-3.5 w-3.5 mr-1.5" />
-                <span className="hidden lg:inline">Leave Squad</span>
-                <span className="lg:hidden">Leave</span>
-              </>
-            )}
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onInvite}
+              className="text-muted-foreground hover:text-primary hover:bg-primary/10 text-xs rounded-lg px-3 py-2 h-auto"
+            >
+              <Link2 className="h-3.5 w-3.5 mr-1.5" />
+              <span className="hidden lg:inline">Invite</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onLeave}
+              disabled={leaveLoading}
+              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 text-xs rounded-lg px-3 py-2 h-auto"
+            >
+              {leaveLoading ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <>
+                  <LogOut className="h-3.5 w-3.5 mr-1.5" />
+                  <span className="hidden lg:inline">Leave Squad</span>
+                  <span className="lg:hidden">Leave</span>
+                </>
+              )}
+            </Button>
+          </div>
         )}
       </div>
     </div>

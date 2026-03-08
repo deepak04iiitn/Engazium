@@ -10,12 +10,14 @@ import {
   deleteSquad,
   getSquadBySlug,
   acceptSquadRules,
+  getSquadForInvite,
 } from "../controllers/squad.controller.js";
 
 const router = express.Router();
 
-// Public route — browse squads (no auth needed)
+// Public routes — no auth needed
 router.get("/", getSquads);
+router.get("/invite/:niche/:slug", getSquadForInvite);
 
 // All routes below require authentication
 router.use(verifyToken);

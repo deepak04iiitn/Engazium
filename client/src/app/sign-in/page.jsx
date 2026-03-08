@@ -30,9 +30,9 @@ const SignIn = () => {
   // Redirect if already signed in
   useEffect(() => {
     if (currentUser) {
-      router.replace(isAdminUser(currentUser) ? "/admin-dashboard" : "/dashboard");
+      router.replace(getPostAuthRedirect(redirectTo, currentUser));
     }
-  }, [currentUser, router]);
+  }, [currentUser, router, redirectTo]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
