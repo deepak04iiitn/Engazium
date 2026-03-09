@@ -248,6 +248,35 @@ const AdminDashboard = () => {
     fetchUserStats();
   }, [fetchUsers, fetchSquads, fetchUserStats]);
 
+  // Fetch pending feedback count for sidebar notification on initial load.
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchPendingFeedbackCount = async () => {
+      try {
+        const params = new URLSearchParams({
+          search: "",
+          status: "pending",
+          type: "all",
+          page: "1",
+          limit: "1",
+        });
+        const res = await fetch(`/api/admin/feedback?${params}`, { credentials: "include" });
+        const data = await res.json();
+        if (!res.ok || !isMounted) return;
+        setFeedbackStats(data.stats || { pendingCount: 0, bugCount: 0, featureCount: 0, contactCount: 0 });
+      } catch {
+        // non-critical, fail silently
+      }
+    };
+
+    fetchPendingFeedbackCount();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -684,6 +713,7 @@ const AdminDashboard = () => {
         setActiveSection={setActiveSection} 
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
+        feedbackPendingCount={feedbackStats.pendingCount || 0}
       />
 
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative transition-all duration-300">

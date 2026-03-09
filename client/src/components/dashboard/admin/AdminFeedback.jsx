@@ -4,6 +4,7 @@ import {
   AlertTriangle,
   Bug,
   CheckCircle2,
+  Eye,
   Filter,
   Inbox,
   Lightbulb,
@@ -15,8 +16,10 @@ import {
   Search,
   Timer,
 } from "lucide-react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -91,6 +94,7 @@ export default function AdminFeedback({
   onUpdateStatus,
   actionLoadingId,
 }) {
+  const [selectedFeedback, setSelectedFeedback] = useState(null);
   const totalItems = pagination?.totalItems || 0;
   const perPage = pagination?.limit || 10;
   const currentPage = pagination?.currentPage || 1;
@@ -279,6 +283,15 @@ export default function AdminFeedback({
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setSelectedFeedback(item)}
+                          className="h-8"
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          View
+                        </Button>
                         {item.type === "bug" && item.status !== "resolved" && (
                           <Button
                             size="sm"
@@ -358,6 +371,29 @@ export default function AdminFeedback({
           </div>
         </div>
       )}
+
+      <Dialog open={Boolean(selectedFeedback)} onOpenChange={(open) => !open && setSelectedFeedback(null)}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="font-heading text-foreground">
+              {selectedFeedback?.title || "Feedback details"}
+            </DialogTitle>
+            <DialogDescription>
+              {selectedFeedback?.type ? `${selectedFeedback.type} report` : "User feedback details"}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="rounded-xl border border-border/60 bg-card/35 p-4">
+              <p className="text-sm text-foreground whitespace-pre-wrap break-words">
+                {selectedFeedback?.description || "No message provided."}
+              </p>
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Reported by: {selectedFeedback?.reportedBy?.email || selectedFeedback?.contactEmail || "Unknown user"}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

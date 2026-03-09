@@ -28,7 +28,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/Engazium_Logo.png";
 
-const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) => {
+const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen, feedbackPendingCount = 0 }) => {
   const [isMobile, setIsMobile] = useState(false);
   const { currentUser } = useSelector((state) => state.user);
   const dispatch = useDispatch();
@@ -181,6 +181,17 @@ const AdminSidebar = ({ activeSection, setActiveSection, isOpen, setIsOpen }) =>
                         </motion.span>
                       )}
                     </AnimatePresence>
+
+                    {item.key === "feedback" && feedbackPendingCount > 0 && (
+                      <span
+                        className={cn(
+                          "inline-flex min-w-5 h-5 px-1.5 items-center justify-center rounded-full bg-rose-500 text-white text-[11px] font-semibold leading-none",
+                          isOpen ? "ml-auto" : "absolute top-1.5 right-1.5"
+                        )}
+                      >
+                        {feedbackPendingCount}
+                      </span>
+                    )}
                     
                     {/* Tooltip for collapsed state */}
                     {!isOpen && (
